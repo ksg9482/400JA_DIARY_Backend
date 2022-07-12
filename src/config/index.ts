@@ -9,5 +9,18 @@ if(envFound.error) {
 };
 
 export default {
-    port: Number(process.env.PORT)
+    //express port
+    port: Number(process.env.PORT),
+
+    //database
+    databaseURL: process.env.MONGODB_URI,
+
+    //jwt
+    jwtSecret: process.env.JWT_SECRET,
+
+    //winston logger
+    logs: {
+        level: process.env.LOG_LEVEL || 'silly'
+    },
+
 }
