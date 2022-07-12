@@ -1,11 +1,19 @@
 import express from 'express';
 import config from './config';
-const startServer = () => {
+import Logger from './loaders/logger';
+
+const startServer = async () => {
     const app = express();
 
+    await require('./loaders').default({expressApp: app})
+
     app.listen(config.port, () => {
-        console.log(`port: ${config.port}`)
+        Logger.info(`Server listening on port: ${config.port}`);
     })
+    .on('error', err => {
+        Logger.error(err);
+        process.exit(1);
+    });
 };
 
 startServer();
