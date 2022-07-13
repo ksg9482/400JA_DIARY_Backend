@@ -1,7 +1,12 @@
 import express from 'express';
 import cors from 'cors'
+import config from '@/config';
+import routes from '@/api'
 
 export default ({app}:{app: express.Application}) => {
+    //헬스체크 엔드포인트 넣기
+
+
     //연결 확인용
     app.get('/status', (req, res) => {
         res.status(200).end();
@@ -12,6 +17,9 @@ export default ({app}:{app: express.Application}) => {
 
     app.use(cors());
     app.use(express.json());
+
+     // Load API routes
+    app.use(config.api.prefix, routes());
 
     //404 에러 핸들러. 
     app.use((req, res, next) => {

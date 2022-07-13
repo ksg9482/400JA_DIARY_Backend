@@ -24,7 +24,10 @@
   },
   "homepage": "https://github.com/ksg9482/400JA_DIARY_Backend#readme",
   "dependencies": {
+    "agenda": "^4.3.0",
+    "agendash": "^3.1.0",
     "body-parser": "^1.20.0",
+    "celebrate": "^15.0.1",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",

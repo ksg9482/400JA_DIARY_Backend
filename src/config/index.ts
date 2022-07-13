@@ -23,4 +23,16 @@ export default {
         level: process.env.LOG_LEVEL || 'silly'
     },
 
+    //API config
+    api: {
+        prefix: '/api'
+    },
+
+    //email 메일건?
+    emails: {
+        apiKey:'',
+        apiUserName:'',
+        domain:''
+    }
+
 }
