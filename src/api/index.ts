@@ -1,9 +1,10 @@
 import { Router } from "express"
+import auth from "./routes/auth";
 import user from "./routes/user";
 
 export default () => {
     const app = Router();
-    //auth
+    auth(app);
     user(app);
 
     return app;

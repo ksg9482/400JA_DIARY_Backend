@@ -31,9 +31,9 @@ export default class AuthService {
             // 이벤트 디스페처
             // this.eventDispatcher.dispatch(events.user.signUp, { user: userRecord });
 
-            const user = userRecord // userRecord.toObject();
+            const user = {_id:'mockId', email:'mockEmail', password:'mockPassword', salt:'mockSalt'}//userRecord.toObject();
 
-            return ; //{ user, token };
+            return { user, token };
         } catch (error) {
             this.logger.error(error);
             throw error;

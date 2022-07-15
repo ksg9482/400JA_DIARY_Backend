@@ -23,6 +23,7 @@ export default ({app}:{app: express.Application}) => {
 
     //404 에러 핸들러. 
     app.use((req, res, next) => {
+        console.log('에러로 들어옴')
         const err = new Error('Not Found');
         err['status'] = 404;
         next(err);
