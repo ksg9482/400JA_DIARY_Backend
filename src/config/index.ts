@@ -13,8 +13,9 @@ export default {
     port: Number(process.env.PORT),
 
     //database
-    databaseURL: process.env.MONGODB_URI,
-
+    databaseURL: process.env.MONGODB_URI, //host로 이름바꾸는게 좋을지도?
+    databaseUsername:process.env.MONGODB_USERNAME,
+    databasePassword:process.env.MONGODB_PASSWORD,
     //jwt
     jwtSecret: process.env.JWT_SECRET,
 
