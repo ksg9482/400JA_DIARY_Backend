@@ -1,5 +1,5 @@
 /node_modules
-
+/Docker/data
 .DS_Store
 .env*
 

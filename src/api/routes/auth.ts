@@ -1,12 +1,11 @@
 import { IUser, IUserInputDTO } from "@/interfaces/IUser";
-import AuthService from "@/services/auth";
+import AuthService from "@/services/auth/auth.service";
 import { celebrate, Joi } from "celebrate";
 import { NextFunction, Request, Response, Router } from "express";
 import { Logger } from "winston";
 import User from '@/models/user'
 import logger from "@/loaders/logger";
 import { HydratedDocument } from "mongoose";
-
 
 const route = Router();
 
@@ -22,13 +21,9 @@ export default (app:Router) => {
             })
         }),
         async (req:Request, res:Response, next:NextFunction) => {
-            //typedi를 통해 의존성 주입
-            //const logger:Logger = Container.get('logger'); //Container는 typedi
             logger.debug('Calling Sign-Up endpoint with body: %o', req.body );
             try {
-                //const userModel:HydratedDocument<IUser>= new User;
-                //const authServiceInstance = Conrainer.get(AuthService);
-                const authServiceInstance = new AuthService(User, logger) //이거 팩토리로 못만드나?
+                const authServiceInstance = createUser()
                 const {user, token} = await authServiceInstance.Signup(req.body as IUserInputDTO);
                 return res.status(200).json({user, token})
             } catch (err) {
@@ -49,9 +44,8 @@ export default (app:Router) => {
         async (req:Request, res:Response, next:NextFunction) => {
             logger.debug('Calling Login endpoint with body: %o', req.body );
             try {
-                const { email, password } = req.body;
-                const authServiceInstance = new AuthService(User, logger) //이거 팩토리로 못만드나?
-                const {user, token} = await authServiceInstance.login(email, password);
+                const authServiceInstance = createUser() 
+                const {user, token} = await authServiceInstance.login(req.body as IUserInputDTO);
                 return res.status(200).json({user, token})
             } catch (err) {
                 logger.error('error: %o',err);
@@ -62,4 +56,9 @@ export default (app:Router) => {
 
     //logout
     //signout? userdelete?
+}
+
+function createUser():AuthService {
+    //유저 인스턴스를 생성하는 팩토리 패턴
+    return new AuthService(User, logger)
 }
