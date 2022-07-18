@@ -2,10 +2,8 @@ import { IUser, IUserInputDTO } from "@/interfaces/IUser";
 import AuthService from "@/services/auth/auth.service";
 import { celebrate, Joi } from "celebrate";
 import { NextFunction, Request, Response, Router } from "express";
-import { Logger } from "winston";
 import User from '@/models/user'
 import logger from "@/loaders/logger";
-import { HydratedDocument } from "mongoose";
 
 const route = Router();
 

@@ -1,7 +1,7 @@
 import { IUser, IUserInputDTO } from '@/interfaces/IUser';
 import { Logger } from 'winston';
 import jwt from 'jsonwebtoken';
-import config from '@/config';
+import config from '../../config'; //@로 표기했었음. jest오류
 import HashUtil from '../utils/hashUtils';
 import { HydratedDocument } from 'mongoose';
 
@@ -19,7 +19,7 @@ export default class AuthService {
         try {
             //DTO 체크
             if(!userInputDTO.email || !userInputDTO.password){
-                throw new Error('No user data');
+                throw new Error("No user parametor");
             }
             //중복 체크
             const userCheck = await this.userModel.findOne({ email: userInputDTO.email });
