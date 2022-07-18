@@ -24,8 +24,9 @@ export default class AuthService {
             //중복 체크
             const userCheck = await this.userModel.findOne({ email: userInputDTO.email });
             if(userCheck) {
-                throw new Error('Email already');
+                throw new Error('Already Email');
             }
+
             this.logger.silly('Hashing password');
             const hashedPassword = await HashUtil.hashPassword(userInputDTO.password);
 
@@ -34,14 +35,15 @@ export default class AuthService {
                 ...userInputDTO,
                 password: hashedPassword
             })
-            await userRecord.save()
+            const userSave = await userRecord.save()
+            
+            if (userSave.errors) {
+                throw new Error('User cannot be created');
+            };
 
             this.logger.silly('Generating JWT');
             const token = this.generateToken(userRecord);
 
-            if (!userRecord) {
-                throw new Error('User cannot be created');
-            };
 
             this.logger.silly('Sending welcome email');
             // 여기에 메일러로 월컴 이메일 보내는 로직
@@ -54,6 +56,7 @@ export default class AuthService {
             return { user, token };
         } catch (error) {
             this.logger.error(error);
+            //이미 만들어진 Error 객체를 보내는 역할. 여기도 new Error 하면 뎁스만 더 깊어짐.
             throw error;
         }
     };
