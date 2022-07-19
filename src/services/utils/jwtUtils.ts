@@ -1,5 +1,26 @@
-// import jwt from 'jsonwebtoken';
+import { IUser } from "../../interfaces/IUser";
+import jwt from 'jsonwebtoken';
+import config from "../../config";
 
+export default class JwtUtil {
+    
+    static generateToken(user:IUser):string {
+        const today = new Date();
+        const exp = new Date(today);
+        exp.setDate(today.getDate() + 60);
+    
+        return jwt.sign(
+            {
+                _id: user._id,
+                email: user.email,
+                role: user.role,
+                exp: exp.getTime() / 1000,
+            },
+            config.jwtSecret
+        );
+    };
+
+};
 // export default class HashUtil {
 //     static generateToken(user) {
 //         const today = new Date();
