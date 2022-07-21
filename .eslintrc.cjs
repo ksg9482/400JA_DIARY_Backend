@@ -17,9 +17,9 @@ module.exports = {
     //     "@typescript-eslint"
     // ],
     "rules": {
-        '@typescript-eslint/explicit-member-accessibility': 0, //클래스 속성 및 메서드에 대한 명시적 접근성 수정자를 필요하게 한다
-        '@typescript-eslint/explicit-function-return-type': 0, //함수 및 클래스 메서드에 대한 명식적 타입 반환을 필요하게 한다
-        '@typescript-eslint/no-parameter-properties': 0, //클래스 생성자에서 매개변수 속성을 사용할 수 없게 한다
-        '@typescript-eslint/interface-name-prefix': 0 //인터페이스 이름에 접두사가 필요하게 한다.
+        '@typescript-eslint/explicit-member-accessibility': 0, //클래스 속성 및 메서드에 대한 명시적 접근성 수정자를 필요게 한다
+        '@typescript-eslint/explicit-function-return-type': 0, //함수 및 클래스 메서드에 대한 명식적 타입 반환을 필요하지 않게 한다
+        '@typescript-eslint/no-parameter-properties': 0, //클래스 생성자에서 매개변수 속성을 사용할 수 있게 한다
+        '@typescript-eslint/interface-name-prefix': 0 //인터페이스 이름에 접두사가 필요하지 않게 한다.
     }
 }

@@ -22,7 +22,7 @@ export default (app:Router) => {
             logger.debug('Calling Sign-Up endpoint with body: %o', req.body );
             try {
                 const authServiceInstance = createUser()
-                const {user, token} = await authServiceInstance.Signup(req.body as IUserInputDTO);
+                const {user, token} = await authServiceInstance.signup(req.body as IUserInputDTO);
                 return res.status(200).json({user, token})
             } catch (err) {
                 logger.error('error: %o',err);
@@ -41,11 +41,14 @@ export default (app:Router) => {
         }),
         async (req:Request, res:Response, next:NextFunction) => {
             logger.debug('Calling Login endpoint with body: %o', req.body );
+            
             try {
                 const authServiceInstance = createUser() 
                 const {user, token} = await authServiceInstance.login(req.body as IUserInputDTO);
+                
                 return res.status(200).json({user, token})
             } catch (err) {
+                console.log(err)
                 logger.error('error: %o',err);
                 return next(err)
             }

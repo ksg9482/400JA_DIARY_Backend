@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors'
 import config from '@/config';
 import routes from '@/api'
+import helmet from 'helmet';
 
 export default ({app}:{app: express.Application}) => {
     //헬스체크 엔드포인트 넣기
@@ -15,7 +16,18 @@ export default ({app}:{app: express.Application}) => {
         res.status(200).end();
     });
 
-    app.use(cors());
+    app.use(helmet())
+
+    const whiteList = ['http://localhost:3000'];
+    const corsMethods = ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'];
+    app.use(
+        cors(
+        {
+            origin:whiteList,
+            credentials:true,
+            methods:corsMethods
+        }
+    ));
     app.use(express.json());
 
      // Load API routes
@@ -23,7 +35,6 @@ export default ({app}:{app: express.Application}) => {
 
     //404 에러 핸들러. 
     app.use((req, res, next) => {
-        console.log('에러로 들어옴')
         const err = new Error('Not Found');
         err['status'] = 404;
         next(err);
@@ -31,6 +42,7 @@ export default ({app}:{app: express.Application}) => {
 
     //에러 핸들러
     app.use((err, req, res, next) => {
+        //Validation failed에러 -> celebrate에 걸렸음
         if(err.name === 'UnauthorizedError') {
             return res
             .status(err.status)
