@@ -1,9 +1,8 @@
 import { IUser, IUserInputDTO } from "@/interfaces/IUser";
-import AuthService from "@/services/auth/auth.service";
 import { celebrate, Joi } from "celebrate";
 import { NextFunction, Request, Response, Router } from "express";
-import User from '@/models/user'
 import logger from "@/loaders/logger";
+import { createUser } from "@/services/user/user.service";
 
 const route = Router();
 
@@ -21,8 +20,8 @@ export default (app:Router) => {
         async (req:Request, res:Response, next:NextFunction) => {
             logger.debug('Calling Sign-Up endpoint with body: %o', req.body );
             try {
-                const authServiceInstance = createUser()
-                const {user, token} = await authServiceInstance.signup(req.body as IUserInputDTO);
+                const userServiceInstance = createUser()
+                const {user, token} = await userServiceInstance.signup(req.body as IUserInputDTO);
                 return res.status(200).json({user, token})
             } catch (err) {
                 logger.error('error: %o',err);
@@ -43,8 +42,8 @@ export default (app:Router) => {
             logger.debug('Calling Login endpoint with body: %o', req.body );
             
             try {
-                const authServiceInstance = createUser() 
-                const {user, token} = await authServiceInstance.login(req.body as IUserInputDTO);
+                const userServiceInstance = createUser() 
+                const {user, token} = await userServiceInstance.login(req.body as IUserInputDTO);
                 
                 return res.status(200).json({user, token})
             } catch (err) {
@@ -59,7 +58,3 @@ export default (app:Router) => {
     //signout? userdelete?
 }
 
-function createUser():AuthService {
-    //유저 인스턴스를 생성하는 팩토리 패턴
-    return new AuthService(User, logger)
-}

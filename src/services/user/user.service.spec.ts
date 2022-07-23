@@ -1,9 +1,10 @@
-import AuthService from "./auth.service";
+import AuthService from "./user.service";
 import User from '../../models/user'
 import logger from "../../loaders/logger";
 import HashUtil from "../utils/hashUtils";
 import { Document } from "mongoose";
 import JwtUtil from "../utils/jwtUtils";
+import UserService from "./user.service";
 const mockRepository = () => (
     {
         save:jest.fn(),
@@ -19,11 +20,11 @@ const mockJwtService = () => ({
 //jest.mock('@/loaders/logger')
 //jest.mock('./auth.service')
 describe('AuthService',()=>{
-    let service: AuthService;
+    let service: UserService;
     //let jwtService: JwtService;
 
     beforeEach(() => {
-        service = new AuthService(User, logger)
+        service = new UserService()
     })
     describe('signup',() => {
         const signupArg = {
