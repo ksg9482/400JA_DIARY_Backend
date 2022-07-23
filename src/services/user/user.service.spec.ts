@@ -1,9 +1,10 @@
-import AuthService from "./auth.service";
+import AuthService from "./user.service";
 import User from '../../models/user'
 import logger from "../../loaders/logger";
 import HashUtil from "../utils/hashUtils";
 import { Document } from "mongoose";
 import JwtUtil from "../utils/jwtUtils";
+import UserService from "./user.service";
 const mockRepository = () => (
     {
         save:jest.fn(),
@@ -19,11 +20,11 @@ const mockJwtService = () => ({
 //jest.mock('@/loaders/logger')
 //jest.mock('./auth.service')
 describe('AuthService',()=>{
-    let service: AuthService;
+    let service: UserService;
     //let jwtService: JwtService;
 
     beforeEach(() => {
-        service = new AuthService(User, logger)
+        service = new UserService()
     })
     describe('signup',() => {
         const signupArg = {
@@ -65,9 +66,10 @@ describe('AuthService',()=>{
             User.findOne = jest.fn().mockResolvedValue(undefined)
             HashUtil.hashPassword = jest.fn().mockResolvedValue(Promise.resolve('hassed Password'))
             jest.spyOn(User.prototype, 'save')
-                .mockImplementationOnce(() => Promise.resolve(signupArg))
-            JwtUtil.generateToken = jest.fn().mockReturnValue('valid_token')
+                .mockImplementationOnce(() => Promise.resolve({_doc:{...signupArg}}))
+            JwtUtil.prototype.generateToken = jest.fn().mockReturnValue('valid_token')
             const result = await service.signup(signupArg);
+            console.log(result)
             expect(result.token).toEqual('valid_token');
             expect(result.user).toEqual({email:signupArg.email});
         
@@ -109,9 +111,9 @@ describe('AuthService',()=>{
 
         it('올바른 email과 password면 user와 token를 반환해야 한다.', async () => {
             
-                User.findOne = jest.fn().mockResolvedValue(loginArg)
+                User.findOne = jest.fn().mockResolvedValue({_doc:{...loginArg}})
                 HashUtil.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(true))
-                JwtUtil.generateToken = jest.fn().mockReturnValue('valid_token')
+                JwtUtil.prototype.generateToken = jest.fn().mockReturnValue('valid_token')
                 //jest.spyOn(User as any, 'generateToken').mockResolvedValue('valid_token')
                 const result = await service.login(loginArg);
                 expect(result.token).toEqual('valid_token');
