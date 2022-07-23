@@ -3,7 +3,11 @@ import jwt from 'jsonwebtoken';
 import config from "../../config";
 
 export default class JwtUtil {
-    
+    //의존성 주입?
+    private jwtSecret:string
+    constructor() {
+        this.jwtSecret = config.jwtSecret
+    }
     static generateToken(user:IUser):string {
         const today = new Date();
         const exp = new Date(today);
@@ -19,6 +23,16 @@ export default class JwtUtil {
             config.jwtSecret
         );
     };
+
+    static verifyToken(this:,token:string, ) {
+        jwtSecret
+        const verity = jwt.verify(token, jwtSecret);
+        if(!verity) {
+            return 'inveridToken';
+        }
+        return verity;
+    };
+
 
 };
 // export default class HashUtil {

@@ -102,10 +102,10 @@ export default class UserService {
         };
     };
 
-    public async findById(id:number): Promise<{ id: number, email: string }> { //me
+    public async findById(id:string): Promise<{ id: string, email: string }> { //me
         try {
             const userRecord = await this.userModel.findById(id);
-            if (userRecord) {
+            if (!userRecord) {
                 throw new Error('User not registered');
             };
             
@@ -116,12 +116,30 @@ export default class UserService {
         }
     };
 
-    public editUser() {
+    public async editUser(id:string) {
+        try {
+            const userRecord = await this.userModel.findById(id);
+            if (!userRecord) {
+                throw new Error('User not registered');
+            };
 
+        } catch (error) {
+            this.logger.error(error);
+            return error;
+        };
     };
 
-    public deleteUser() {
+    public async deleteUser(id:string) {
+        try {
+            const userRecord = await this.userModel.findById(id);
+            if (!userRecord) {
+                throw new Error('User not registered');
+            };
 
+        } catch (error) {
+            this.logger.error(error);
+            return error;
+        };
     };
 
     public verifyEmail() {
