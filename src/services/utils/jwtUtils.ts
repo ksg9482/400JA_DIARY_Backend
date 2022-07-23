@@ -1,14 +1,15 @@
 import { IUser } from "../../interfaces/IUser";
-import jwt from 'jsonwebtoken';
+import jwt, { Secret } from 'jsonwebtoken';
 import config from "../../config";
 
 export default class JwtUtil {
     //의존성 주입?
-    private jwtSecret:string
+    private jwtSecret:Secret
     constructor() {
-        this.jwtSecret = config.jwtSecret
+        this.jwtSecret = config.jwtSecret;
     }
-    static generateToken(user:IUser):string {
+
+    public generateToken(user:IUser):string {
         const today = new Date();
         const exp = new Date(today);
         exp.setDate(today.getDate() + 60);
@@ -24,9 +25,8 @@ export default class JwtUtil {
         );
     };
 
-    static verifyToken(this:,token:string, ) {
-        jwtSecret
-        const verity = jwt.verify(token, jwtSecret);
+    public verifyToken(token:string) {
+        const verity = jwt.verify(token, this.jwtSecret);
         if(!verity) {
             return 'inveridToken';
         }

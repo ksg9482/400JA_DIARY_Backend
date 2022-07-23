@@ -7,8 +7,9 @@ import jwt from "../../services/utils/jwtUtils"
 
 const attachCurrentUser = async (req: IattachCurrentUserRequest, res: Response, next: NextFunction) => {
     try {
-        const verifyToken = jwt.verifyToken(req.token)
-        const userRecord = User.findById(req.token._id);
+        const verifyToken = jwt.prototype.verifyToken(req.token);
+        //verifyToken._id 나오게 해야함
+        const userRecord = User.findById(verifyToken);
         const currentUser = { ...userRecord['_doc'] };
         Reflect.deleteProperty(currentUser, 'password');
         req.currentUser = currentUser;

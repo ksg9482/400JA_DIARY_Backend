@@ -48,9 +48,8 @@ export default class UserService {
             };
 
             this.logger.silly('Generating JWT');
-            const token = JwtUtil.generateToken(userRecord);
-
-
+            const token = JwtUtil.prototype.generateToken(userRecord);
+            
             this.logger.silly('Sending welcome email');
             // 여기에 메일러로 월컴 이메일 보내는 로직
 
@@ -89,8 +88,7 @@ export default class UserService {
             this.logger.silly('Password is valid');
             this.logger.silly('Generating JWT');
 
-            const token = JwtUtil.generateToken(userRecord);
-
+            const token = JwtUtil.prototype.generateToken(userRecord);
             const user = { ...userRecord['_doc'] };
             Reflect.deleteProperty(user, 'password');
 
