@@ -24,7 +24,7 @@ describe('AuthService',()=>{
     //let jwtService: JwtService;
 
     beforeEach(() => {
-        service = new UserService()
+        service = new UserService(User, logger, JwtUtil)
     })
     describe('signup',() => {
         const signupArg = {
@@ -67,7 +67,7 @@ describe('AuthService',()=>{
             HashUtil.hashPassword = jest.fn().mockResolvedValue(Promise.resolve('hassed Password'))
             jest.spyOn(User.prototype, 'save')
                 .mockImplementationOnce(() => Promise.resolve({_doc:{...signupArg}}))
-            JwtUtil.prototype.generateToken = jest.fn().mockReturnValue('valid_token')
+            JwtUtil.generateToken = jest.fn().mockReturnValue('valid_token')
             const result = await service.signup(signupArg);
             console.log(result)
             expect(result.token).toEqual('valid_token');
@@ -113,7 +113,7 @@ describe('AuthService',()=>{
             
                 User.findOne = jest.fn().mockResolvedValue({_doc:{...loginArg}})
                 HashUtil.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(true))
-                JwtUtil.prototype.generateToken = jest.fn().mockReturnValue('valid_token')
+                JwtUtil.generateToken = jest.fn().mockReturnValue('valid_token')
                 //jest.spyOn(User as any, 'generateToken').mockResolvedValue('valid_token')
                 const result = await service.login(loginArg);
                 expect(result.token).toEqual('valid_token');

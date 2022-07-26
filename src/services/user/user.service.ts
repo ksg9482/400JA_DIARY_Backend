@@ -2,23 +2,27 @@
 //patch -  user data
 //delete -  user
 import { IUser, IUserInputDTO } from '@/interfaces/IUser';
-import { Logger } from 'winston';
-import User from '../../models/user'
-import jwt from 'jsonwebtoken';
-import config from '../../config'; //@로 표기했었음. jest오류
+import { Logger } from 'winston'; //@로 표기했었음. jest오류
 import HashUtil from '../utils/hashUtils';
 import { HydratedDocument } from 'mongoose';
 import JwtUtil from '../utils/jwtUtils';
-import logger from '../../loaders/logger';
 
+interface IpasswordObj{
+    password: string;
+    changePassword: string;
+}
 
 export default class UserService {
     userModel: Models.UserModel;
-    logger: Logger
+    logger: Logger;
+    jwt: JwtUtil;
+    hashUtil:HashUtil
     //global과 namespace 사용. model로 선언해서 monguuse메서드 사용
-    constructor() {
-        this.userModel = User,
-        this.logger = logger
+    constructor(userModel:Models.UserModel, logger:Logger, jwt:JwtUtil, hashUtil:HashUtil) {
+        this.userModel = userModel;
+        this.logger = logger;
+        this.jwt = jwt;
+        this.hashUtil = hashUtil;
     }
 
     public async signup(userInputDTO: IUserInputDTO): Promise<{ user: IUser, token: string }> {
@@ -34,8 +38,8 @@ export default class UserService {
             }
 
             this.logger.silly('Hashing password');
-            const hashedPassword = await HashUtil.hashPassword(userInputDTO.password);
-
+            const hashedPassword = await this.hashUtil.hashPassword(userInputDTO.password);
+            
             this.logger.silly('Creating user db record');
             const userRecord: HydratedDocument<IUser> = new this.userModel({
                 ...userInputDTO,
@@ -48,7 +52,8 @@ export default class UserService {
             };
 
             this.logger.silly('Generating JWT');
-            const token = JwtUtil.prototype.generateToken(userRecord);
+            const token = this.jwt.generateToken(userRecord)
+            
             
             this.logger.silly('Sending welcome email');
             // 여기에 메일러로 월컴 이메일 보내는 로직
@@ -80,7 +85,7 @@ export default class UserService {
 
             this.logger.silly('Checking password');
 
-            const validPassword = await HashUtil.checkPassword(userInputDTO.password);
+            const validPassword = await this.hashUtil.checkPassword(userInputDTO.password, userRecord.password);
             if (!validPassword) {
                 throw new Error('Invalid Password');
             };
@@ -88,7 +93,7 @@ export default class UserService {
             this.logger.silly('Password is valid');
             this.logger.silly('Generating JWT');
 
-            const token = JwtUtil.prototype.generateToken(userRecord);
+            const token = this.jwt.generateToken(userRecord);
             const user = { ...userRecord['_doc'] };
             Reflect.deleteProperty(user, 'password');
 
@@ -100,40 +105,70 @@ export default class UserService {
         };
     };
 
-    public async findById(id:string): Promise<{ id: string, email: string }> { //me
+    public async findById(_id:string): Promise<{ id: string, email: string, role: string }> { //me
         try {
-            const userRecord = await this.userModel.findById(id);
+            const userRecord = await this.userModel.findById(_id);
+            console.log(userRecord)
             if (!userRecord) {
                 throw new Error('User not registered');
             };
             
-            return {id:userRecord.id, email:userRecord.email}
+            return {id:userRecord.id, email:userRecord.email, role: userRecord.role}
         } catch (error) {
             this.logger.error(error);
             return error;
         }
     };
-
-    public async editUser(id:string) {
+    
+    public async editUser(_id:string, passwordObj:IpasswordObj) {
         try {
-            const userRecord = await this.userModel.findById(id);
+            if(!passwordObj.password || !passwordObj.changePassword) {
+                throw new Error('No Password');
+            }; // length로 보는게 좋을지도? 아니면 검증함수 만들기
+
+            if(passwordObj.password === passwordObj.changePassword) {
+                throw new Error('Same Password');
+            };
+
+            const userRecord = await this.userModel.findById(_id);
             if (!userRecord) {
                 throw new Error('User not registered');
             };
+            
+            const passwordIsTrue = await this.hashUtil.checkPassword(passwordObj.password, userRecord.password);
+            if(!passwordIsTrue) {
+                throw new Error('Invalid Password');
+            }
 
+            const hashChangePassword = await this.hashUtil.hashPassword(passwordObj.changePassword);
+            const userEdit = await this.userModel.updateOne({id:_id},{password:hashChangePassword});
+            
+            return {message:'Password Changed'};
         } catch (error) {
             this.logger.error(error);
             return error;
         };
     };
 
-    public async deleteUser(id:string) {
+    public async deleteUser(_id:string, password:string) {
         try {
-            const userRecord = await this.userModel.findById(id);
+            if(password.length === 0){
+                throw new Error('Empty Password');
+            }
+
+            const userRecord = await this.userModel.findById(_id);
             if (!userRecord) {
                 throw new Error('User not registered');
             };
 
+            const passwordIsTrue = await this.hashUtil.checkPassword(password, userRecord.password);
+            if(!passwordIsTrue) {
+                throw new Error('Invalid Password');
+            }
+
+            const userDelete = await this.userModel.deleteOne({id:_id});
+            //diary도 같이 삭제되야 함
+            return {message:'User Deleted'};
         } catch (error) {
             this.logger.error(error);
             return error;
@@ -145,7 +180,3 @@ export default class UserService {
     };
 };
 
-export function createUser():UserService {
-    //유저 인스턴스를 생성하는 팩토리 패턴
-    return new UserService()
-}

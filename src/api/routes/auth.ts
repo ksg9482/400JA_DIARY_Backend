@@ -2,7 +2,7 @@ import { IUser, IUserInputDTO } from "@/interfaces/IUser";
 import { celebrate, Joi } from "celebrate";
 import { NextFunction, Request, Response, Router } from "express";
 import logger from "@/loaders/logger";
-import { createUser } from "@/services/user/user.service";
+import { createUser } from "@/services/user/user.factory";
 
 const route = Router();
 
@@ -45,7 +45,7 @@ export default (app:Router) => {
                 const userServiceInstance = createUser() 
                 const {user, token} = await userServiceInstance.login(req.body as IUserInputDTO);
                 
-                return res.status(200).json({user, token})
+                return res.status(200).cookie('jwt',token).json({user})
             } catch (err) {
                 console.log(err)
                 logger.error('error: %o',err);
