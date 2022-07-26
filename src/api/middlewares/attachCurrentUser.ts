@@ -7,15 +7,25 @@ import jwt from "../../services/utils/jwtUtils"
 
 const attachCurrentUser = async (req: IattachCurrentUserRequest, res: Response, next: NextFunction) => {
     try {
-        const verifyToken = jwt.prototype.verifyToken(req.token);
-        //verifyToken._id 나오게 해야함
-        const userRecord = User.findById(verifyToken);
-        const currentUser = { ...userRecord['_doc'] };
-        Reflect.deleteProperty(currentUser, 'password');
-        req.currentUser = currentUser;
+        const tokenSlug = req.headers.cookie?.split('=')[1]
+        
+        if(!req.headers.cookie){
+            throw new Error('No Token')
+        }
+        const verifyToken = jwt.prototype.verifyToken(tokenSlug);
+        
+        const userRecord = await User.findById(verifyToken['_id']);
         if (!userRecord) {
-            return res.sendStatus(401);
+            throw new Error('Invalid User Id')
         };
+        
+        const currentUser:Object = { ...userRecord['_doc'] };
+        const deleteTargetArr = ['password', 'createdAt', 'updatedAt', '__v']
+        for (const target of deleteTargetArr) {
+            Reflect.deleteProperty(currentUser, target);
+        }
+        
+        req.currentUser = currentUser;
         return next();
     } catch (error) {
         logger.error('Error attaching user to req: %o', error);
