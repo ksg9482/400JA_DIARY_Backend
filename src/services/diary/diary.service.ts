@@ -20,16 +20,32 @@ export default class DiaryService {
         this.logger = logger;
     };
 
-    public async createDiary (body:any) { //만들어야 됨
+    public async createDiaryContent (userId:string, diaryContent:any) { //만들어야 됨
         try {
-            if (!body) {
+            console.log(userId, diaryContent)
+            if (!diaryContent) {
                 throw new Error("No Diary parametor");
             }
+            const recentDate = new Date()
+            //content 안들어갔음
             const diaryRecord: HydratedDocument<IDiary> = new this.diaryModel({
-                body
+                userId:userId,
+                content:diaryContent,
+                createAt:recentDate
             });
             const diarySave = await diaryRecord.save();
             return diarySave;
+        } catch (error) {
+            this.logger.error(error);
+            return error;
+        }
+    };
+
+    public async findAllDiary (userId:string) {
+        try {
+            const diaryRecord = this.diaryModel.find({id:userId});
+            console.log('input - ',userId,diaryRecord);
+            return diaryRecord;
         } catch (error) {
             this.logger.error(error);
             return error;
