@@ -38,22 +38,21 @@ export default class UserService {
             }
 
             this.logger.silly('Hashing password');
-            const hashedPassword = await this.hashUtil.hashPassword(userInputDTO.password);
+            //const hashedPassword = await this.hashUtil.hashPassword(userInputDTO.password);
             
             this.logger.silly('Creating user db record');
             const userRecord: HydratedDocument<IUser> = new this.userModel({
                 ...userInputDTO,
-                password: hashedPassword
+                //password: hashedPassword
             })
             const userSave = await userRecord.save()
-            console.log(userSave)
+            
             if (userSave.errors) {
                 throw new Error('User cannot be created');
             };
 
             this.logger.silly('Generating JWT');
             const token = this.jwt.generateToken(userRecord)
-            
             
             this.logger.silly('Sending welcome email');
             // 여기에 메일러로 월컴 이메일 보내는 로직
@@ -63,6 +62,7 @@ export default class UserService {
 
             //const user = {...userRecord}; //이거보단 usersave로 받는게 좋을듯?
             const user = { ...userSave['_doc'] };
+            console.log(user)
             Reflect.deleteProperty(user, 'password');
             return { user, token };
         } catch (error) {
@@ -95,6 +95,7 @@ export default class UserService {
 
             const token = this.jwt.generateToken(userRecord);
             const user = { ...userRecord['_doc'] };
+            
             Reflect.deleteProperty(user, 'password');
 
             return { user, token };
@@ -108,7 +109,7 @@ export default class UserService {
     public async findById(_id:string): Promise<{ id: string, email: string, role: string }> { //me
         try {
             const userRecord = await this.userModel.findById(_id);
-            console.log(userRecord)
+            
             if (!userRecord) {
                 throw new Error('User not registered');
             };
@@ -178,5 +179,7 @@ export default class UserService {
     public verifyEmail() {
 
     };
+
+    
 };
 

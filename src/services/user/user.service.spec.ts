@@ -24,7 +24,7 @@ describe('AuthService',()=>{
     //let jwtService: JwtService;
 
     beforeEach(() => {
-        service = new UserService(User, logger, JwtUtil)
+        service = new UserService(User, logger, new JwtUtil, new HashUtil)
     })
     describe('signup',() => {
         const signupArg = {
@@ -52,7 +52,7 @@ describe('AuthService',()=>{
         it('유저 생성에 실패하면 User cannot be created를 반환해야 한다.', async () => {
             try {
                 User.findOne = jest.fn().mockResolvedValue(undefined)
-                HashUtil.hashPassword = jest.fn().mockResolvedValue(Promise.resolve('hassed Password'))
+                HashUtil.prototype.hashPassword = jest.fn().mockResolvedValue(Promise.resolve('hassed Password'))
                 jest.spyOn(User.prototype, 'save')
                 .mockImplementationOnce(() => Promise.resolve({errors:'DocumentNotFoundError'}))
                 const result = await service.signup(signupArg);
@@ -64,10 +64,10 @@ describe('AuthService',()=>{
         it('올바른 email과 password면 user와 token를 반환해야 한다.', async () => {
             
             User.findOne = jest.fn().mockResolvedValue(undefined)
-            HashUtil.hashPassword = jest.fn().mockResolvedValue(Promise.resolve('hassed Password'))
+            HashUtil.prototype.hashPassword = jest.fn().mockResolvedValue(Promise.resolve('hassed Password'))
             jest.spyOn(User.prototype, 'save')
                 .mockImplementationOnce(() => Promise.resolve({_doc:{...signupArg}}))
-            JwtUtil.generateToken = jest.fn().mockReturnValue('valid_token')
+            JwtUtil.prototype.generateToken = jest.fn().mockReturnValue('valid_token')
             const result = await service.signup(signupArg);
             console.log(result)
             expect(result.token).toEqual('valid_token');
@@ -102,7 +102,7 @@ describe('AuthService',()=>{
         it('비밀번호 체크를 통과하지 못하면 Invalid Password를 반환해야 한다.', async () => {
             try {
                 User.findOne = jest.fn().mockResolvedValue(loginArg)
-                HashUtil.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(false))
+                HashUtil.prototype.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(false))
                 const result = await service.login(loginArg);
             } catch (error) {
                 expect(error).toEqual(new Error('Invalid Password'));
@@ -112,8 +112,8 @@ describe('AuthService',()=>{
         it('올바른 email과 password면 user와 token를 반환해야 한다.', async () => {
             
                 User.findOne = jest.fn().mockResolvedValue({_doc:{...loginArg}})
-                HashUtil.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(true))
-                JwtUtil.generateToken = jest.fn().mockReturnValue('valid_token')
+                HashUtil.prototype.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(true))
+                JwtUtil.prototype.generateToken = jest.fn().mockReturnValue('valid_token')
                 //jest.spyOn(User as any, 'generateToken').mockResolvedValue('valid_token')
                 const result = await service.login(loginArg);
                 expect(result.token).toEqual('valid_token');
