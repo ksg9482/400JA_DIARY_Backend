@@ -1,4 +1,5 @@
-import { IUser } from "@/interfaces/IUser";
+import { IUser } from "../interfaces/IUser";
+import HashUtil from "../services/utils/hashUtils";
 import { Schema, model } from "mongoose";
 
 const userSchema = new Schema<IUser>(
@@ -21,6 +22,13 @@ const userSchema = new Schema<IUser>(
     },
     {timestamps: true}
 );
+
+userSchema.pre('save', async function(next){
+    if(this.password) {
+        this.password = await HashUtil.prototype.hashPassword(this.password);
+        next();
+    };
+});
 
 const User = model<IUser>('User', userSchema);
 
