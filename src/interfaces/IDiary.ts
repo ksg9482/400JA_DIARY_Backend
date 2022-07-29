@@ -1,13 +1,12 @@
 export interface IDiary {
     _id:string;
     userId:string;
-    contnets:IDiaryContent[]; //IDiaryContent[]??
+    content:string; //IDiaryContent[]??
 };
 
-export interface IDiaryContent {
-    contnet:string;
-    createAt:Date
-};
+// export interface IDiaryContent {
+//     content:string;
+// };
 // {
 //  userId:'123456',
 //  contents: {
