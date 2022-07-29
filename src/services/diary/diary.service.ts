@@ -22,18 +22,21 @@ export default class DiaryService {
 
     public async createDiaryContent (userId:string, diaryContent:any) { //만들어야 됨
         try {
-            console.log(userId, diaryContent)
-            if (!diaryContent) {
+            //const testInit = await this.diaryModel.deleteMany() //지울것!!!
+            const contentBody = diaryContent.content
+
+            if (!contentBody || contentBody <= 0) {
                 throw new Error("No Diary parametor");
             }
-            const recentDate = new Date()
+            
             //content 안들어갔음
             const diaryRecord: HydratedDocument<IDiary> = new this.diaryModel({
                 userId:userId,
-                content:diaryContent,
-                createAt:recentDate
+                content:contentBody
             });
+            
             const diarySave = await diaryRecord.save();
+            
             return diarySave;
         } catch (error) {
             this.logger.error(error);
@@ -44,11 +47,11 @@ export default class DiaryService {
     public async findAllDiary (userId:string) {
         try {
             const diaryRecord = this.diaryModel.find({id:userId});
-            console.log('input - ',userId,diaryRecord);
             return diaryRecord;
         } catch (error) {
             this.logger.error(error);
             return error;
         }
-    }
+    };
+
 }
