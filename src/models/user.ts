@@ -30,6 +30,13 @@ userSchema.pre('save', async function(next){
     };
 });
 
+userSchema.pre('updateOne', async function(next){
+    if(this.password) {
+        this.password = await HashUtil.prototype.hashPassword(this.password);
+        next();
+    };
+});
+
 const User = model<IUser>('User', userSchema);
 
 export default User
