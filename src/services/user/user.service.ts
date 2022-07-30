@@ -62,7 +62,6 @@ export default class UserService {
 
             //const user = {...userRecord}; //이거보단 usersave로 받는게 좋을듯?
             const user = { ...userSave['_doc'] };
-            console.log(user)
             Reflect.deleteProperty(user, 'password');
             return { user, token };
         } catch (error) {
@@ -141,8 +140,8 @@ export default class UserService {
                 throw new Error('Invalid Password');
             }
 
-            const hashChangePassword = await this.hashUtil.hashPassword(passwordObj.changePassword);
-            const userEdit = await this.userModel.updateOne({id:_id},{password:hashChangePassword});
+            //const hashChangePassword = await this.hashUtil.hashPassword(passwordObj.changePassword);
+            const userEdit = await this.userModel.updateOne({id:_id},{password:passwordObj.changePassword});
             
             return {message:'Password Changed'};
         } catch (error) {
