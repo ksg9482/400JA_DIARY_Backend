@@ -22,14 +22,13 @@ export default class DiaryService {
 
     public async createDiaryContent (userId:string, diaryContent:any) { //만들어야 됨
         try {
-            //const testInit = await this.diaryModel.deleteMany() //지울것!!!
-            const contentBody = diaryContent.content
-
-            if (!contentBody || contentBody <= 0) {
+            //const testInit = await this.diaryModel.deleteMany() //지울것!!
+            if (!diaryContent || diaryContent?.content.length <= 0) { 
                 throw new Error("No Diary parametor");
-            }
+            };
+
+            const contentBody = diaryContent.content;
             
-            //content 안들어갔음
             const diaryRecord: HydratedDocument<IDiary> = new this.diaryModel({
                 userId:userId,
                 content:contentBody
@@ -37,7 +36,7 @@ export default class DiaryService {
             
             const diarySave = await diaryRecord.save();
             
-            return diarySave;
+            return {message:'saved'};
         } catch (error) {
             this.logger.error(error);
             return error;
@@ -46,7 +45,12 @@ export default class DiaryService {
 
     public async findAllDiary (userId:string) {
         try {
-            const diaryRecord = this.diaryModel.find({id:userId});
+            const diaryRecord = await this.diaryModel.find({id:userId});
+            
+            if (!diaryRecord) {
+                throw new Error('Diary in Empty');
+            };
+
             return diaryRecord;
         } catch (error) {
             this.logger.error(error);
