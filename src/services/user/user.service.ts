@@ -28,7 +28,18 @@ export default class UserService {
     public async signup(userInputDTO: IUserInputDTO): Promise<{ user: IUser, token: string }> {
         try {
             //DTO 체크
-            if (!userInputDTO.email || !userInputDTO.password) {
+            const checkUserInputDTO = (userInputDTO: IUserInputDTO) => {
+                let isValid = true;
+                const checkArr = ['email', 'password'];
+                checkArr.forEach((targetParametor)=>{
+                    if(!userInputDTO[targetParametor]) {
+                        isValid = false;
+                    }
+                });
+                return isValid;
+            };
+
+            if (!checkUserInputDTO(userInputDTO)) {
                 throw new Error("No user parametor");
             }
             //중복 체크
@@ -73,7 +84,17 @@ export default class UserService {
 
     public async login(userInputDTO: IUserInputDTO): Promise<{ user: IUser, token: string }> {
         try {
-            if (!userInputDTO.email || !userInputDTO.password) {
+            const checkUserInputDTO = (userInputDTO: IUserInputDTO) => {
+                let isValid = true;
+                const checkArr = ['email', 'password'];
+                checkArr.forEach((targetParametor)=>{
+                    if(!userInputDTO[targetParametor]) {
+                        isValid = false;
+                    }
+                });
+                return isValid;
+            };
+            if (!checkUserInputDTO(userInputDTO)) {
                 throw new Error("No user parametor");
             }
 
@@ -122,11 +143,25 @@ export default class UserService {
     
     public async editUser(_id:string, passwordObj:IpasswordObj) {
         try {
-            if(!passwordObj.password || !passwordObj.changePassword) {
+            const checkPasswordObj = (passwordObj: IpasswordObj) => {
+                let isValid = true;
+                const checkArr = ['password', 'changePassword'];
+                checkArr.forEach((targetParametor)=>{
+                    if(!passwordObj[targetParametor]) {
+                        isValid = false;
+                    }
+                });
+                return isValid;
+            };
+
+            if(!checkPasswordObj(passwordObj)) {
                 throw new Error('No Password');
             }; // length로 보는게 좋을지도? 아니면 검증함수 만들기
 
-            if(passwordObj.password === passwordObj.changePassword) {
+            const checkSamePassword = (passwordObj) => {
+                return passwordObj.password === passwordObj.changePassword
+            }
+            if(checkSamePassword(passwordObj)) {
                 throw new Error('Same Password');
             };
 
@@ -152,7 +187,11 @@ export default class UserService {
 
     public async deleteUser(_id:string, password:string) {
         try {
-            if(password.length === 0){
+            const checkPassword = (password) => {
+                return password.length === 0
+            }
+
+            if(checkPassword(password)){
                 throw new Error('Empty Password');
             }
 

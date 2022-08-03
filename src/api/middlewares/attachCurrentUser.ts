@@ -7,12 +7,15 @@ import jwt from "../../services/utils/jwtUtils"
 
 const attachCurrentUser = async (req: IattachCurrentUserRequest, res: Response, next: NextFunction) => {
     try {
-        const tokenSlug = req.headers.cookie?.split('=')[1]
-        
-        if(!req.headers.cookie){
-            throw new Error('No Token')
-        }
-        const verifyToken = jwt.prototype.verifyToken(tokenSlug);
+        const getToken = (req: IattachCurrentUserRequest) => {
+            return req.headers.cookie?.split('=')[1];
+        };
+
+        if(getToken(req)){
+            throw new Error('No Token');
+        };
+
+        const verifyToken = jwt.prototype.verifyToken(getToken(req));
         
         const userRecord = await User.findById(verifyToken['_id']);
         if (!userRecord) {
@@ -21,9 +24,10 @@ const attachCurrentUser = async (req: IattachCurrentUserRequest, res: Response, 
         
         const currentUser:Object = { ...userRecord['_doc'] };
         const deleteTargetArr = ['password', 'createdAt', 'updatedAt', '__v']
-        for (const target of deleteTargetArr) {
+       
+        deleteTargetArr.forEach((target)=>{
             Reflect.deleteProperty(currentUser, target);
-        }
+        })
         
         req.currentUser = currentUser;
         return next();
