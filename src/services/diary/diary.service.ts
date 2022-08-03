@@ -23,7 +23,10 @@ export default class DiaryService {
     public async createDiaryContent (userId:string, diaryContent:any) { //만들어야 됨
         try {
             //const testInit = await this.diaryModel.deleteMany() //지울것!!
-            if (!diaryContent || diaryContent?.content.length <= 0) { 
+            const isDiaryParametor = (diaryContent) => {
+                return diaryContent?.content.length <= 0
+            }
+            if (isDiaryParametor(diaryContent)) { 
                 throw new Error("No Diary parametor");
             };
 
