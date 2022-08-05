@@ -31,9 +31,9 @@ export default {
 
     //email 메일건?
     emails: {
-        apiKey:'',
-        apiUserName:'',
-        domain:''
+        apiKey:process.env.MAILGUN_API_KEY,
+        apiUserName:process.env.MAILGUN_DOMAIN_NAME,
+        domain:process.env.MAILGUN_FROMEMAIL
     }
 
 }
