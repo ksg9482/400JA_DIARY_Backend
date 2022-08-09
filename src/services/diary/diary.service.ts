@@ -23,6 +23,8 @@ export default class DiaryService {
     public async createDiaryContent (userId:string, diaryContent:any) { //만들어야 됨
         try {
             //const testInit = await this.diaryModel.deleteMany() //지울것!!
+
+            // 날짜가 '오늘'이라면 중복되지 말아야 한다.
             const isDiaryParametor = (diaryContent) => {
                 return diaryContent?.content.length <= 0
             }
@@ -60,5 +62,23 @@ export default class DiaryService {
             return error;
         }
     };
+
+    public async findKeyword (userId:string, keyword:[string]) {
+
+    }
+
+    public async findByDate (userId:string) {
+
+    }
+
+    public async deleteAllDiary (userId:string) {
+        try {
+            const deleteAllDiary = await this.diaryModel.deleteMany({userId:userId})
+            return {message: "All diary deleted!"};
+        } catch (error) {
+            this.logger.error(error);
+            return error;
+        }
+    }
 
 }

@@ -158,7 +158,7 @@ export default class UserService {
                 throw new Error('No Password');
             }; // length로 보는게 좋을지도? 아니면 검증함수 만들기
 
-            const checkSamePassword = (passwordObj) => {
+            const checkSamePassword = (passwordObj:IpasswordObj) => {
                 return passwordObj.password === passwordObj.changePassword
             }
             if(checkSamePassword(passwordObj)) {
@@ -176,7 +176,7 @@ export default class UserService {
             }
 
             //const hashChangePassword = await this.hashUtil.hashPassword(passwordObj.changePassword);
-            const userEdit = await this.userModel.updateOne({id:_id},{password:passwordObj.changePassword});
+            await this.userModel.updateOne({id:_id},{password:passwordObj.changePassword});
             
             return {message:'Password Changed'};
         } catch (error) {
@@ -205,7 +205,8 @@ export default class UserService {
                 throw new Error('Invalid Password');
             }
 
-            const userDelete = await this.userModel.deleteOne({id:_id});
+            await this.userModel.deleteOne({id:_id});
+            
             //diary도 같이 삭제되야 함
             return {message:'User Deleted'};
         } catch (error) {
