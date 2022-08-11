@@ -4,6 +4,9 @@ import logger from "@/loaders/logger";
 import { createUser } from "@/services/user/user.factory";
 import { IattachCurrentUserRequest } from "@/interfaces/IRequest";
 import attachCurrentUser from "../middlewares/attachCurrentUser";
+import DiaryService from "@/services/diary/diary.service";
+import { createDiaryInstance } from "@/services/diary/diary.factory";
+import UserService from "@/services/user/user.service";
 
 const route = Router();
 
@@ -30,8 +33,17 @@ export default (app: Router) => {
         const userId: string = req.currentUser._id;
         const password: string = req.body.password
         const userServiceInstance = createUser();
-
-        const result = await userServiceInstance.deleteUser(userId, password);
-        return res.status(200).json(result);
+        const diaryServiceInstance = createDiaryInstance()
+        const userDeleteSequence = async (userServiceInstance: UserService, diaryServiceInstance: DiaryService) => {
+            try {
+                const diaryDelete = await diaryServiceInstance.deleteAllDiary(userId)
+                const result = await userServiceInstance.deleteUser(userId, password);
+                return res.status(200).json(result);
+            } catch (error) {
+                return res.status(500).json({message:'Server Error'})
+            }
+        };
+        
+        userDeleteSequence(userServiceInstance, diaryServiceInstance);
     });
 };
