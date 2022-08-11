@@ -20,7 +20,14 @@ export default (app: Router) => {
         return res.status(200).json({id, email});
     });
 
-    route.patch('/', async (req: IattachCurrentUserRequest, res: Response) => {
+    route.patch('/', 
+    celebrate({
+        body:Joi.object({
+            password:Joi.string().required(),
+            changePassword:Joi.string().required()
+        })
+    }),
+    async (req: IattachCurrentUserRequest, res: Response) => {
         const userId: string = req.currentUser._id;
         const passwordObj = req.body
         const userServiceInstance = createUser();
@@ -29,7 +36,13 @@ export default (app: Router) => {
         return res.status(200).json(result);
     });
     
-    route.delete('/', async (req: IattachCurrentUserRequest, res: Response) => {
+    route.delete('/', 
+    celebrate({
+        body:Joi.object({
+            password:Joi.string().required()
+        })
+    }),
+    async (req: IattachCurrentUserRequest, res: Response) => {
         const userId: string = req.currentUser._id;
         const password: string = req.body.password
         const userServiceInstance = createUser();
