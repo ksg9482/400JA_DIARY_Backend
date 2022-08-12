@@ -3,3 +3,7 @@ export interface IDiary {
     userId:string;
     content:string; //IDiaryContent[]??
 };
+
+export interface IdiaryContent {
+    content:string;
+}

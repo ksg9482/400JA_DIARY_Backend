@@ -26,7 +26,7 @@ export default (app:Router) => {
         const userId = req.currentUser._id;
         const diaryContent = req.body
         const diaryServiceInstance = createDiaryInstance();
-        const result = await diaryServiceInstance.createDiaryContent(userId, diaryContent);
+        const result = await diaryServiceInstance.createDiaryContent(userId, diaryServiceInstance.checkdiaryContent(diaryContent));
         return res.status(200).json(result);
     });
 }
