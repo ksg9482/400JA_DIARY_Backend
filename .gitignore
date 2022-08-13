@@ -1,6 +1,7 @@
 /node_modules
 /Docker/data
 /coverage
+/test
 .DS_Store
 .env*
 

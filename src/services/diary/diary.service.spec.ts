@@ -30,6 +30,7 @@ describe('DiaryService', () => {
             };
         });
 
+
         it('올바른 userId와 diaryContent를 전송하면 saved를 반환해야 한다.', async () => {
             jest.spyOn(Diary.prototype, 'save')
                 .mockImplementationOnce(() => Promise.resolve({ message: 'saved' }))
