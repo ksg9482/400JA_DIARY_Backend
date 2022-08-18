@@ -15,9 +15,11 @@ export const startServer = async () => {
         Logger.error(err);
         process.exit(1);
     });
+    
 };
 
-startServer();
+startServer(); 
+
 
 //helmet추가, nginx 준비
 

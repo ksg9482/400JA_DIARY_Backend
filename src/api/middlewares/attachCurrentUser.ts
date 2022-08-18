@@ -8,10 +8,11 @@ import jwt from "../../services/utils/jwtUtils"
 const attachCurrentUser = async (req: IattachCurrentUserRequest, res: Response, next: NextFunction) => {
     try {
         const getToken = (req: IattachCurrentUserRequest) => {
-            return req.headers.cookie?.split('=')[1];
+            const token = req.headers.cookie?.split('=')[1];
+            return typeof token === 'string' ? token : undefined
         };
 
-        if(getToken(req)){
+        if(!getToken(req)){
             throw new Error('No Token');
         };
 
