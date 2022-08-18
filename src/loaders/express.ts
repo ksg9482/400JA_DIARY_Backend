@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors'
-import config from '@/config';
-import routes from '@/api'
+import config from '../config';
+import routes from '../api'
 import helmet from 'helmet';
 
 export default ({app}:{app: express.Application}) => {

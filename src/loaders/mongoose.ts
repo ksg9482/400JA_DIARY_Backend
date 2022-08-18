@@ -1,6 +1,6 @@
 import { connect } from 'mongoose';
 import { Db } from 'mongodb';
-import config from '@/config';
+import config from '../config';
 
 export default async (): Promise<Db> => {
   const batabaseUsername = config.databaseUsername;

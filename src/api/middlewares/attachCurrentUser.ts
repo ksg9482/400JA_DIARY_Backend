@@ -1,6 +1,6 @@
-import { IattachCurrentUserRequest } from "@/interfaces/IRequest";
-import logger from "@/loaders/logger";
-import User from "@/models/user";
+import { IattachCurrentUserRequest } from "../../interfaces/IRequest";
+import logger from "../../loaders/logger";
+import User from "../../models/user";
 import { NextFunction, Request, Response } from "express";
 import jwt from "../../services/utils/jwtUtils"
 //현재 사용하는 유저를 req객체에 추가

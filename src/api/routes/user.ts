@@ -1,12 +1,11 @@
 import { celebrate, Joi } from "celebrate";
 import { NextFunction, Request, Response, Router } from "express";
-import logger from "@/loaders/logger";
-import { createUserInstance } from "@/services/user/user.factory";
-import { IattachCurrentUserRequest } from "@/interfaces/IRequest";
+import { createUserInstance } from "../../services/user/user.factory";
+import { IattachCurrentUserRequest } from "../../interfaces/IRequest";
 import attachCurrentUser from "../middlewares/attachCurrentUser";
-import DiaryService from "@/services/diary/diary.service";
-import { createDiaryInstance } from "@/services/diary/diary.factory";
-import UserService from "@/services/user/user.service";
+import DiaryService from "../../services/diary/diary.service";
+import { createDiaryInstance } from "../../services/diary/diary.factory";
+import UserService from "../../services/user/user.service";
 
 const route = Router();
 

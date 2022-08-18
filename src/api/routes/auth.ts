@@ -1,8 +1,8 @@
 import { IUser, IUserInputDTO } from "@/interfaces/IUser";
 import { celebrate, Joi } from "celebrate";
 import { NextFunction, Request, Response, Router } from "express";
-import logger from "@/loaders/logger";
-import { createUserInstance } from "@/services/user/user.factory";
+import logger from "../../loaders/logger";
+import { createUserInstance } from "../../services/user/user.factory";
 
 const route = Router();
 

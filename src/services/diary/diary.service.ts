@@ -23,15 +23,9 @@ export default class DiaryService {
     public async createDiaryContent(userId: string, diaryContent: IdiaryContent) { //만들어야 됨
         try {
             //const testInit = await this.diaryModel.deleteMany() //지울것!!
-
+            this.checkdiaryContent(diaryContent)
             // 날짜가 '오늘'이라면 중복되지 말아야 한다.
-            const isDiaryParametor = (diaryContent) => {
-                return diaryContent?.content.length <= 0
-            }
-            if (isDiaryParametor(diaryContent)) {
-                throw new Error("No Diary parametor");
-            };
-
+            
             const contentBody = diaryContent.content;
 
             const diaryRecord: HydratedDocument<IDiary> = new this.diaryModel({
@@ -70,16 +64,18 @@ export default class DiaryService {
     public async findByDate(userId: string, targetDate: Date) {
         //targetDate 서식 정해야함.
         try {
-            const diaryRecord = await this.diaryModel.find({id:userId, created_at:targetDate});
+            //const diaryRecord = await this.diaryModel.find({id:userId, created_at:targetDate});
+            const diaryRecord = await this.diaryModel.find()
+                .all([{id:userId},{created_at:targetDate}])
             
-            if (!diaryRecord) {
+                if (!diaryRecord) {
                 throw new Error('Diary in Empty');
             };
 
             const setFindByDateForm = (diaryRecord:any) => {
                 return {id:diaryRecord.id, content:diaryRecord.content}
             };
-            
+
             return setFindByDateForm(diaryRecord);
         } catch (error) {
             this.logger.error(error);
@@ -97,16 +93,9 @@ export default class DiaryService {
         };
     };
 
-    public checkdiaryContent(diaryContent: IdiaryContent): IdiaryContent {
-        if (typeof diaryContent.content !== 'string') {
-            throw new Error('Diary content not string');
+    private checkdiaryContent (diaryContent: IdiaryContent): void  {
+        if (diaryContent?.content.length <= 0) {
+            throw new Error("No Diary parametor");
         };
-
-        if (diaryContent.content.length > 400) {
-            throw new Error('Diary content longer then 400');
-        };
-
-        return diaryContent;
-    }
-
+    };
 }

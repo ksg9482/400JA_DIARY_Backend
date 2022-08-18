@@ -34,6 +34,10 @@ export default {
         apiKey:process.env.MAILGUN_API_KEY,
         apiUserName:process.env.MAILGUN_DOMAIN_NAME,
         domain:process.env.MAILGUN_FROMEMAIL
-    }
+    },
+
+    testDatabaseURL: process.env.TEST_MONGODB_URI, //host로 이름바꾸는게 좋을지도?
+    testDatabaseUsername:process.env.TEST_MONGODB_USERNAME,
+    testDatabasePassword:process.env.TEST_MONGODB_PASSWORD,
 
 }
