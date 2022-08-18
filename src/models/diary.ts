@@ -16,16 +16,35 @@ const diarySchema = new Schema<IDiary>(
     {
         userId:{
             type:String,
+            require:true,
+        },
+        content: {
+            type:String,
             require:true
         },
-        content:{
-            type:String,
+        year: {
+            type:Number,
+            require:true
+        },
+        month: {
+            type:Number,
+            require:true
+        },
+        day: {
+            type:Number,
             require:true
         },
     },
     {timestamps: true}
 );
 
+diarySchema.index({
+    userId:'text', 
+    'content': 'text', 
+    'year': 'text',
+    'month': 'text',
+    'day': 'text',
+})
 
 const Diary = model<IDiary>('Diary', diarySchema);
 

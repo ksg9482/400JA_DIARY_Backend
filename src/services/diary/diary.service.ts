@@ -27,14 +27,18 @@ export default class DiaryService {
             // 날짜가 '오늘'이라면 중복되지 말아야 한다.
             
             const contentBody = diaryContent.content;
-
+            const date = new Date() //now로 바꿔서 넣어야 함
+            
             const diaryRecord: HydratedDocument<IDiary> = new this.diaryModel({
                 userId: userId,
-                content: contentBody
+                content: contentBody,
+                year:date.getFullYear(),
+                month:date.getMonth(),
+                day:date.getDay()
             });
 
             await diaryRecord.save();
-
+            
             return { message: 'saved' };
         } catch (error) {
             this.logger.error(error);
@@ -57,13 +61,22 @@ export default class DiaryService {
         }
     };
 
-    public async findKeyword(userId: string, keyword: [string]) {
-
+    public async findKeyword(userId: string, keyword: string[]) {
+        try {
+            const targetkeyword = keyword[0] //이거 자동화
+            const diaryRecord = await this.diaryModel.find({$text:{$search:targetkeyword}})
+            console.log(diaryRecord)
+            return diaryRecord
+        } catch (error) {
+            this.logger.error(error);
+            return error;
+        }
     }
 
     public async findByDate(userId: string, targetDate: Date) {
         //targetDate 서식 정해야함.
         try {
+            
             //const diaryRecord = await this.diaryModel.find({id:userId, created_at:targetDate});
             const diaryRecord = await this.diaryModel.find()
                 .all([{id:userId},{created_at:targetDate}])
