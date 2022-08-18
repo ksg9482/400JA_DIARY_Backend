@@ -1,7 +1,7 @@
 import { celebrate, Joi } from "celebrate";
 import { NextFunction, Request, Response, Router } from "express";
 import logger from "@/loaders/logger";
-import { createUser } from "@/services/user/user.factory";
+import { createUserInstance } from "@/services/user/user.factory";
 import { IattachCurrentUserRequest } from "@/interfaces/IRequest";
 import attachCurrentUser from "../middlewares/attachCurrentUser";
 import DiaryService from "@/services/diary/diary.service";
@@ -15,7 +15,7 @@ export default (app: Router) => {
    
     route.get('/me', async (req: IattachCurrentUserRequest, res: Response) => {
         const userId = req.currentUser._id;
-        const userServiceInstance = createUser()
+        const userServiceInstance = createUserInstance()
         const {id, email} = await userServiceInstance.findById(userId);
         return res.status(200).json({id, email});
     });
@@ -30,7 +30,7 @@ export default (app: Router) => {
     async (req: IattachCurrentUserRequest, res: Response) => {
         const userId: string = req.currentUser._id;
         const passwordObj = req.body
-        const userServiceInstance = createUser();
+        const userServiceInstance = createUserInstance();
         
         const result = await userServiceInstance.editUser(userId, passwordObj);
         return res.status(200).json(result);
@@ -45,7 +45,7 @@ export default (app: Router) => {
     async (req: IattachCurrentUserRequest, res: Response) => {
         const userId: string = req.currentUser._id;
         const password: string = req.body.password
-        const userServiceInstance = createUser();
+        const userServiceInstance = createUserInstance();
         const diaryServiceInstance = createDiaryInstance()
         const userDeleteSequence = async (userServiceInstance: UserService, diaryServiceInstance: DiaryService) => {
             try {

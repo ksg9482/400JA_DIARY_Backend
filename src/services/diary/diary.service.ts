@@ -1,4 +1,4 @@
-import { IDiary } from '@/interfaces/IDiary';
+import { IDiary, IdiaryContent } from '@/interfaces/IDiary';
 import { Logger } from 'winston'; //@로 표기했었음. jest오류
 
 import { HydratedDocument } from 'mongoose';
@@ -13,14 +13,14 @@ import { HydratedDocument } from 'mongoose';
 export default class DiaryService {
     diaryModel: Models.DiaryModel;
     logger: Logger;
-    
+
     //global과 namespace 사용. model로 선언해서 monguuse메서드 사용
-    constructor(diaryModel:Models.DiaryModel, logger:Logger) {
+    constructor(diaryModel: Models.DiaryModel, logger: Logger) {
         this.diaryModel = diaryModel;
         this.logger = logger;
     };
 
-    public async createDiaryContent (userId:string, diaryContent:any) { //만들어야 됨
+    public async createDiaryContent(userId: string, diaryContent: IdiaryContent) { //만들어야 됨
         try {
             //const testInit = await this.diaryModel.deleteMany() //지울것!!
 
@@ -28,30 +28,30 @@ export default class DiaryService {
             const isDiaryParametor = (diaryContent) => {
                 return diaryContent?.content.length <= 0
             }
-            if (isDiaryParametor(diaryContent)) { 
+            if (isDiaryParametor(diaryContent)) {
                 throw new Error("No Diary parametor");
             };
 
             const contentBody = diaryContent.content;
-            
+
             const diaryRecord: HydratedDocument<IDiary> = new this.diaryModel({
-                userId:userId,
-                content:contentBody
+                userId: userId,
+                content: contentBody
             });
-            
-            const diarySave = await diaryRecord.save();
-            
-            return {message:'saved'};
+
+            await diaryRecord.save();
+
+            return { message: 'saved' };
         } catch (error) {
             this.logger.error(error);
             return error;
         }
     };
 
-    public async findAllDiary (userId:string) {
+    public async findAllDiary(userId: string) {
         try {
-            const diaryRecord = await this.diaryModel.find({id:userId});
-            
+            const diaryRecord = await this.diaryModel.find({ id: userId });
+
             if (!diaryRecord) {
                 throw new Error('Diary in Empty');
             };
@@ -63,22 +63,50 @@ export default class DiaryService {
         }
     };
 
-    public async findKeyword (userId:string, keyword:[string]) {
+    public async findKeyword(userId: string, keyword: [string]) {
 
     }
 
-    public async findByDate (userId:string) {
-
-    }
-
-    public async deleteAllDiary (userId:string) {
+    public async findByDate(userId: string, targetDate: Date) {
+        //targetDate 서식 정해야함.
         try {
-            const deleteAllDiary = await this.diaryModel.deleteMany({userId:userId})
-            return {message: "All diary deleted!"};
+            const diaryRecord = await this.diaryModel.find({id:userId, created_at:targetDate});
+            
+            if (!diaryRecord) {
+                throw new Error('Diary in Empty');
+            };
+
+            const setFindByDateForm = (diaryRecord:any) => {
+                return {id:diaryRecord.id, content:diaryRecord.content}
+            };
+            
+            return setFindByDateForm(diaryRecord);
         } catch (error) {
             this.logger.error(error);
             return error;
         }
+    }
+
+    public async deleteAllDiary(userId: string) {
+        try {
+            await this.diaryModel.deleteMany({ userId: userId })
+            return { message: "All diary deleted!" };
+        } catch (error) {
+            this.logger.error(error);
+            return error;
+        };
+    };
+
+    public checkdiaryContent(diaryContent: IdiaryContent): IdiaryContent {
+        if (typeof diaryContent.content !== 'string') {
+            throw new Error('Diary content not string');
+        };
+
+        if (diaryContent.content.length > 400) {
+            throw new Error('Diary content longer then 400');
+        };
+
+        return diaryContent;
     }
 
 }
