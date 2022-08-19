@@ -22,19 +22,30 @@ export default class DiaryService {
 
     public async createDiaryContent(userId: string, diaryContent: IdiaryContent) { //만들어야 됨
         try {
-            //const testInit = await this.diaryModel.deleteMany() //지울것!!
+            //await this.diaryModel.deleteMany() //지울것!!
             this.checkdiaryContent(diaryContent)
             // 날짜가 '오늘'이라면 중복되지 말아야 한다.
             
+            const contentSubject = diaryContent.subject.length !== 0 ? diaryContent.subject : ""
             const contentBody = diaryContent.content;
             const date = new Date() //now로 바꿔서 넣어야 함
-            
+            const getKRDate = () => {
+                const date = new Date().toLocaleString("ko-KR",{timeZone:"Asia/Seoul"})
+                const dateSplitArr = date.split('. ') // 공백문자도 포함해 분리
+                return {
+                    year:dateSplitArr[0],
+                    month:dateSplitArr[1].padStart(2,'0'),
+                    day:dateSplitArr[2].padStart(2,'0')
+                }
+            };
+            const dateKR = getKRDate()
             const diaryRecord: HydratedDocument<IDiary> = new this.diaryModel({
                 userId: userId,
+                subject: contentSubject,
                 content: contentBody,
-                year:date.getFullYear(),
-                month:date.getMonth(),
-                day:date.getDay()
+                year:dateKR.year,
+                month:dateKR.month,
+                day:dateKR.day
             });
 
             await diaryRecord.save();
@@ -61,10 +72,10 @@ export default class DiaryService {
         }
     };
 
-    public async findKeyword(userId: string, keyword: string[]) {
+    public async findKeyword(userId: string, keyword: string) {
         try {
-            const targetkeyword = keyword[0] //이거 자동화
-            const diaryRecord = await this.diaryModel.find({$text:{$search:targetkeyword}})
+            //키워드 연결은 + 사용
+            const diaryRecord = await this.diaryModel.find({$text:{$search:keyword}})
             console.log(diaryRecord)
             return diaryRecord
         } catch (error) {
@@ -79,7 +90,7 @@ export default class DiaryService {
             
             //const diaryRecord = await this.diaryModel.find({id:userId, created_at:targetDate});
             const diaryRecord = await this.diaryModel.find()
-                .all([{id:userId},{created_at:targetDate}])
+                .all([{id:userId},{year:2022}])
             
                 if (!diaryRecord) {
                 throw new Error('Diary in Empty');

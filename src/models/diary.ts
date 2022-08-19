@@ -18,6 +18,10 @@ const diarySchema = new Schema<IDiary>(
             type:String,
             require:true,
         },
+        subject: {
+            type:String,
+            require:true
+        },
         content: {
             type:String,
             require:true
@@ -39,13 +43,13 @@ const diarySchema = new Schema<IDiary>(
 );
 
 diarySchema.index({
-    userId:'text', 
-    'content': 'text', 
-    'year': 'text',
-    'month': 'text',
-    'day': 'text',
+    subject:'text',
+    content:'text'
 })
-
+//'content': 'text'
+//'year': 'text',
+    //'month': 'text',
+    //'day': 'text',
 const Diary = model<IDiary>('Diary', diarySchema);
 
 export default Diary
