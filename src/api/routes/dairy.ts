@@ -19,6 +19,7 @@ export default (app:Router) => {
     route.post('/', 
     celebrate({
         body:Joi.object({
+            subject:Joi.string().max(20),
             content:Joi.string().max(400).required()
         })
     }),
@@ -32,9 +33,9 @@ export default (app:Router) => {
 
     route.get('/search', async (req: IattachCurrentUserRequest, res: Response) => {
         const userId = req.currentUser._id;
-        const keywordArr = req.query?.keyword ? String(req.query.keyword).split(' ') : [];
+        const keyword = req.query?.keyword ? String(req.query.keyword) : '';
         const diaryServiceInstance = createDiaryInstance();
-        const result = await diaryServiceInstance.findKeyword(userId, keywordArr);
+        const result = await diaryServiceInstance.findKeyword(userId, keyword);
         return res.status(200).json(result);
     });
     //키워드 검색
