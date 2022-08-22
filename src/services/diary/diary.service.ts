@@ -1,4 +1,4 @@
-import { IDiary, IdiaryContent } from '@/interfaces/IDiary';
+import { IDiary, IdiaryContent, IfindByDateDTO } from '@/interfaces/IDiary';
 import { Logger } from 'winston'; //@로 표기했었음. jest오류
 
 import { HydratedDocument } from 'mongoose';
@@ -25,6 +25,7 @@ export default class DiaryService {
             //await this.diaryModel.deleteMany() //지울것!!
             this.checkdiaryContent(diaryContent)
             // 날짜가 '오늘'이라면 중복되지 말아야 한다.
+            // findandupdate로 오늘이 지난게 아니면 수정으로 바뀌게끔
             
             const contentSubject = diaryContent.subject.length !== 0 ? diaryContent.subject : ""
             const contentBody = diaryContent.content;
@@ -72,6 +73,23 @@ export default class DiaryService {
         }
     };
 
+    // 기본은 1주일치로 끊기. 우선적으로 최근부터 1주일. 1주일 보내면 클라이언트에서 뿌리기. 스크롤 끝까지 가면 자동으로 그 이전 1주일. 이걸로 무한스크롤
+    public async findweekleyDiary(userId: string) {
+        try {
+            //페이지네이션 이용해서 끊기
+            const diaryRecord = await this.diaryModel.find({ id: userId }).limit(7).sort('desc');
+
+            if (!diaryRecord) {
+                throw new Error('Diary is Empty');
+            };
+
+            return diaryRecord;
+        } catch (error) {
+            this.logger.error(error);
+            return error;
+        }
+    };
+
     public async findKeyword(userId: string, keyword: string) {
         try {
             //키워드 연결은 + 사용
@@ -89,12 +107,15 @@ export default class DiaryService {
         }
     }
 
-    public async findByDate(userId: string, targetDate: Date) {
+    public async findByDate(userId: string, findByDateDTO: IfindByDateDTO) {
         //targetDate 서식 정해야함.
         try {
+            
             //const diaryRecord = await this.diaryModel.find({id:userId, created_at:targetDate});
             const diaryRecord = await this.diaryModel.find()
-                .all([{id:userId},{year:2022}])
+                .lte('year',findByDateDTO.year)
+                .lte('year',findByDateDTO.month)
+                .lte('year',findByDateDTO.day)
             
                 if (!diaryRecord) {
                 throw new Error('Diary is Empty');
