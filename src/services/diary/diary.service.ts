@@ -62,7 +62,7 @@ export default class DiaryService {
             const diaryRecord = await this.diaryModel.find({ id: userId });
 
             if (!diaryRecord) {
-                throw new Error('Diary in Empty');
+                throw new Error('Diary is Empty');
             };
 
             return diaryRecord;
@@ -75,8 +75,13 @@ export default class DiaryService {
     public async findKeyword(userId: string, keyword: string) {
         try {
             //키워드 연결은 + 사용
-            const diaryRecord = await this.diaryModel.find({$text:{$search:keyword}})
-            console.log(diaryRecord)
+            //유저아이디로 필터링해야함
+            const diaryRecord = await this.diaryModel.find({$text:{$search:keyword}});
+
+            if (!diaryRecord) {
+                throw new Error('Diary is Empty');
+            };
+            //console.log([...diaryRecord])
             return diaryRecord
         } catch (error) {
             this.logger.error(error);
@@ -87,13 +92,12 @@ export default class DiaryService {
     public async findByDate(userId: string, targetDate: Date) {
         //targetDate 서식 정해야함.
         try {
-            
             //const diaryRecord = await this.diaryModel.find({id:userId, created_at:targetDate});
             const diaryRecord = await this.diaryModel.find()
                 .all([{id:userId},{year:2022}])
             
                 if (!diaryRecord) {
-                throw new Error('Diary in Empty');
+                throw new Error('Diary is Empty');
             };
 
             const setFindByDateForm = (diaryRecord:any) => {
