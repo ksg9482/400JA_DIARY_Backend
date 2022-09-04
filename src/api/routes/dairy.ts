@@ -40,4 +40,11 @@ export default (app:Router) => {
     });
     //키워드 검색
     //날짜기준
+
+    route.get('/weekly', async (req: IattachCurrentUserRequest, res: Response) => {
+        const userId = req.currentUser._id;
+        const diaryServiceInstance = createDiaryInstance();
+        const result = await diaryServiceInstance.weekleyDiary(userId)
+        return res.status(200).json(result);
+    });
 }

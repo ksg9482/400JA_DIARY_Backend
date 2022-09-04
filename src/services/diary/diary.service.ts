@@ -74,16 +74,16 @@ export default class DiaryService {
     };
 
     // 기본은 1주일치로 끊기. 우선적으로 최근부터 1주일. 1주일 보내면 클라이언트에서 뿌리기. 스크롤 끝까지 가면 자동으로 그 이전 1주일. 이걸로 무한스크롤
-    public async findWeekleyDiary(userId: string) {
+    public async weekleyDiary(userId: string) {
         try {
             //페이지네이션 이용해서 끊기
             const diaryRecord = await this.diaryModel.find({ id: userId }).limit(7).sort('desc');
-
             if (!diaryRecord) {
                 throw new Error('Diary is Empty');
             };
 
-            return diaryRecord;
+            const weekleyDiaryForm = [...diaryRecord['_doc']]
+            return weekleyDiaryForm;
         } catch (error) {
             this.logger.error(error);
             return error;
