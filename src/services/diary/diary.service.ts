@@ -29,7 +29,7 @@ export default class DiaryService {
             
             const contentSubject = diaryContent.subject.length !== 0 ? diaryContent.subject : ""
             const contentBody = diaryContent.content;
-            const date = new Date() //now로 바꿔서 넣어야 함
+            const date = new Date() //now랑 비교해서 날짜 안바뀌었으면 추가안되게
             const getKRDate = () => {
                 const date = new Date().toLocaleString("ko-KR",{timeZone:"Asia/Seoul"})
                 const dateSplitArr = date.split('. ') // 공백문자도 포함해 분리
@@ -39,7 +39,8 @@ export default class DiaryService {
                     day:dateSplitArr[2].padStart(2,'0')
                 }
             };
-            const dateKR = getKRDate()
+            const dateKR = getKRDate();
+            
             const diaryRecord: HydratedDocument<IDiary> = new this.diaryModel({
                 userId: userId,
                 subject: contentSubject,
@@ -48,7 +49,6 @@ export default class DiaryService {
                 month:dateKR.month,
                 day:dateKR.day
             });
-
             await diaryRecord.save();
             
             return { message: 'saved' };
@@ -75,6 +75,7 @@ export default class DiaryService {
 
     // 기본은 1주일치로 끊기. 우선적으로 최근부터 1주일. 1주일 보내면 클라이언트에서 뿌리기. 스크롤 끝까지 가면 자동으로 그 이전 1주일. 이걸로 무한스크롤
     public async weekleyDiary(userId: string) {
+        
         try {
             //페이지네이션 이용해서 끊기
             const diaryRecord = await this.diaryModel.find({ id: userId }).limit(7).sort('desc');
@@ -82,8 +83,9 @@ export default class DiaryService {
                 throw new Error('Diary is Empty');
             };
 
-            const weekleyDiaryForm = [...diaryRecord['_doc']]
-            return weekleyDiaryForm;
+            const diaryForm = [...diaryRecord].map((diary)=>{return this.setDiaryForm(diary)});
+
+            return diaryForm;
         } catch (error) {
             this.logger.error(error);
             return error;
@@ -94,13 +96,15 @@ export default class DiaryService {
         try {
             //키워드 연결은 + 사용
             //유저아이디로 필터링해야함
-            const diaryRecord = await this.diaryModel.find({$text:{$search:keyword}});
+            const diaryRecord = await this.diaryModel.find().and([{userId:userId},{$text:{$search:keyword}}])
 
             if (!diaryRecord) {
                 throw new Error('Diary is Empty');
             };
             //console.log([...diaryRecord])
-            return diaryRecord
+            const diaryForm = [...diaryRecord].map((diary)=>{return this.setDiaryForm(diary)});
+
+            return diaryForm;
         } catch (error) {
             this.logger.error(error);
             return error;
@@ -112,20 +116,18 @@ export default class DiaryService {
         try {
             
             //const diaryRecord = await this.diaryModel.find({id:userId, created_at:targetDate});
-            const diaryRecord = await this.diaryModel.find()
+            const diaryRecord = await this.diaryModel.find({userId:userId})
                 .lte('year',findByDateDTO.year)
-                .lte('year',findByDateDTO.month)
-                .lte('year',findByDateDTO.day)
+                .lte('month',findByDateDTO.month)
+                .lte('day',findByDateDTO.day)
             
                 if (!diaryRecord) {
                 throw new Error('Diary is Empty');
             };
 
-            const setFindByDateForm = (diaryRecord:any) => {
-                return {id:diaryRecord.id, content:diaryRecord.content}
-            };
+            const diaryForm = [...diaryRecord].map((diary)=>{return this.setDiaryForm(diary)});
 
-            return setFindByDateForm(diaryRecord);
+            return diaryForm;
         } catch (error) {
             this.logger.error(error);
             return error;
@@ -147,4 +149,20 @@ export default class DiaryService {
             throw new Error("No Diary parametor");
         };
     };
+
+    private setDiaryForm (rawDiary:any) {
+        const diaryId = String(rawDiary._id).split('"');
+        const diaryYear = String(rawDiary.year).padStart(2, '0')
+        const diaryMonth = String(rawDiary.month).padStart(2, '0')
+        const diaryDay = String(rawDiary.day).padStart(2, '0')
+
+        const diaryForm = {
+            id:diaryId[0],
+            subject: rawDiary.subject ? rawDiary.subject : '',
+            content: rawDiary.content ? rawDiary.content : '',
+            date: `${diaryYear}-${diaryMonth}-${diaryDay}`
+        }
+
+        return diaryForm
+    }
 }
