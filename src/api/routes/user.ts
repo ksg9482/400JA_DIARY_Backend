@@ -14,9 +14,11 @@ export default (app: Router) => {
    
     route.get('/me', async (req: IattachCurrentUserRequest, res: Response) => {
         const userId = req.currentUser._id;
-        const userServiceInstance = createUserInstance()
+        const userServiceInstance = createUserInstance();
+        const diaryServiceInstance = createDiaryInstance();
         const {id, email} = await userServiceInstance.findById(userId);
-        return res.status(200).json({id, email});
+        const diaryCount = await diaryServiceInstance.findDiaryCount(userId);
+        return res.status(200).json({id, email, diaryCount});
     });
 
     route.patch('/', 
