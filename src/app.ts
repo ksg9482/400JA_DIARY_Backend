@@ -11,7 +11,6 @@ export const startServer = async () => {
         Logger.info(`Server listening on port: ${config.port}`);
     })
     .on('error', err => {
-        console.log(err)
         Logger.error(err);
         process.exit(1);
     });

@@ -87,7 +87,7 @@ export default class DiaryService {
         try {
             //페이지네이션 이용해서 끊기
             const diaryRecord = await this.diaryModel.find({ id: userId }).limit(7).sort({ createdAt: -1 });
-            console.log(diaryRecord)
+            
             if (!diaryRecord) {
                 throw new Error('Diary is Empty');
             };
@@ -132,7 +132,7 @@ export default class DiaryService {
             if (!diaryRecord) {
                 throw new Error('Diary is Empty');
             };
-            //console.log([...diaryRecord])
+            
             const diaryForm = [...diaryRecord].map((diary) => { return this.setDiaryForm(diary) });
 
             return diaryForm;
@@ -198,9 +198,9 @@ export default class DiaryService {
 
     private setDiaryForm(rawDiary: any) {
         const diaryId = String(rawDiary._id).split('"');
-        const diaryYear = String(rawDiary.year).padStart(2, '0')
-        const diaryMonth = String(rawDiary.month).padStart(2, '0')
-        const diaryDay = String(rawDiary.day).padStart(2, '0')
+        const diaryYear = String(rawDiary.year);
+        const diaryMonth = String(rawDiary.month).padStart(2, '0');
+        const diaryDay = String(rawDiary.day).padStart(2, '0');
 
         const diaryForm = {
             id: diaryId[0],

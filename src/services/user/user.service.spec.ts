@@ -197,7 +197,7 @@ describe('UserService', () => {
             HashUtil.prototype.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(true));
             User.updateOne = jest.fn().mockResolvedValue('changed');
             const result = await service.editUser(userId, passwordObj);
-            console.log(result)
+            
             expect(result).toEqual({message:'Password Changed'});
         });
     });
