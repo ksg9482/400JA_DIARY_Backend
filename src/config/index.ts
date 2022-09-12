@@ -40,4 +40,10 @@ export default {
     testDatabaseUsername:process.env.TEST_MONGODB_USERNAME,
     testDatabasePassword:process.env.TEST_MONGODB_PASSWORD,
 
+    KAKAO_REST_API_KEY: process.env.KAKAO_REST_API_KEY,
+    KAKAO_REDIRECT_URI: process.env.KAKAO_REDIRECT_URI,
+
+    GOOGLE_CLIENT_ID:process.env.GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET:process.env.GOOGLE_CLIENT_SECRET,
+    GOOGLE_REDIRECT_URI:process.env.GOOGLE_REDIRECT_URI
 }

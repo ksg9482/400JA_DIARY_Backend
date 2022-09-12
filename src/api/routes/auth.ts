@@ -56,19 +56,17 @@ export default (app: Router) => {
     },
   );
 
-  route.post(
-    '/kakao',
-    celebrate({
-      body: Joi.object({
-        code: Joi.string().required(),
-      }),
-    }),
+  route.get('/kakao',
     async (req: Request, res: Response, next: NextFunction) => {
       logger.debug('Calling Login endpoint with body: %o', req.body);
 
       try {
+        const code = req.query?.code ? String(req.query.code) : ''
+        //클라이언트 단에서 전송한 코드로 카카오 인증 -> 유저 정보 리턴
         const authServiceInstance = createAuthInstance();
-        const kakaoOAuth = await authServiceInstance.kakaoOAuth(req.body);
+        const kakaoOAuth = await authServiceInstance.kakaoOAuth(code);
+        //유저 정보로 db검색. 없으면 가입 후 로그인, 있으면 바로 로그인
+        //그냥 로그인이 아니라 OAuth메서드(findOrCreate) 따로 만드는게 좋을 듯.
         const userServiceInstance = createUserInstance();
         const { user, token } = await userServiceInstance.login(req.body as IUserInputDTO);
 
