@@ -22,30 +22,24 @@ export default class AuthService {
   public async kakaoOAuth(code: string) {
     const kakaoHost = 'kauth.kakao.com';
     const kakaoParametor = {
-      grant_type: 'authorization_code',
       client_id: config.KAKAO_REST_API_KEY,
-      redirect_uri: config.KAKAO_REDIRECT_URI,
-      code: code
+      redirect_uri: config.KAKAO_REDIRECT_URI
     };
     const kakaoToken = await axios.post(
-      `https://${kakaoHost}/oauth/token
-      ?grant_type=${kakaoParametor.grant_type}
-      &client_id=${kakaoParametor.client_id}
-      &redirect_uri=${kakaoParametor.redirect_uri}
-      &code=${kakaoParametor.code}`
+      `https://${kakaoHost}/oauth/token?grant_type=authorization_code&client_id=${kakaoParametor.client_id}&redirect_uri=${kakaoParametor.redirect_uri}&code=${code}`
     )
-    const userInfo = await axios.get(
-      // access token로 유저정보 요청
-      'https://kapi.kakao.com/v2/user/me',
-      {
-        headers: {
-          Authorization: `Bearer ${kakaoToken.data.access_token}`,
-        },
-      }
-    );
-    console.log(userInfo)
+    
+    // const userInfo = await axios.get(
+    //   // access token로 유저정보 요청
+    //   'https://kapi.kakao.com/v2/user/me',
+    //   {
+    //     headers: {
+    //       Authorization: `Bearer ${kakaoToken.data.access_token}`,
+    //     },
+    //   }
+    // );
     const kakaoDataForm = {}
-    return kakaoDataForm
+    return kakaoToken
     //클라이언트 키 받아서 카카오에 전송
     //토큰 받아서 jwt만들어 리턴
   };

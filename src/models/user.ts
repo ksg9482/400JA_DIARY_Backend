@@ -1,7 +1,11 @@
 import { IUser } from "../interfaces/IUser";
 import HashUtil from "../services/utils/hashUtils";
 import { Schema, model } from "mongoose";
-
+enum SignupType {
+    basic = 'basic',
+    kakao = 'kakao',
+    google = 'google'
+}
 const userSchema = new Schema<IUser>(
     {
         email: {
@@ -13,11 +17,16 @@ const userSchema = new Schema<IUser>(
             type:String,
             require:true
         },
-
         role: {
             type:String,
             require:true,
             default: 'user',
+        },
+        type: {
+            type:String,
+            enum:SignupType,
+            require:true,
+            default:SignupType.basic
         }
     },
     {timestamps: true}
