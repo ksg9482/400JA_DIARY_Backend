@@ -25,9 +25,12 @@ export default class AuthService {
       client_id: config.KAKAO_REST_API_KEY,
       redirect_uri: config.KAKAO_REDIRECT_URI
     };
+    
+    console.log('이거 한번만 나와야 함')
     const kakaoToken = await axios.post(
-      `https://${kakaoHost}/oauth/token?grant_type=authorization_code&client_id=${kakaoParametor.client_id}&redirect_uri=${kakaoParametor.redirect_uri}&code=${code}`
-    )
+        `https://${kakaoHost}/oauth/token?grant_type=authorization_code&client_id=${kakaoParametor.client_id}&redirect_uri=${kakaoParametor.redirect_uri}&code=${code}`
+      )
+    
     
     // const userInfo = await axios.get(
     //   // access token로 유저정보 요청
@@ -39,7 +42,7 @@ export default class AuthService {
     //   }
     // );
     const kakaoDataForm = {}
-    return kakaoToken
+    return kakaoDataForm
     //클라이언트 키 받아서 카카오에 전송
     //토큰 받아서 jwt만들어 리턴
   };

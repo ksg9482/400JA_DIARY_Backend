@@ -74,7 +74,7 @@ export default (app: Router) => {
 
         return res.status(200).cookie('jwt', token).json({ user });
       } catch (err) {
-        logger.error('error: %o', err);
+        //logger.error('error: %o', err);
         return next(err);
       }
     },
