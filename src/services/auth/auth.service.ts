@@ -1,6 +1,6 @@
 import { IUser, IUserInputDTO } from '@/interfaces/IUser';
 import { Logger } from 'winston';
-import axios from "axios";
+import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import config from '../../config'; //@로 표기했었음. jest오류
 import HashUtil from '../utils/hashUtils';
@@ -9,11 +9,11 @@ import JwtUtil from '../utils/jwtUtils';
 
 export default class AuthService {
   logger: Logger;
-  jwt: JwtUtil
+  jwt: JwtUtil;
   //global과 namespace 사용. model로 선언해서 monguuse메서드 사용
-  constructor(logger: Logger, jwt:JwtUtil) {
+  constructor(logger: Logger, jwt: JwtUtil) {
     this.logger = logger;
-    this.jwt = jwt
+    this.jwt = jwt;
   }
 
   //로그인 데이터는 똑같아야 한다
@@ -23,34 +23,54 @@ export default class AuthService {
     const kakaoHost = 'kauth.kakao.com';
     const kakaoParametor = {
       client_id: config.KAKAO_REST_API_KEY,
-      redirect_uri: config.KAKAO_REDIRECT_URI
+      redirect_uri: config.KAKAO_REDIRECT_URI,
     };
-    
-    console.log('이거 한번만 나와야 함')
+
     const kakaoToken = await axios.post(
-        `https://${kakaoHost}/oauth/token?grant_type=authorization_code&client_id=${kakaoParametor.client_id}&redirect_uri=${kakaoParametor.redirect_uri}&code=${code}`
-      )
-    
-    
-    // const userInfo = await axios.get(
-    //   // access token로 유저정보 요청
-    //   'https://kapi.kakao.com/v2/user/me',
-    //   {
-    //     headers: {
-    //       Authorization: `Bearer ${kakaoToken.data.access_token}`,
-    //     },
-    //   }
-    // );
-    const kakaoDataForm = {}
-    return kakaoDataForm
+      `https://${kakaoHost}/oauth/token?grant_type=authorization_code&client_id=${kakaoParametor.client_id}&redirect_uri=${kakaoParametor.redirect_uri}&code=${code}`,
+    );
+
+    const userInfo = await axios.get(
+      // access token로 유저정보 요청
+      'https://kapi.kakao.com/v2/user/me',
+      {
+        headers: {
+          Authorization: `Bearer ${kakaoToken.data.access_token}`,
+        },
+      },
+    );
+    /*
+      kakaoToken.data
+      {
+        access_token: string,
+        token_type: 'bearer',
+        refresh_token: string,
+        expires_in: 21599,
+        refresh_token_expires_in: 5183999
+      }
+
+      userInfo.data 
+      {
+      id:number,
+      connected_at:Date
+      }
+     */
+
+    const kakaoDataForm = {
+      email: '',
+      password: '',
+    };
+    return kakaoDataForm;
     //클라이언트 키 받아서 카카오에 전송
     //토큰 받아서 jwt만들어 리턴
-  };
+  }
 
   public async googleOAuth(code: string) {
-    const googleHost = 'oauth2.googleapis.com'
+    const googleHost = 'oauth2.googleapis.com';
 
-    const googleToken = await axios.post(`https://${googleHost}/token?code=${code}&client_id=${config.GOOGLE_CLIENT_ID}&client_secret=${config.GOOGLE_CLIENT_SECRET}&redirect_uri=${config.GOOGLE_REDIRECT_URI}&grant_type=authorization_code`)
+    const googleToken = await axios.post(
+      `https://${googleHost}/token?code=${code}&client_id=${config.GOOGLE_CLIENT_ID}&client_secret=${config.GOOGLE_CLIENT_SECRET}&redirect_uri=${config.GOOGLE_REDIRECT_URI}&grant_type=authorization_code`,
+    );
 
     const userInfo = await axios.get(
       `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${googleToken.data.access_token}`,
@@ -58,12 +78,11 @@ export default class AuthService {
         headers: {
           Authorization: `Bearer ${googleToken.data.access_token}`,
         },
-      }
+      },
     );
-    const userDataForm = {}
-    return userDataForm
+    const userDataForm = {};
+    return userDataForm;
     //클라이언트 키 받아서 카카오에 전송
     //토큰 받아서 jwt만들어 리턴
-  };
-
+  }
 }
