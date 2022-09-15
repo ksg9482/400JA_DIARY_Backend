@@ -9,4 +9,6 @@ export interface IUser {
 export interface IUserInputDTO {
   email: string;
   password: string;
+  role?: string;
+  type?: string;
 }

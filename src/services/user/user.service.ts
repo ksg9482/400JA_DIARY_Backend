@@ -215,6 +215,20 @@ export default class UserService {
         };
     };
 
+    /**
+     * 소셜로 가입이 되어있으면 바로 로그인(토큰발행)으로
+     * 가입이 되어 있지 않으면 가입하고 토큰 발행
+     */
+    public async oauthCheck(email:string, id:string) {
+        const userCheck = await this.userModel.findOne({ email });
+        
+        if(userCheck) {
+            return await this.login({email:email, password:id});
+        } else {
+            return await this.signup({email:email, password:id});
+        };
+    };
+
     public verifyEmail() {
 
     };
