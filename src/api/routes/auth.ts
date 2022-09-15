@@ -69,10 +69,34 @@ export default (app: Router) => {
         //그냥 로그인이 아니라 OAuth메서드(findOrCreate) 따로 만드는게 좋을 듯.
         
         const userServiceInstance = createUserInstance();
-        const { user, token } = await userServiceInstance.login(req.body as IUserInputDTO);
+        //password는 id를 패스워드 삼았다
+        const { user, token } = await userServiceInstance.oauthCheck(kakaoOAuth.email, kakaoOAuth.password);
 
 
         return res.status(200).cookie('jwt', token).json({ user });
+      } catch (err) {
+        //logger.error('error: %o', err);
+        return next(err);
+      }
+    },
+  );
+
+  route.post('/google',
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const { accessToken } = req.body;
+        //클라이언트 단에서 전송한 코드로 카카오 인증 -> 유저 정보 리턴
+        const authServiceInstance = createAuthInstance();
+        const googleOAuth = await authServiceInstance.googleOAuth(accessToken);
+  
+        //유저 정보로 db검색. 없으면 가입 후 로그인, 있으면 바로 로그인
+        //그냥 로그인이 아니라 OAuth메서드(findOrCreate) 따로 만드는게 좋을 듯.
+        
+        const userServiceInstance = createUserInstance();
+        const { user, token } = await userServiceInstance.oauthCheck(googleOAuth.email, googleOAuth.password);
+
+        return res.status(200).json(googleOAuth);
+        //return res.status(200).cookie('jwt', token).json({ user });
       } catch (err) {
         //logger.error('error: %o', err);
         return next(err);
