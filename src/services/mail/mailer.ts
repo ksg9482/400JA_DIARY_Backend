@@ -1,6 +1,5 @@
 import config from "@/config";
 import { IUser } from "@/interfaces/IUser";
-import formData from 'form-data';
 import mailgun from "mailgun-js";
 import { mailSubject, mailText } from "./mailText";
 

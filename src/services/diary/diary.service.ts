@@ -67,7 +67,7 @@ export default class DiaryService {
      */
     public async findAllDiary(userId: string) {
         try {
-            const diaryRecord = await this.diaryModel.find({ id: userId });
+            const diaryRecord = await this.diaryModel.find({ userId: userId });
 
             if (!diaryRecord) {
                 throw new Error('Diary is Empty');
@@ -86,7 +86,7 @@ export default class DiaryService {
     public async weekleyDiary(userId: string) {
         try {
             //페이지네이션 이용해서 끊기
-            const diaryRecord = await this.diaryModel.find({ id: userId }).limit(7).sort({ createdAt: -1 });
+            const diaryRecord = await this.diaryModel.find({ userId: userId }).limit(7).sort({ createdAt: -1 });
             
             if (!diaryRecord) {
                 throw new Error('Diary is Empty');
