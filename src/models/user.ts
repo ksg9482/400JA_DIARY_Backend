@@ -1,11 +1,14 @@
 import { IUser } from '../interfaces/IUser';
 import HashUtil from '../services/utils/hashUtils';
-import { Schema, model } from 'mongoose';
-enum SignupType {
+import { Schema, model, Document } from 'mongoose';
+export enum signupType {
   BASIC = 'BASIC',
   KAKAO = 'KAKAO',
   GOOGLE = 'GOOGLE',
 }
+// interface IUserDocument extends IUser {
+//   findOneOrCreate:(condition:any, doc:any) => Promise<any>
+// }
 const userSchema = new Schema<IUser>(
   {
     email: {
@@ -24,9 +27,9 @@ const userSchema = new Schema<IUser>(
     },
     type: {
       type: String,
-      enum: SignupType,
+      enum: signupType,
       require: true,
-      default: SignupType.BASIC,
+      default: signupType.BASIC,
     },
   },
   { timestamps: true },
@@ -45,6 +48,27 @@ userSchema.pre('updateOne', async function (next) {
     next();
   }
 });
+
+// userSchema.statics.findOneOrCreate = function findOneOrCreate(condition, doc) {
+//   const self = this;
+//   const newDocument = doc;
+//   return new Promise((resolve, reject) => {
+//     return self.findOne(condition)
+//       .then((result) => {
+//         if (result) {
+//           return resolve(result);
+//         }
+//         return self.create(newDocument)
+//           .then((result) => {
+//             return resolve(result);
+//           }).catch((error) => {
+//             return reject(error);
+//           })
+//       }).catch((error) => {
+//         return reject(error);
+//       })
+//   });
+// }
 
 const User = model<IUser>('User', userSchema);
 

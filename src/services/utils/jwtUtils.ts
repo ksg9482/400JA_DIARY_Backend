@@ -10,7 +10,6 @@ export default class JwtUtil {
         const today = new Date();
         const exp = new Date(today);
         exp.setDate(today.getDate() + 60);
-    
         return jwt.sign(
             {
                 _id: user._id,

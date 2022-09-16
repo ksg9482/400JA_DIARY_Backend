@@ -1,10 +1,6 @@
-import { IUser, IUserInputDTO } from '@/interfaces/IUser';
 import { Logger } from 'winston';
 import axios from 'axios';
-import jwt from 'jsonwebtoken';
 import config from '../../config'; //@로 표기했었음. jest오류
-import HashUtil from '../utils/hashUtils';
-import { HydratedDocument } from 'mongoose';
 import JwtUtil from '../utils/jwtUtils';
 interface IOAuthResult {
   email: string;
@@ -105,6 +101,7 @@ export default class AuthService {
 
   }
 
+  //이걸로 만든 아이디면 중복해결 해야함. 중복이면 다시 만들기.
   private createRandomId() {
     const randomNum = Math.round(Math.random() * 100000000)
     return '사용자' + randomNum

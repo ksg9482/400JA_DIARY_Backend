@@ -1,9 +1,11 @@
-import { IUser, IUserInputDTO } from '@/interfaces/IUser';
+import { IUserInputDTO } from '@/interfaces/IUser';
 import { celebrate, Joi } from 'celebrate';
 import { NextFunction, Request, Response, Router } from 'express';
 import logger from '../../loaders/logger';
 import { createUserInstance } from '../../services/user/user.factory';
 import { createAuthInstance } from '../../services/auth/auth.factory';
+import { signupType } from '@/models/user';
+
 
 const route = Router();
 
@@ -70,7 +72,7 @@ export default (app: Router) => {
         
         const userServiceInstance = createUserInstance();
         //password는 id를 패스워드 삼았다
-        const { user, token } = await userServiceInstance.oauthCheck(kakaoOAuth.email, kakaoOAuth.password);
+        const { user, token } = await userServiceInstance.oauthLogin(kakaoOAuth.email, kakaoOAuth.password, signupType.KAKAO);
 
 
         return res.status(200).cookie('jwt', token).json({ user });
@@ -93,10 +95,9 @@ export default (app: Router) => {
         //그냥 로그인이 아니라 OAuth메서드(findOrCreate) 따로 만드는게 좋을 듯.
         
         const userServiceInstance = createUserInstance();
-        const { user, token } = await userServiceInstance.oauthCheck(googleOAuth.email, googleOAuth.password);
+        const { user, token } = await userServiceInstance.oauthLogin(googleOAuth.email, googleOAuth.password, signupType.GOOGLE);
 
-        return res.status(200).json(googleOAuth);
-        //return res.status(200).cookie('jwt', token).json({ user });
+        return res.status(200).cookie('jwt', token).json({ user });
       } catch (err) {
         //logger.error('error: %o', err);
         return next(err);

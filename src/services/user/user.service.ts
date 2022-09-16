@@ -1,7 +1,7 @@
 //get - me
 //patch -  user data
 //delete -  user
-import { IUser, IUserInputDTO } from '@/interfaces/IUser';
+import { IUser, IUserDocument, IUserInputDTO } from '@/interfaces/IUser';
 import { Logger } from 'winston'; //@로 표기했었음. jest오류
 import HashUtil from '../utils/hashUtils';
 import { HydratedDocument } from 'mongoose';
@@ -25,7 +25,7 @@ export default class UserService {
         this.hashUtil = hashUtil;
     }
 
-    public async signup(userInputDTO: IUserInputDTO): Promise<{ user: IUser, token: string }> {
+    public async signup(userInputDTO: IUserInputDTO, oauthType?:string): Promise<{ user: IUser, token: string }> {
         try {
             //DTO 체크
             const checkUserInputDTO = (userInputDTO: IUserInputDTO) => {
@@ -54,10 +54,9 @@ export default class UserService {
             this.logger.silly('Creating user db record');
             const userRecord: HydratedDocument<IUser> = new this.userModel({
                 ...userInputDTO,
-                //password: hashedPassword
+                type: oauthType
             })
             const userSave = await userRecord.save()
-            
             if (userSave.errors) {
                 throw new Error('User cannot be created');
             };
@@ -102,7 +101,7 @@ export default class UserService {
             if (!userRecord) {
                 throw new Error('User not registered');
             };
-
+            
             this.logger.silly('Checking password');
 
             const validPassword = await this.hashUtil.checkPassword(userInputDTO.password, userRecord.password);
@@ -117,7 +116,6 @@ export default class UserService {
             const user = { ...userRecord['_doc'] };
             
             Reflect.deleteProperty(user, 'password');
-
             return { user, token };
 
         } catch (error) {
@@ -219,13 +217,13 @@ export default class UserService {
      * 소셜로 가입이 되어있으면 바로 로그인(토큰발행)으로
      * 가입이 되어 있지 않으면 가입하고 토큰 발행
      */
-    public async oauthCheck(email:string, id:string) {
+    public async oauthLogin(email:string, id:string, oauthType:string) {
         const userCheck = await this.userModel.findOne({ email });
         
         if(userCheck) {
             return await this.login({email:email, password:id});
         } else {
-            return await this.signup({email:email, password:id});
+            return await this.signup({email:email, password:id}, oauthType);
         };
     };
 
