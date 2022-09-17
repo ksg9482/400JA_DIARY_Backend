@@ -33,7 +33,6 @@ export default class DiaryService {
 
             const contentSubject = diaryContent.subject.length !== 0 ? diaryContent.subject : ""
             const contentBody = diaryContent.content;
-            const date = new Date() //now랑 비교해서 날짜 안바뀌었으면 추가안되게
             const getKRDate = () => {
                 const date = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })
                 const dateSplitArr = date.split('. ') // 공백문자도 포함해 분리
@@ -43,7 +42,19 @@ export default class DiaryService {
                     day: dateSplitArr[2].padStart(2, '0')
                 }
             };
+            /**
+             * true -> 서버시간 기준으로 날이 바뀌지 않아서 create가 아니라 update해야 한다
+             */
+            const compareNow = (targetDate: any) => {
+                const now = getKRDate(); //now랑 비교해서 날짜 안바뀌었으면 추가안되게
+                const isNow = targetDate <= now
+                return isNow
+            }
+
+
             const dateKR = getKRDate();
+
+            const isNow = compareNow(`${dateKR.year}-${dateKR.month}-${dateKR.day}-`)
 
             const diaryRecord: HydratedDocument<IDiary> = new this.diaryModel({
                 userId: userId,
@@ -53,9 +64,26 @@ export default class DiaryService {
                 month: dateKR.month,
                 day: dateKR.day
             });
+            const nowDiary = await this.findByDate(userId, {
+                year: Number(dateKR.year),
+                month: Number(dateKR.month),
+                day: Number(dateKR.day)
+            })
+            //todo. 실제로 날짜에 따라 변하는지 확인, 미래는 막는지 확인, 코드 정리
+            if (nowDiary) {
+                await this.diaryModel.updateOne(
+                    { _id: nowDiary.id }, //filter
+                    {
+                        subject: contentSubject, //update
+                        content: contentBody,
+                    }
+                )
+                //await diaryRecord.updateOne({userId:userId})
+                return { message: 'Diary update' };
+            }
             await diaryRecord.save();
 
-            return { message: 'saved' };
+            return { message: 'Diary save' };
         } catch (error) {
             this.logger.error(error);
             return error;
@@ -87,7 +115,7 @@ export default class DiaryService {
         try {
             //페이지네이션 이용해서 끊기
             const diaryRecord = await this.diaryModel.find({ userId: userId }).limit(7).sort({ createdAt: -1 });
-            
+
             if (!diaryRecord) {
                 throw new Error('Diary is Empty');
             };
@@ -132,7 +160,7 @@ export default class DiaryService {
             if (!diaryRecord) {
                 throw new Error('Diary is Empty');
             };
-            
+
             const diaryForm = [...diaryRecord].map((diary) => { return this.setDiaryForm(diary) });
 
             return diaryForm;
