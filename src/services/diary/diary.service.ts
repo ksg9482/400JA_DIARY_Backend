@@ -26,36 +26,14 @@ export default class DiaryService {
      */
     public async createDiaryContent(userId: string, diaryContent: IdiaryContent) { //만들어야 됨
         try {
-            //await this.diaryModel.deleteMany() //지울것!!
+            
             this.checkdiaryContent(diaryContent)
-            // 날짜가 '오늘'이라면 중복되지 말아야 한다.
-            // findandupdate로 오늘이 지난게 아니면 수정으로 바뀌게끔
 
             const contentSubject = diaryContent.subject.length !== 0 ? diaryContent.subject : ""
             const contentBody = diaryContent.content;
-            const getKRDate = () => {
-                const date = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })
-                const dateSplitArr = date.split('. ') // 공백문자도 포함해 분리
-                return {
-                    year: dateSplitArr[0],
-                    month: dateSplitArr[1].padStart(2, '0'),
-                    day: dateSplitArr[2].padStart(2, '0')
-                }
-            };
-            /**
-             * true -> 서버시간 기준으로 날이 바뀌지 않아서 create가 아니라 update해야 한다
-             */
-            const compareNow = (targetDate: any) => {
-                const now = getKRDate(); //now랑 비교해서 날짜 안바뀌었으면 추가안되게
-                const isNow = targetDate <= now
-                return isNow
-            }
-
-
-            const dateKR = getKRDate();
-
-            const isNow = compareNow(`${dateKR.year}-${dateKR.month}-${dateKR.day}-`)
-
+            
+            const dateKR = this.getKRDate();
+           
             const diaryRecord: HydratedDocument<IDiary> = new this.diaryModel({
                 userId: userId,
                 subject: contentSubject,
@@ -64,15 +42,18 @@ export default class DiaryService {
                 month: dateKR.month,
                 day: dateKR.day
             });
-            const nowDiary = await this.findByDate(userId, {
-                year: Number(dateKR.year),
-                month: Number(dateKR.month),
-                day: Number(dateKR.day)
-            })
-            //todo. 실제로 날짜에 따라 변하는지 확인, 미래는 막는지 확인, 코드 정리
+            
+            const nowDiary = await this.diaryModel //object or null
+            .findOne({ userId: userId })
+            .and([
+                {year:Number(dateKR.year)}, 
+                {month:Number(dateKR.month)}, 
+                {day:Number(dateKR.day)}
+            ])
+
             if (nowDiary) {
                 await this.diaryModel.updateOne(
-                    { _id: nowDiary.id }, //filter
+                    { _id: nowDiary['_id'] }, //filter
                     {
                         subject: contentSubject, //update
                         content: contentBody,
@@ -223,6 +204,16 @@ export default class DiaryService {
             throw new Error("No Diary parametor");
         };
     };
+
+    private getKRDate () {
+        const date = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })
+                const dateSplitArr = date.split('. ') // 공백문자도 포함해 분리
+                return {
+                    year: dateSplitArr[0],
+                    month: dateSplitArr[1].padStart(2, '0'),
+                    day: dateSplitArr[2].padStart(2, '0')
+                }
+    }
 
     private setDiaryForm(rawDiary: any) {
         const diaryId = String(rawDiary._id).split('"');
