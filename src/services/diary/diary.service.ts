@@ -26,25 +26,14 @@ export default class DiaryService {
      */
     public async createDiaryContent(userId: string, diaryContent: IdiaryContent) { //만들어야 됨
         try {
-            //await this.diaryModel.deleteMany() //지울것!!
+            
             this.checkdiaryContent(diaryContent)
-            // 날짜가 '오늘'이라면 중복되지 말아야 한다.
-            // findandupdate로 오늘이 지난게 아니면 수정으로 바뀌게끔
 
             const contentSubject = diaryContent.subject.length !== 0 ? diaryContent.subject : ""
             const contentBody = diaryContent.content;
-            const date = new Date() //now랑 비교해서 날짜 안바뀌었으면 추가안되게
-            const getKRDate = () => {
-                const date = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })
-                const dateSplitArr = date.split('. ') // 공백문자도 포함해 분리
-                return {
-                    year: dateSplitArr[0],
-                    month: dateSplitArr[1].padStart(2, '0'),
-                    day: dateSplitArr[2].padStart(2, '0')
-                }
-            };
-            const dateKR = getKRDate();
-
+            
+            const dateKR = this.getKRDate();
+           
             const diaryRecord: HydratedDocument<IDiary> = new this.diaryModel({
                 userId: userId,
                 subject: contentSubject,
@@ -53,9 +42,29 @@ export default class DiaryService {
                 month: dateKR.month,
                 day: dateKR.day
             });
+            
+            const nowDiary = await this.diaryModel //object or null
+            .findOne({ userId: userId })
+            .and([
+                {year:Number(dateKR.year)}, 
+                {month:Number(dateKR.month)}, 
+                {day:Number(dateKR.day)}
+            ])
+
+            if (nowDiary) {
+                await this.diaryModel.updateOne(
+                    { _id: nowDiary['_id'] }, //filter
+                    {
+                        subject: contentSubject, //update
+                        content: contentBody,
+                    }
+                )
+                //await diaryRecord.updateOne({userId:userId})
+                return { message: 'Diary update' };
+            }
             await diaryRecord.save();
 
-            return { message: 'saved' };
+            return { message: 'Diary save' };
         } catch (error) {
             this.logger.error(error);
             return error;
@@ -87,7 +96,7 @@ export default class DiaryService {
         try {
             //페이지네이션 이용해서 끊기
             const diaryRecord = await this.diaryModel.find({ userId: userId }).limit(7).sort({ createdAt: -1 });
-            
+
             if (!diaryRecord) {
                 throw new Error('Diary is Empty');
             };
@@ -132,7 +141,7 @@ export default class DiaryService {
             if (!diaryRecord) {
                 throw new Error('Diary is Empty');
             };
-            
+
             const diaryForm = [...diaryRecord].map((diary) => { return this.setDiaryForm(diary) });
 
             return diaryForm;
@@ -195,6 +204,16 @@ export default class DiaryService {
             throw new Error("No Diary parametor");
         };
     };
+
+    private getKRDate () {
+        const date = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })
+                const dateSplitArr = date.split('. ') // 공백문자도 포함해 분리
+                return {
+                    year: dateSplitArr[0],
+                    month: dateSplitArr[1].padStart(2, '0'),
+                    day: dateSplitArr[2].padStart(2, '0')
+                }
+    }
 
     private setDiaryForm(rawDiary: any) {
         const diaryId = String(rawDiary._id).split('"');
