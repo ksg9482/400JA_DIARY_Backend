@@ -118,7 +118,14 @@ export default class DiaryService {
             };
             //{'_id'>lastId}
             //userId: userId
-            const diaryRecord = await this.diaryModel.find().and([{ userId: userId }, { '_id': { '$lt': lastDiaryId } }]).limit(7).sort({ createdAt: -1 });
+            const diaryRecord = await this.diaryModel
+            .find()
+            .and([
+                { userId: userId }, 
+                { '_id': { '$lt': lastDiaryId } }
+            ])
+            .limit(7)
+            .sort({ createdAt: -1 });
             if (!diaryRecord) {
                 throw new Error('Diary is Empty');
             };
@@ -136,7 +143,13 @@ export default class DiaryService {
         try {
             //키워드 연결은 + 사용
             //유저아이디로 필터링해야함
-            const diaryRecord = await this.diaryModel.find().and([{ userId: userId }, { $text: { $search: keyword } }])
+            const diaryRecord = await this.diaryModel
+            .find()
+            .and([
+                { userId: userId }, 
+                { $text: { $search: keyword } }
+            ])
+            .sort({ createdAt: -1 });
 
             if (!diaryRecord) {
                 throw new Error('Diary is Empty');
@@ -160,7 +173,7 @@ export default class DiaryService {
                 .lte('year', findByDateDTO.year)
                 .lte('month', findByDateDTO.month)
                 .lte('day', findByDateDTO.day)
-
+                .sort({ createdAt: -1 });
             if (!diaryRecord) {
                 throw new Error('Diary is Empty');
             };
