@@ -38,12 +38,8 @@ export default (app: Router) => {
     });
     
     route.delete('/', 
-    celebrate({
-        body:Joi.object({
-            password:Joi.string().required()
-        })
-    }),
     async (req: IattachCurrentUserRequest, res: Response) => {
+        //body 안보냄. 비번체크, 유저삭제로 분리해야 함
         const userId: string = req.currentUser._id;
         const password: string = req.body.password
         const userServiceInstance = createUserInstance();
