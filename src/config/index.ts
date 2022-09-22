@@ -11,6 +11,7 @@ if(envFound.error) {
 export default {
     //express port
     port: Number(process.env.PORT),
+    domain: process.env.DOMAIN || 'localhost',
 
     //database
     databaseURL: process.env.MONGODB_URI, //host로 이름바꾸는게 좋을지도?

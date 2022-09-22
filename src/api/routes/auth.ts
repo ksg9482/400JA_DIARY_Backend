@@ -1,6 +1,6 @@
 import { IUserInputDTO } from '@/interfaces/IUser';
 import { celebrate, Joi } from 'celebrate';
-import { NextFunction, Request, Response, Router } from 'express';
+import { CookieOptions, NextFunction, Request, Response, Router } from 'express';
 import logger from '../../loaders/logger';
 import { createUserInstance } from '../../services/user/user.factory';
 import { createAuthInstance } from '../../services/auth/auth.factory';
@@ -8,6 +8,14 @@ import { signupType } from '@/models/user';
 
 
 const route = Router();
+
+const cookieOption:CookieOptions = {
+  sameSite: 'none',
+  domain: 'localhost',
+  path: '/',
+  secure: true,
+  httpOnly: true,
+};
 
 export default (app: Router) => {
   app.use('/auth', route);
@@ -48,10 +56,15 @@ export default (app: Router) => {
 
       try {
         const userServiceInstance = createUserInstance();
-        const { user, token } = await userServiceInstance.login(req.body as IUserInputDTO);
+        const loginData = await userServiceInstance.login(req.body);
+        
+        if(!loginData.user) {
+          return res.status(400).json({ error:'User not registered' });
 
-        return res.status(200).cookie('jwt', token).json({ user });
+        }
+        return res.status(200).cookie('jwt', loginData.token).json({ user:loginData.user });
       } catch (err) {
+        console.log('err - ', err)
         logger.error('error: %o', err);
         return next(err);
       }

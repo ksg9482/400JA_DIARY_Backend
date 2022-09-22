@@ -81,7 +81,7 @@ export default class UserService {
         }
     };
 
-    public async login(userInputDTO: IUserInputDTO): Promise<{ user: IUser, token: string }> {
+    public async login(userInputDTO: IUserInputDTO) {
         try {
             const checkUserInputDTO = (userInputDTO: IUserInputDTO) => {
                 let isValid = true;
@@ -183,15 +183,14 @@ export default class UserService {
         };
     };
 
-    public async deleteUser(_id:string, password:string) {
+    public async passwordValid (_id:string, password:string) {
         try {
             const checkPassword = (password) => {
-                return password.length === 0
-            }
-
+                return password.length === 0;
+            };
             if(checkPassword(password)){
                 throw new Error('Empty Password');
-            }
+            };
 
             const userRecord = await this.userModel.findById(_id);
             if (!userRecord) {
@@ -201,11 +200,19 @@ export default class UserService {
             const passwordIsTrue = await this.hashUtil.checkPassword(password, userRecord.password);
             if(!passwordIsTrue) {
                 throw new Error('Invalid Password');
-            }
+            };
 
-            await this.userModel.deleteOne({id:_id});
-            
-            //diary도 같이 삭제되야 함
+            return true;
+        } catch (error) {
+            this.logger.error(error);
+            return error;
+        }
+    }
+    public async deleteUser(_id:string) {
+        try {
+            console.log(_id)
+            const userDelete = await this.userModel.deleteOne({id:_id});
+           console.log(userDelete)
             return {message:'User Deleted'};
         } catch (error) {
             this.logger.error(error);
