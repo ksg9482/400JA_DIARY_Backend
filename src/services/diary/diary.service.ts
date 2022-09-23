@@ -191,7 +191,7 @@ export default class DiaryService {
         try {
             const diaryCount = await this.diaryModel.find({ userId: userId }).count();
             if (!diaryCount) {
-                throw new Error('Diary is Empty');
+                return 0;
             };
             return diaryCount
         } catch (error) {

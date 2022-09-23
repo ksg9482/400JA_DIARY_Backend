@@ -15,7 +15,7 @@ export default class JwtUtil {
                 _id: user._id,
                 email: user.email,
                 role: user.role,
-                exp: exp.getTime() / 1000,
+                exp: exp.getTime() / 1000
             },
             config.jwtSecret
         );
