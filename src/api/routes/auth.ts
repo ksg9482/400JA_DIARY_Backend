@@ -58,6 +58,7 @@ export default (app: Router) => {
         const userServiceInstance = createUserInstance();
         const loginData = await userServiceInstance.login(req.body);
         
+        //에러 처리 참고 ?
         if(!loginData.user) {
           return res.status(400).json({ error:'User not registered' });
 
@@ -70,6 +71,36 @@ export default (app: Router) => {
       }
     },
   );
+
+  route.post(
+    '/findPassword',
+    // api prefix로 인해 /api/auth/signup로 들어감. api접두사 없애려면 config 설정에서.
+    celebrate({
+      body: Joi.object({
+        email: Joi.string().required(),
+      }),
+    }),
+    async (req: Request, res: Response, next: NextFunction) => {
+      
+      logger.debug('Calling Login endpoint with body: %o', req.body);
+
+      try {
+        const email = req.body.email;
+        const userServiceInstance = createUserInstance();
+        const userCheck = await userServiceInstance.checkEmail(email);
+        if(!userCheck) {
+          return res.status(400).json({ error:'User not found this Email' });
+        };
+        const tempPassword = await userServiceInstance.tempPassword(userCheck.id,);
+        return res.status(200).json({ tempPassword:tempPassword });
+      } catch (err) {
+        console.log('err - ', err)
+        logger.error('error: %o', err);
+        return next(err);
+      }
+    },
+  );
+  
 
   route.get('/kakao',
     async (req: Request, res: Response, next: NextFunction) => {

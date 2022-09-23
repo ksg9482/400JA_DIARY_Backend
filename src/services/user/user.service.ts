@@ -208,11 +208,32 @@ export default class UserService {
             return error;
         }
     }
-    public async deleteUser(_id:string) {
+    public async checkEmail (email:string) {
+        const userRecord = await this.userModel.findOne({ email: email });
+        if (!userRecord) {
+            return false; 
+        };
+        return {id:userRecord.id}; //boolean
+      }
+    public async tempPassword (id:any, ) {
         try {
-            console.log(_id)
-            const userDelete = await this.userModel.deleteOne({id:_id});
-           console.log(userDelete)
+            const randomPassword = Math.round(Math.random() * 100000000);
+            const changePassword = await this.userModel.updateOne({id:id},{password:randomPassword});
+            if(!changePassword){
+               throw new Error('Password change fail');
+            }  
+            const sendTempPassword = await this.sendEmail(String(randomPassword));
+            return {message:`${randomPassword}`};
+        } catch (error) {
+            return error;
+        }
+        //임시비밀번호로 변경
+        //등록된 이메일로 임시비번 전송
+        //임시 비밀번호 보냈다고 전송.
+    }
+    public async deleteUser(id:string) {
+        try {
+            const userDelete = await this.userModel.deleteOne({id:String(id)});
             return {message:'User Deleted'};
         } catch (error) {
             this.logger.error(error);
@@ -234,8 +255,9 @@ export default class UserService {
         };
     };
 
-    public verifyEmail() {
-
+    public async sendEmail(content:string) {
+        // 메일건 가져와서 보내기
+        return true
     };
 
     

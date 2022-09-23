@@ -97,9 +97,10 @@ export default class AuthService {
       return googleUserInfo;
     } catch (error) {
       return error
-    }
+    };
+  };
 
-  }
+  
 
   //이걸로 만든 아이디면 중복해결 해야함. 중복이면 다시 만들기.
   private createRandomId() {
