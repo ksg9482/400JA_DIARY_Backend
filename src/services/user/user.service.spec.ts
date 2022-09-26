@@ -146,12 +146,12 @@ describe('UserService', () => {
     describe('editUser', () => {
         const userId = 'userId'
         const passwordObj = {
-            password:'123456',
-            changePassword:'654321'
+            password: '123456',
+            changePassword: '654321'
         }
         it('password를 전송하지 않았으면 No Password를 반환해야 한다.', async () => {
             try {
-                const result = await service.editUser(userId,{...passwordObj, password:''});
+                const result = await service.editUser(userId, { ...passwordObj, password: '' });
             } catch (error) {
                 expect(error).toEqual(new Error('No Password'));
             };
@@ -159,7 +159,7 @@ describe('UserService', () => {
 
         it('changePassword를 전송하지 않았으면 No Password를 반환해야 한다.', async () => {
             try {
-                const result = await service.editUser(userId,{...passwordObj, changePassword:''});
+                const result = await service.editUser(userId, { ...passwordObj, changePassword: '' });
             } catch (error) {
                 expect(error).toEqual(new Error('No Password'));
             };
@@ -167,7 +167,7 @@ describe('UserService', () => {
 
         it('password와 changePassword가 같으면 No Password를 반환해야 한다.', async () => {
             try {
-                const result = await service.editUser(userId,{...passwordObj, changePassword:'123456'});
+                const result = await service.editUser(userId, { ...passwordObj, changePassword: '123456' });
             } catch (error) {
                 expect(error).toEqual(new Error('Same Password'));
             };
@@ -197,27 +197,30 @@ describe('UserService', () => {
             HashUtil.prototype.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(true));
             User.updateOne = jest.fn().mockResolvedValue('changed');
             const result = await service.editUser(userId, passwordObj);
-            
-            expect(result).toEqual({message:'Password Changed'});
+
+            expect(result).toEqual({ message: 'Password Changed' });
         });
     });
 
-    describe('deleteUser', () => {
-        const userId = 'userId'
-        const validPassword = '123456'
-        it('password를 전송하지 않았으면 No Password를 반환해야 한다.', async () => {
+    describe('passwordValid', () => {
+        const inputData = {
+            _id: 'validId',
+            password: 'validPassword'
+        };
+
+
+        it('password의 길이가 0이면 Empty Password를 반환한다', async () => {
             try {
-                const result = await service.deleteUser(userId, '');
+                const result = await service.passwordValid(inputData._id, '');
             } catch (error) {
                 expect(error).toEqual(new Error('Empty Password'));
             };
         });
 
-
         it('해당하는 유저가 없다면 User not registered를 반환해야 한다.', async () => {
             try {
                 User.findById = jest.fn().mockResolvedValue(undefined)
-                const result = await service.deleteUser(userId, validPassword);
+                const result = await service.passwordValid(inputData._id, inputData.password);
             } catch (error) {
                 expect(error).toEqual(new Error('User not registered'));
             };
@@ -225,22 +228,71 @@ describe('UserService', () => {
 
         it('입력한 비밀번호가 저장된 비밀번호와 같지 않으면 Invalid Password를 반환해야 한다.', async () => {
             try {
-                User.findById = jest.fn().mockResolvedValue(validPassword)
+                User.findById = jest.fn().mockResolvedValue(inputData.password)
                 HashUtil.prototype.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(false))
-                const result = await service.deleteUser(userId, validPassword);
+                const result = await service.passwordValid(inputData._id, inputData.password);
             } catch (error) {
                 expect(error).toEqual(new Error('Invalid Password'));
             };
         });
 
-        it('올바른 userId와 password를 전송하면 User Deleted를 반환해야 한다.', async () => {
-            User.findById = jest.fn().mockResolvedValue(validPassword);
-            HashUtil.prototype.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(true));
-            User.deleteOne = jest.fn().mockResolvedValue('deleted');
-            const result = await service.deleteUser(userId, validPassword);
-            
+        it('입력한 비밀번호가 저장된 비밀번호와 같으면 true를 반환한다.', async () => {
+            try {
+                User.findById = jest.fn().mockResolvedValue(inputData.password)
+                HashUtil.prototype.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(true))
+                const result = await service.passwordValid(inputData._id, inputData.password);
+                expect(result).toEqual(true);
+            } catch (error) {
+                
+            };
+        });
+    });
+
+    describe('checkEmail', () => {
+        it('해당하는 email이 없으면 false를 반환한다.', async () => {
+            User.findOne = jest.fn().mockResolvedValue(undefined);
+            const result = await service.checkEmail('test@test.com2222');
+            expect(result).toEqual(false);
+        });
+        it('해당하는 email이 있으면 ID를 반환한다.', async () => {
+            User.findOne = jest.fn().mockResolvedValue({id:'invalidId'});
+            const result = await service.checkEmail('test@test.com');
+            expect(result).toEqual({id:'invalidId'});
+        });
+    });
+
+    describe('tempPassword', () => {
+
+        it('교체된 비밀번호를 반환한다.', async () => {
+            User.updateOne = jest.fn().mockResolvedValue({id:'validId'});
+            Math.round = jest.fn().mockReturnValue('randomNum')
+            const result = await service.tempPassword('validId');
+            expect(result).toEqual({message: 'randomNum'});
+        });
+    });
+
+    describe('deleteUser', () => {
+        it('유저 정보를 삭제하고 User Deleted를 반환해야 한다.', async () => {
+            User.deleteOne = jest.fn().mockResolvedValue({})
+            const result = await service.deleteUser('userId');
             expect(result).toEqual({message:'User Deleted'});
         });
+    });
 
+    describe('oauthLogin', () => {
+        const oauthLoginInput = {email:'email', id:'id', oauthType:'oauthType'}
+        it('해당하는 유저정보가 없으면 signup을 호출해야 한다.', async () => {
+            User.findOne = jest.fn().mockResolvedValue(undefined);
+            service.signup = jest.fn().mockResolvedValue('signup');
+            const result = await service.oauthLogin(oauthLoginInput.email,oauthLoginInput.id,oauthLoginInput.oauthType);
+            expect(service.signup).toBeCalledTimes(1)
+        });
+
+        it('해당하는 유저정보가 있으면 login을 호출해야 한다.', async () => {
+            User.findOne = jest.fn().mockResolvedValue('validUser');
+            service.login = jest.fn().mockResolvedValue('login');
+            const result = await service.oauthLogin(oauthLoginInput.email,oauthLoginInput.id,oauthLoginInput.oauthType);
+            expect(service.login).toBeCalledTimes(1)
+        });
     });
 })

@@ -185,7 +185,7 @@ export default class UserService {
 
     public async passwordValid (_id:string, password:string) {
         try {
-            const checkPassword = (password) => {
+            const checkPassword = (password:string) => {
                 return password.length === 0;
             };
             if(checkPassword(password)){
@@ -213,32 +213,20 @@ export default class UserService {
         if (!userRecord) {
             return false; 
         };
-        return {id:userRecord.id}; //boolean
+        return {id:userRecord.id}; 
       }
-    public async tempPassword (id:any, ) {
-        try {
+    public async tempPassword (id:any) {
             const randomPassword = Math.round(Math.random() * 100000000);
             const changePassword = await this.userModel.updateOne({id:id},{password:randomPassword});
-            if(!changePassword){
-               throw new Error('Password change fail');
-            }  
             const sendTempPassword = await this.sendEmail(String(randomPassword));
             return {message:`${randomPassword}`};
-        } catch (error) {
-            return error;
-        }
         //임시비밀번호로 변경
         //등록된 이메일로 임시비번 전송
         //임시 비밀번호 보냈다고 전송.
     }
     public async deleteUser(id:string) {
-        try {
-            const userDelete = await this.userModel.deleteOne({id:String(id)});
-            return {message:'User Deleted'};
-        } catch (error) {
-            this.logger.error(error);
-            return error;
-        };
+        const userDelete = await this.userModel.deleteOne({id:String(id)});
+        return {message:'User Deleted'};
     };
 
     /**

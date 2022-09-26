@@ -26,8 +26,9 @@ export default class DiaryService {
      */
     public async createDiaryContent(userId: string, diaryContent: IdiaryContent) { //만들어야 됨
         try {
-            
-            this.checkdiaryContent(diaryContent)
+            if (diaryContent?.content.length <= 0) {
+                throw new Error("No Diary parametor");
+            };
 
             const contentSubject = diaryContent.subject.length !== 0 ? diaryContent.subject : ""
             const contentBody = diaryContent.content;
@@ -50,7 +51,6 @@ export default class DiaryService {
                 {month:Number(dateKR.month)}, 
                 {day:Number(dateKR.day)}
             ])
-
             if (nowDiary) {
                 await this.diaryModel.updateOne(
                     { _id: nowDiary['_id'] }, //filter
@@ -113,7 +113,7 @@ export default class DiaryService {
     public async getDiary(userId: string, lastDiaryId: string) {
         try {
             //페이지네이션 이용해서 끊기
-            if (!lastDiaryId) {
+            if (lastDiaryId.length <= 0) {
                 throw new Error('Paginate is need last Id');
             };
             //{'_id'>lastId}
@@ -126,6 +126,7 @@ export default class DiaryService {
             ])
             .limit(7)
             .sort({ createdAt: -1 });
+
             if (!diaryRecord) {
                 throw new Error('Diary is Empty');
             };
@@ -165,15 +166,14 @@ export default class DiaryService {
     }
 
     public async findByDate(userId: string, findByDateDTO: IfindByDateDTO) {
-        //targetDate 서식 정해야함.
         try {
-
             //const diaryRecord = await this.diaryModel.find({id:userId, created_at:targetDate});
             const diaryRecord = await this.diaryModel.find({ userId: userId })
                 .lte('year', findByDateDTO.year)
                 .lte('month', findByDateDTO.month)
                 .lte('day', findByDateDTO.day)
                 .sort({ createdAt: -1 });
+
             if (!diaryRecord) {
                 throw new Error('Diary is Empty');
             };
@@ -188,34 +188,18 @@ export default class DiaryService {
     }
 
     public async findDiaryCount(userId: string) {
-        try {
-            const diaryCount = await this.diaryModel.find({ userId: userId }).count();
-            if (!diaryCount) {
-                return 0;
-            };
-            return diaryCount
-        } catch (error) {
-            this.logger.error(error);
-            return error;
-        }
+        const diaryCount = await this.diaryModel.find({ userId: userId }).count();
+        if (!diaryCount) {
+            return 0;
+        };
+        return diaryCount;
     }
     /**
      * 회원탈퇴 때 사용
      */
     public async deleteAllDiary(userId: string) {
-        try {
-            await this.diaryModel.deleteMany({ userId: userId })
-            return { message: "All diary deleted!" };
-        } catch (error) {
-            this.logger.error(error);
-            return error;
-        };
-    };
-
-    private checkdiaryContent(diaryContent: IdiaryContent): void {
-        if (diaryContent?.content.length <= 0) {
-            throw new Error("No Diary parametor");
-        };
+        await this.diaryModel.deleteMany({ userId: userId })
+        return { message: "All diary deleted!" };
     };
 
     private getKRDate () {
