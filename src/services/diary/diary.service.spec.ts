@@ -32,7 +32,7 @@ describe('DiaryService', () => {
             };
         });
 
-        it('당일 다이어리가 이미 있으면 업데이트 해야한다.', async () => {
+        it('당일 다이어리가 이미 있으면 업데이트 한다.', async () => {
             Diary.findOne = jest.fn().mockReturnValue({
                 and: jest.fn().mockResolvedValue({_id:'diaryId'})
             })
@@ -41,6 +41,19 @@ describe('DiaryService', () => {
             const result = await service.createDiaryContent(userId, diaryContent);
 
             expect(result).toEqual({ message: 'Diary update' });
+        });
+
+        it("subject의 길이가 0이면 제목이 ''이여야 한다.", async () => {
+            
+            Diary.findOne = jest.fn().mockReturnValue({
+                and: jest.fn()
+            })
+            
+            jest.spyOn(Diary.prototype, 'save')
+                .mockImplementationOnce(() => Promise.resolve({ message: 'saved' }))
+            const result = await service.createDiaryContent(userId, {...diaryContent, subject:''});
+
+            expect(result).toEqual({ message: 'Diary save' });
         });
 
         it('올바른 userId와 diaryContent를 전송하면 saved를 반환해야 한다.', async () => {

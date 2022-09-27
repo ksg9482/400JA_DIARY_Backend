@@ -2,18 +2,21 @@ import { Logger } from 'winston';
 import axios from 'axios';
 import config from '../../config'; //@로 표기했었음. jest오류
 import JwtUtil from '../utils/jwtUtils';
+import CommonUtils from '../utils/commonUtils';
 interface IOAuthResult {
   email: string;
   password: string;
-  type: string;
+  type?: string;
 }
 export default class AuthService {
   logger: Logger;
   jwt: JwtUtil;
+  common: CommonUtils;
   //global과 namespace 사용. model로 선언해서 monguuse메서드 사용
-  constructor(logger: Logger, jwt: JwtUtil) {
+  constructor(logger: Logger, jwt: JwtUtil, common:CommonUtils) {
     this.logger = logger;
     this.jwt = jwt;
+    this.common = common;
   }
 
   
@@ -35,7 +38,7 @@ export default class AuthService {
           + `&code=${code}`,
         );
 
-        if (!kakaoToken) {
+        if (!kakaoToken.data.access_token) {
           throw new Error('Kakao OAuth Access token error')
         }
 
@@ -48,19 +51,21 @@ export default class AuthService {
             },
           },
         );
-        if (!getUserInfo) {
+        if (!getUserInfo.data) {
           throw new Error('Kakao OAuth get user info fail')
         }
 
         const userInfo = getUserInfo.data
 
         //소셜로그인 시 사용자가 이메일 동의에 거부할 경우를 대비.
+        //아이디에 전송아이디를 넣고 그 아이디로 검색해야 해당하는 유저 나옴
+        
         const kakaoDataForm = {
-          email: userInfo.email ? userInfo.email : this.createRandomId(),
-          password: userInfo.id,
+          //email: !userInfo.email || userInfo.email.length <= 0 ? this.common.createRandomId() : userInfo.email,
+          email: !userInfo.email || userInfo.email.length <= 0 ? '사용자' + userInfo.id : userInfo.email,
+          password: String(userInfo.id),
           type: 'kakao'
         };
-        
         return kakaoDataForm;
       }
 
@@ -80,13 +85,13 @@ export default class AuthService {
           `https://www.googleapis.com/oauth2/v1/userinfo`
           +`?access_token=${accessToken}`
         );
-        if (!getUserInfo) {
+        if (!getUserInfo.data) {
           throw new Error('Google OAuth get user info fail')
         }
         const userInfo = getUserInfo.data
 
         const googleDataForm = {
-          email: userInfo.email ? userInfo.email : this.createRandomId(),
+          email: userInfo.email,
           password: userInfo.id,
           type: 'google'
         };
@@ -100,11 +105,4 @@ export default class AuthService {
     };
   };
 
-  
-
-  //이걸로 만든 아이디면 중복해결 해야함. 중복이면 다시 만들기.
-  private createRandomId() {
-    const randomNum = Math.round(Math.random() * 100000000)
-    return '사용자' + randomNum
-  }
 }

@@ -31,6 +31,7 @@ export default class DiaryService {
             };
 
             const contentSubject = diaryContent.subject.length !== 0 ? diaryContent.subject : ""
+            
             const contentBody = diaryContent.content;
             
             const dateKR = this.getKRDate();
@@ -220,8 +221,8 @@ export default class DiaryService {
 
         const diaryForm = {
             id: diaryId[0],
-            subject: rawDiary.subject ? rawDiary.subject : '',
-            content: rawDiary.content ? rawDiary.content : '',
+            subject: rawDiary.subject,
+            content: rawDiary.content,
             date: `${diaryYear}-${diaryMonth}-${diaryDay}`
         }
 

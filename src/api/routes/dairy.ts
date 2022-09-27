@@ -1,6 +1,6 @@
 import { Response, Router } from "express";
 import { celebrate, Joi } from "celebrate";
-import { IattachCurrentUserRequest } from "@/interfaces/IRequest";
+import { IattachCurrentUserRequest } from "../../interfaces/IRequest";
 import attachCurrentUser from "../middlewares/attachCurrentUser";
 import { createDiaryInstance } from "../../services/diary/diary.factory";
 

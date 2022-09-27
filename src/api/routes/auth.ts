@@ -1,10 +1,10 @@
-import { IUserInputDTO } from '@/interfaces/IUser';
+import { IUserInputDTO } from '../../interfaces/IUser';
 import { celebrate, Joi } from 'celebrate';
 import { CookieOptions, NextFunction, Request, Response, Router } from 'express';
 import logger from '../../loaders/logger';
 import { createUserInstance } from '../../services/user/user.factory';
 import { createAuthInstance } from '../../services/auth/auth.factory';
-import { signupType } from '@/models/user';
+import { signupType } from '../../models/user';
 
 
 const route = Router();
@@ -118,7 +118,9 @@ export default (app: Router) => {
         //password는 id를 패스워드 삼았다
         const { user, token } = await userServiceInstance.oauthLogin(kakaoOAuth.email, kakaoOAuth.password, signupType.KAKAO);
 
-
+        if(!token) {
+          return res.status(400).json({ message:'token error' });
+        }
         return res.status(200).cookie('jwt', token).json({ user });
       } catch (err) {
         //logger.error('error: %o', err);

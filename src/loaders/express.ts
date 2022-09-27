@@ -10,7 +10,7 @@ export default ({app}:{app: express.Application}) => {
 
     //연결 확인용
     app.get('/status', (req, res) => {
-        res.status(200).end();
+        res.status(200).json({message:'connect'});
     });
     app.head('/status', (req, res) => {
         res.status(200).end();
