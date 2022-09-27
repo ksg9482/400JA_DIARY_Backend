@@ -7,7 +7,7 @@ import HashUtil from '../utils/hashUtils';
 import { HydratedDocument } from 'mongoose';
 import JwtUtil from '../utils/jwtUtils';
 
-interface IpasswordObj{
+interface IpasswordObj {
     password: string;
     changePassword: string;
 }
@@ -16,23 +16,23 @@ export default class UserService {
     userModel: Models.UserModel;
     logger: Logger;
     jwt: JwtUtil;
-    hashUtil:HashUtil
+    hashUtil: HashUtil
     //global과 namespace 사용. model로 선언해서 monguuse메서드 사용
-    constructor(userModel:Models.UserModel, logger:Logger, jwt:JwtUtil, hashUtil:HashUtil) {
+    constructor(userModel: Models.UserModel, logger: Logger, jwt: JwtUtil, hashUtil: HashUtil) {
         this.userModel = userModel;
         this.logger = logger;
         this.jwt = jwt;
         this.hashUtil = hashUtil;
     }
 
-    public async signup(userInputDTO: IUserInputDTO, oauthType?:string): Promise<{ user: IUser, token: string }> {
+    public async signup(userInputDTO: IUserInputDTO, oauthType?: string): Promise<{ user: IUser, token: string }> {
         try {
             //DTO 체크
             const checkUserInputDTO = (userInputDTO: IUserInputDTO) => {
                 let isValid = true;
                 const checkArr = ['email', 'password'];
-                checkArr.forEach((targetParametor)=>{
-                    if(!userInputDTO[targetParametor]) {
+                checkArr.forEach((targetParametor) => {
+                    if (!userInputDTO[targetParametor]) {
                         isValid = false;
                     }
                 });
@@ -50,12 +50,16 @@ export default class UserService {
 
             this.logger.silly('Hashing password');
             //const hashedPassword = await this.hashUtil.hashPassword(userInputDTO.password);
-            
+
             this.logger.silly('Creating user db record');
-            const userRecord: HydratedDocument<IUser> = new this.userModel({
-                ...userInputDTO,
-                type: oauthType
-            })
+
+            const userRecord: HydratedDocument<IUser> = new this.userModel(
+                {
+                    ...userInputDTO,
+                    type: oauthType,
+                }
+            );
+
             const userSave = await userRecord.save()
             if (userSave.errors) {
                 throw new Error('User cannot be created');
@@ -63,7 +67,7 @@ export default class UserService {
 
             this.logger.silly('Generating JWT');
             const token = this.jwt.generateToken(userRecord)
-            
+
             this.logger.silly('Sending welcome email');
             // 여기에 메일러로 월컴 이메일 보내는 로직
 
@@ -86,8 +90,8 @@ export default class UserService {
             const checkUserInputDTO = (userInputDTO: IUserInputDTO) => {
                 let isValid = true;
                 const checkArr = ['email', 'password'];
-                checkArr.forEach((targetParametor)=>{
-                    if(!userInputDTO[targetParametor]) {
+                checkArr.forEach((targetParametor) => {
+                    if (!userInputDTO[targetParametor]) {
                         isValid = false;
                     }
                 });
@@ -101,7 +105,7 @@ export default class UserService {
             if (!userRecord) {
                 throw new Error('User not registered');
             };
-            
+
             this.logger.silly('Checking password');
 
             const validPassword = await this.hashUtil.checkPassword(userInputDTO.password, userRecord.password);
@@ -114,7 +118,7 @@ export default class UserService {
 
             const token = this.jwt.generateToken(userRecord);
             const user = { ...userRecord['_doc'] };
-            
+
             Reflect.deleteProperty(user, 'password');
             return { user, token };
 
@@ -124,42 +128,42 @@ export default class UserService {
         };
     };
 
-    public async findById(_id:string): Promise<{ id: string, email: string, role: string }> { //me
+    public async findById(_id: string): Promise<{ id: string, email: string, role: string }> { //me
         try {
             const userRecord = await this.userModel.findById(_id);
-            
+
             if (!userRecord) {
                 throw new Error('User not registered');
             };
-            
-            return {id:userRecord.id, email:userRecord.email, role: userRecord.role}
+
+            return { id: userRecord.id, email: userRecord.email, role: userRecord.role }
         } catch (error) {
             this.logger.error(error);
             return error;
         }
     };
-    
-    public async editUser(_id:string, passwordObj:IpasswordObj) {
+
+    public async editUser(_id: string, passwordObj: IpasswordObj) {
         try {
             const checkPasswordObj = (passwordObj: IpasswordObj) => {
                 let isValid = true;
                 const checkArr = ['password', 'changePassword'];
-                checkArr.forEach((targetParametor)=>{
-                    if(!passwordObj[targetParametor]) {
+                checkArr.forEach((targetParametor) => {
+                    if (!passwordObj[targetParametor]) {
                         isValid = false;
                     }
                 });
                 return isValid;
             };
 
-            if(!checkPasswordObj(passwordObj)) {
+            if (!checkPasswordObj(passwordObj)) {
                 throw new Error('No Password');
             }; // length로 보는게 좋을지도? 아니면 검증함수 만들기
 
-            const checkSamePassword = (passwordObj:IpasswordObj) => {
+            const checkSamePassword = (passwordObj: IpasswordObj) => {
                 return passwordObj.password === passwordObj.changePassword
             }
-            if(checkSamePassword(passwordObj)) {
+            if (checkSamePassword(passwordObj)) {
                 throw new Error('Same Password');
             };
 
@@ -167,28 +171,28 @@ export default class UserService {
             if (!userRecord) {
                 throw new Error('User not registered');
             };
-            
+
             const passwordIsTrue = await this.hashUtil.checkPassword(passwordObj.password, userRecord.password);
-            if(!passwordIsTrue) {
+            if (!passwordIsTrue) {
                 throw new Error('Invalid Password');
             }
 
             //const hashChangePassword = await this.hashUtil.hashPassword(passwordObj.changePassword);
-            await this.userModel.updateOne({id:_id},{password:passwordObj.changePassword});
-            
-            return {message:'Password Changed'};
+            await this.userModel.updateOne({ id: _id }, { password: passwordObj.changePassword });
+
+            return { message: 'Password Changed' };
         } catch (error) {
             this.logger.error(error);
             return error;
         };
     };
 
-    public async passwordValid (_id:string, password:string) {
+    public async passwordValid(_id: string, password: string) {
         try {
-            const checkPassword = (password) => {
+            const checkPassword = (password: string) => {
                 return password.length === 0;
             };
-            if(checkPassword(password)){
+            if (checkPassword(password)) {
                 throw new Error('Empty Password');
             };
 
@@ -198,7 +202,7 @@ export default class UserService {
             };
 
             const passwordIsTrue = await this.hashUtil.checkPassword(password, userRecord.password);
-            if(!passwordIsTrue) {
+            if (!passwordIsTrue) {
                 throw new Error('Invalid Password');
             };
 
@@ -208,36 +212,46 @@ export default class UserService {
             return error;
         }
     }
-    public async deleteUser(_id:string) {
-        try {
-            console.log(_id)
-            const userDelete = await this.userModel.deleteOne({id:_id});
-           console.log(userDelete)
-            return {message:'User Deleted'};
-        } catch (error) {
-            this.logger.error(error);
-            return error;
+    public async checkEmail(email: string) {
+        const userRecord = await this.userModel.findOne({ email: email });
+        if (!userRecord) {
+            return false;
         };
+        return { id: userRecord.id };
+    }
+    public async tempPassword(id: any) {
+        const randomPassword = Math.round(Math.random() * 100000000);
+        const changePassword = await this.userModel.updateOne({ id: id }, { password: randomPassword });
+        const sendTempPassword = await this.sendEmail(String(randomPassword));
+        return { message: `${randomPassword}` };
+        //임시비밀번호로 변경
+        //등록된 이메일로 임시비번 전송
+        //임시 비밀번호 보냈다고 전송.
+    }
+    public async deleteUser(id: string) {
+        const userDelete = await this.userModel.deleteOne({ id: String(id) });
+        return { message: 'User Deleted' };
     };
 
     /**
      * 소셜로 가입이 되어있으면 바로 로그인(토큰발행)으로
      * 가입이 되어 있지 않으면 가입하고 토큰 발행
      */
-    public async oauthLogin(email:string, id:string, oauthType:string) {
-        const userCheck = await this.userModel.findOne({ email });
-        
-        if(userCheck) {
-            return await this.login({email:email, password:id});
+    //kakaoOauthId를 id로 받음
+    public async oauthLogin(email: string, id: string, oauthType: string) {
+        const userCheck = await this.userModel.findOne({ email: email });
+        if (userCheck) {
+            return await this.login({ email: email, password: id });
         } else {
-            return await this.signup({email:email, password:id}, oauthType);
+            return await this.signup({ email: email, password: id }, oauthType)
         };
     };
 
-    public verifyEmail() {
-
+    public async sendEmail(content: string) {
+        // 메일건 가져와서 보내기
+        return true
     };
 
-    
+
 };
 
