@@ -44,6 +44,7 @@ export default class DiaryService {
                 month: dateKR.month,
                 day: dateKR.day
             });
+
             
             const nowDiary = await this.diaryModel //object or null
             .findOne({ userId: userId })
@@ -133,8 +134,10 @@ export default class DiaryService {
             };
 
             const diaryForm = [...diaryRecord].map((diary) => { return this.setDiaryForm(diary) });
-
-            return diaryForm;
+            if(diaryForm.length < 7){
+                return {list:diaryForm, end:true};
+            }
+            return {list:diaryForm, end:false};
         } catch (error) {
             this.logger.error(error);
             return error;
