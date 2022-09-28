@@ -67,12 +67,12 @@ describe('UserService', () => {
                     id: 'kakaoId'
                 }
             })
-            CommonUtils.prototype.createRandomId = jest.fn().mockReturnValue('randomId')
+            //CommonUtils.prototype.createRandomId = jest.fn().mockReturnValue('randomId')
             const result = await service.kakaoOAuth(kakaoOAuthCode);
 
             expect(result)
                 .toEqual({
-                    email: 'randomId',
+                    email: '사용자kakaoId', //사용자 + oauth에서 제공한 아이디 형식
                     password: 'kakaoId',
                     type: 'kakao'
                 });

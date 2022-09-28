@@ -42,12 +42,7 @@ userSchema.pre('save', async function (next) {
   }
 });
 
-userSchema.pre('updateOne', async function (next) {
-  if (this.password) {
-    this.password = await HashUtil.prototype.hashPassword(this.password);
-    next();
-  }
-});
+
 
 // userSchema.statics.findOneOrCreate = function findOneOrCreate(condition, doc) {
 //   const self = this;

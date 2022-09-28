@@ -264,7 +264,8 @@ describe('UserService', () => {
     describe('tempPassword', () => {
 
         it('교체된 비밀번호를 반환한다.', async () => {
-            User.updateOne = jest.fn().mockResolvedValue({id:'validId'});
+            jest.spyOn(User.prototype, 'save')
+                    .mockImplementationOnce(() => Promise.resolve('validId'))
             Math.round = jest.fn().mockReturnValue('randomNum')
             const result = await service.tempPassword('validId');
             expect(result).toEqual({message: 'randomNum'});

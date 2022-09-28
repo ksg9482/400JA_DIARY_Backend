@@ -56,14 +56,16 @@ export default (app: Router) => {
 
       try {
         const userServiceInstance = createUserInstance();
-        const loginData = await userServiceInstance.login(req.body);
+        const {user, token} = await userServiceInstance.login(req.body);
         
         //에러 처리 참고 ?
-        if(!loginData.user) {
+        if(!user) {
           return res.status(400).json({ error:'User not registered' });
-
         }
-        return res.status(200).cookie('jwt', loginData.token).json({ user:loginData.user });
+        if(!token) {
+          return res.status(400).json({ error:'token error' });
+        }
+        return res.status(200).cookie('jwt', token).json({ user: user });
       } catch (err) {
         console.log('err - ', err)
         logger.error('error: %o', err);
