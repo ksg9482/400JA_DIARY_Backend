@@ -107,12 +107,12 @@ export default class UserService {
             };
 
             this.logger.silly('Checking password');
-
+           
             const validPassword = await this.hashUtil.checkPassword(userInputDTO.password, userRecord.password);
             if (!validPassword) {
                 throw new Error('Invalid Password');
             };
-
+            
             this.logger.silly('Password is valid');
             this.logger.silly('Generating JWT');
 
@@ -128,7 +128,7 @@ export default class UserService {
         };
     };
 
-    public async findById(_id: string): Promise<{ id: string, email: string, role: string }> { //me
+    public async findById(_id: string): Promise<{ id: string, email: string, role: string, type: string }> { //me
         try {
             const userRecord = await this.userModel.findById(_id);
 
@@ -136,56 +136,57 @@ export default class UserService {
                 throw new Error('User not registered');
             };
 
-            return { id: userRecord.id, email: userRecord.email, role: userRecord.role }
+            return { id: userRecord.id, email: userRecord.email, role: userRecord.role, type: userRecord.type }
         } catch (error) {
             this.logger.error(error);
             return error;
         }
     };
 
-    public async editUser(_id: string, passwordObj: IpasswordObj) {
-        try {
-            const checkPasswordObj = (passwordObj: IpasswordObj) => {
-                let isValid = true;
-                const checkArr = ['password', 'changePassword'];
-                checkArr.forEach((targetParametor) => {
-                    if (!passwordObj[targetParametor]) {
-                        isValid = false;
-                    }
-                });
-                return isValid;
-            };
+    // public async editUser(_id: string, passwordObj: IpasswordObj) {
+    //     try {
+    //         const checkPasswordObj = (passwordObj: IpasswordObj) => {
+    //             let isValid = true;
+    //             const checkArr = ['password', 'changePassword'];
+    //             checkArr.forEach((targetParametor) => {
+    //                 if (!passwordObj[targetParametor]) {
+    //                     isValid = false;
+    //                 }
+    //             });
+    //             return isValid;
+    //         };
 
-            if (!checkPasswordObj(passwordObj)) {
-                throw new Error('No Password');
-            }; // length로 보는게 좋을지도? 아니면 검증함수 만들기
+    //         if (!checkPasswordObj(passwordObj)) {
+    //             throw new Error('No Password');
+    //         }; // length로 보는게 좋을지도? 아니면 검증함수 만들기
 
-            const checkSamePassword = (passwordObj: IpasswordObj) => {
-                return passwordObj.password === passwordObj.changePassword
-            }
-            if (checkSamePassword(passwordObj)) {
-                throw new Error('Same Password');
-            };
+    //         const checkSamePassword = (passwordObj: IpasswordObj) => {
+    //             return passwordObj.password === passwordObj.changePassword
+    //         }
+    //         if (checkSamePassword(passwordObj)) {
+    //             throw new Error('Same Password');
+    //         };
 
-            const userRecord = await this.userModel.findById(_id);
-            if (!userRecord) {
-                throw new Error('User not registered');
-            };
+    //         const userRecord = await this.userModel.findById(_id);
+    //         if (!userRecord) {
+    //             throw new Error('User not registered');
+    //         };
 
-            const passwordIsTrue = await this.hashUtil.checkPassword(passwordObj.password, userRecord.password);
-            if (!passwordIsTrue) {
-                throw new Error('Invalid Password');
-            }
+    //         const passwordIsTrue = await this.hashUtil.checkPassword(passwordObj.password, userRecord.password);
+    //         if (!passwordIsTrue) {
+    //             throw new Error('Invalid Password');
+    //         }
+    //         userRecord.password = passwordObj.changePassword;
+    //         const result = await userRecord.save();
+    //         //const hashChangePassword = await this.hashUtil.hashPassword(passwordObj.changePassword);
+    //         //await this.userModel.updateOne({ id: _id }, { password: passwordObj.changePassword });
 
-            //const hashChangePassword = await this.hashUtil.hashPassword(passwordObj.changePassword);
-            await this.userModel.updateOne({ id: _id }, { password: passwordObj.changePassword });
-
-            return { message: 'Password Changed' };
-        } catch (error) {
-            this.logger.error(error);
-            return error;
-        };
-    };
+    //         return { message: 'Password Changed' };
+    //     } catch (error) {
+    //         this.logger.error(error);
+    //         return error;
+    //     };
+    // };
 
     public async passwordChange(_id: string, passwordChange: string) {
         try {
@@ -198,9 +199,7 @@ export default class UserService {
                 throw new Error('User not registered');
             };
             userRecord.password = passwordChange;
-            const result = await userRecord.save()
-            const test = await this.userModel.findById(_id);
-            console.log(result)
+            const result = await userRecord.save();
             //const hashChangePassword = await this.hashUtil.hashPassword(passwordObj.changePassword);
             //const result = await this.userModel.updateOne({ id: _id }, { password: String(passwordChange)});
             
@@ -245,8 +244,8 @@ export default class UserService {
     }
     public async tempPassword(id: any) {
         const randomPassword = String(Math.round(Math.random() * 100000000));
-
         let userRecord = await this.userModel.findById(id);
+        console.log(userRecord)
         userRecord.password = randomPassword;
 
         const changePassword = await userRecord.save()

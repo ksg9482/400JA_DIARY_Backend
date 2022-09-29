@@ -95,7 +95,7 @@ export default class AuthService {
           password: userInfo.id,
           type: 'google'
         };
-
+        
         return googleDataForm;
       }
       const googleUserInfo = await getGoogleUserInfo()

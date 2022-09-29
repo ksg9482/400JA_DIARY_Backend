@@ -157,7 +157,7 @@ describe('DiaryService', () => {
             });
             const result = await service.findKeyword(userId, testKeyword);
 
-            expect(result).toEqual(validDiaryResult);
+            expect(result.list).toEqual(validDiaryResult);
         });
     });
 
@@ -200,7 +200,7 @@ describe('DiaryService', () => {
                 date:'2022-09-25'
             }
         ];
-        const testKeyword = 'keyword'
+        
         it('다이어리를 검색해서 아무것도 나오지 않는다면 Diary is Empty를 반환해야 한다.', async () => { //이거 수정가능성 높음
             try {
                 Diary.find = jest.fn().mockReturnValue({
@@ -230,7 +230,7 @@ describe('DiaryService', () => {
             });
             const result = await service.findByDate(userId, testDate);
 
-            expect(result).toEqual(validDiaryResult);
+            expect(result.list).toEqual(validDiaryResult);
         });
     });
 
@@ -309,7 +309,7 @@ describe('DiaryService', () => {
             })
             const result = await service.weekleyDiary(userId);
 
-            expect(result).toEqual(validDiaryResult);
+            expect(result.list).toEqual(validDiaryResult);
         });
     });
 
@@ -381,7 +381,7 @@ describe('DiaryService', () => {
 
             const result = await service.getDiary(userId, 'lastId');
 
-            expect(result).toEqual(validDiaryResult);
+            expect(result.list).toEqual(validDiaryResult);
         });
     });
 

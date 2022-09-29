@@ -9,6 +9,16 @@ import { HydratedDocument } from 'mongoose';
 //patch - change diary
 //delete - diary
 //get - diary search(word, date)
+interface IDiaryForm {
+    id: string;
+    subject: any;
+    content: any;
+    date: string;
+}
+interface IdiaryOutput {
+    end:boolean;
+    list: IDiaryForm[]
+}
 
 export default class DiaryService {
     diaryModel: Models.DiaryModel;
@@ -94,7 +104,7 @@ export default class DiaryService {
     /**
      * 맨처음 다이어리 구성시 일주일치 불러오기. 다이어리 생성되면 '새 다이어리-1주일치 순'
      */
-    public async weekleyDiary(userId: string) {
+    public async weekleyDiary(userId: string):Promise<IdiaryOutput> {
         try {
             //페이지네이션 이용해서 끊기
             const diaryRecord = await this.diaryModel.find({ userId: userId }).limit(7).sort({ createdAt: -1 });
@@ -104,15 +114,18 @@ export default class DiaryService {
             };
 
             const diaryForm = [...diaryRecord].map((diary) => { return this.setDiaryForm(diary) });
-
-            return diaryForm;
+            let diaryIsEnd = false;
+            if(diaryForm.length < 7){
+                diaryIsEnd = true;
+            }
+            return {end: diaryIsEnd, list:diaryForm};
         } catch (error) {
             this.logger.error(error);
             return error;
         }
     };
 
-    public async getDiary(userId: string, lastDiaryId: string) {
+    public async getDiary(userId: string, lastDiaryId: string):Promise<IdiaryOutput> {
         try {
             //페이지네이션 이용해서 끊기
             if (lastDiaryId.length <= 0) {
@@ -134,17 +147,18 @@ export default class DiaryService {
             };
 
             const diaryForm = [...diaryRecord].map((diary) => { return this.setDiaryForm(diary) });
+            let diaryIsEnd = false;
             if(diaryForm.length < 7){
-                return {list:diaryForm, end:true};
+                diaryIsEnd = true;
             }
-            return {list:diaryForm, end:false};
+            return {end: diaryIsEnd, list:diaryForm};
         } catch (error) {
             this.logger.error(error);
             return error;
         }
     };
 
-    public async findKeyword(userId: string, keyword: string) {
+    public async findKeyword(userId: string, keyword: string):Promise<IdiaryOutput> {
         try {
             //키워드 연결은 + 사용
             //유저아이디로 필터링해야함
@@ -161,15 +175,18 @@ export default class DiaryService {
             };
 
             const diaryForm = [...diaryRecord].map((diary) => { return this.setDiaryForm(diary) });
-
-            return diaryForm;
+            let diaryIsEnd = false;
+            if(diaryForm.length < 7){
+                diaryIsEnd = true;
+            }
+            return {end: diaryIsEnd, list:diaryForm};
         } catch (error) {
             this.logger.error(error);
             return error;
         }
     }
 
-    public async findByDate(userId: string, findByDateDTO: IfindByDateDTO) {
+    public async findByDate(userId: string, findByDateDTO: IfindByDateDTO):Promise<IdiaryOutput> {
         try {
             //const diaryRecord = await this.diaryModel.find({id:userId, created_at:targetDate});
             const diaryRecord = await this.diaryModel.find({ userId: userId })
@@ -183,8 +200,11 @@ export default class DiaryService {
             };
 
             const diaryForm = [...diaryRecord].map((diary) => { return this.setDiaryForm(diary) });
-
-            return diaryForm;
+            let diaryIsEnd = false;
+            if(diaryForm.length < 7){
+                diaryIsEnd = true;
+            }
+            return {end: diaryIsEnd, list:diaryForm};
         } catch (error) {
             this.logger.error(error);
             return error;
