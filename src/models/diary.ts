@@ -46,10 +46,16 @@ diarySchema.index({
     subject:'text',
     content:'text'
 })
-//'content': 'text'
-//'year': 'text',
-    //'month': 'text',
-    //'day': 'text',
+
+diarySchema.pre('updateOne', async function (next) {
+    console.log(this)
+    // if (this.password) {
+    //   this.password = await HashUtil.prototype.hashPassword(this.password);
+    //   
+    // }
+    next();
+  });
+
 const Diary = model<IDiary>('Diary', diarySchema);
 
 export default Diary

@@ -36,11 +36,25 @@ const userSchema = new Schema<IUser>(
 );
 
 userSchema.pre('save', async function (next) {
+  /*
+  {
+  _id: new ObjectId("633254b4cb9a8a2212da2595"),
+  email: 'test@test.com',
+  password: '123456',
+  role: 'user',
+  type: 'BASIC',
+  createdAt: 2022-09-27T01:41:08.279Z,
+  updatedAt: 2022-09-29T01:12:26.553Z,
+  __v: 0
+} 형식으로 나옴.
+  */
+  console.log(this)
   if (this.password) {
     this.password = await HashUtil.prototype.hashPassword(this.password);
-    next();
   }
+  next();
 });
+
 
 
 

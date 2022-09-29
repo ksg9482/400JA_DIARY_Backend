@@ -3,6 +3,7 @@ import logger from "../../loaders/logger";
 import HashUtil from "../utils/hashUtils";
 import JwtUtil from "../utils/jwtUtils";
 import UserService from "./user.service";
+import user from '@/api/routes/user';
 const mockRepository = () => (
     {
         save: jest.fn(),
@@ -143,64 +144,64 @@ describe('UserService', () => {
         });
     });
 
-    describe('editUser', () => {
-        const userId = 'userId'
-        const passwordObj = {
-            password: '123456',
-            changePassword: '654321'
-        }
-        it('password를 전송하지 않았으면 No Password를 반환해야 한다.', async () => {
-            try {
-                const result = await service.editUser(userId, { ...passwordObj, password: '' });
-            } catch (error) {
-                expect(error).toEqual(new Error('No Password'));
-            };
-        });
+    // describe('editUser', () => {
+    //     const userId = 'userId'
+    //     const passwordObj = {
+    //         password: '123456',
+    //         changePassword: '654321'
+    //     }
+    //     it('password를 전송하지 않았으면 No Password를 반환해야 한다.', async () => {
+    //         try {
+    //             const result = await service.editUser(userId, { ...passwordObj, password: '' });
+    //         } catch (error) {
+    //             expect(error).toEqual(new Error('No Password'));
+    //         };
+    //     });
 
-        it('changePassword를 전송하지 않았으면 No Password를 반환해야 한다.', async () => {
-            try {
-                const result = await service.editUser(userId, { ...passwordObj, changePassword: '' });
-            } catch (error) {
-                expect(error).toEqual(new Error('No Password'));
-            };
-        });
+    //     it('changePassword를 전송하지 않았으면 No Password를 반환해야 한다.', async () => {
+    //         try {
+    //             const result = await service.editUser(userId, { ...passwordObj, changePassword: '' });
+    //         } catch (error) {
+    //             expect(error).toEqual(new Error('No Password'));
+    //         };
+    //     });
 
-        it('password와 changePassword가 같으면 No Password를 반환해야 한다.', async () => {
-            try {
-                const result = await service.editUser(userId, { ...passwordObj, changePassword: '123456' });
-            } catch (error) {
-                expect(error).toEqual(new Error('Same Password'));
-            };
-        });
+    //     it('password와 changePassword가 같으면 No Password를 반환해야 한다.', async () => {
+    //         try {
+    //             const result = await service.editUser(userId, { ...passwordObj, changePassword: '123456' });
+    //         } catch (error) {
+    //             expect(error).toEqual(new Error('Same Password'));
+    //         };
+    //     });
 
-        it('해당하는 유저가 없다면 User not registered를 반환해야 한다.', async () => {
-            try {
-                User.findById = jest.fn().mockResolvedValue(undefined)
-                const result = await service.editUser(userId, passwordObj);
-            } catch (error) {
-                expect(error).toEqual(new Error('User not registered'));
-            };
-        });
+    //     it('해당하는 유저가 없다면 User not registered를 반환해야 한다.', async () => {
+    //         try {
+    //             User.findById = jest.fn().mockResolvedValue(undefined)
+    //             const result = await service.editUser(userId, passwordObj);
+    //         } catch (error) {
+    //             expect(error).toEqual(new Error('User not registered'));
+    //         };
+    //     });
 
-        it('입력한 비밀번호가 저장된 비밀번호와 같지 않으면 Invalid Password를 반환해야 한다.', async () => {
-            try {
-                User.findById = jest.fn().mockResolvedValue(passwordObj.password)
-                HashUtil.prototype.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(false))
-                const result = await service.editUser(userId, passwordObj);
-            } catch (error) {
-                expect(error).toEqual(new Error('Invalid Password'));
-            };
-        });
+    //     it('입력한 비밀번호가 저장된 비밀번호와 같지 않으면 Invalid Password를 반환해야 한다.', async () => {
+    //         try {
+    //             User.findById = jest.fn().mockResolvedValue(passwordObj.password)
+    //             HashUtil.prototype.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(false))
+    //             const result = await service.editUser(userId, passwordObj);
+    //         } catch (error) {
+    //             expect(error).toEqual(new Error('Invalid Password'));
+    //         };
+    //     });
 
-        it('올바른 userId와 password객체를 전송하면 Password Changed를 반환해야 한다.', async () => {
-            User.findById = jest.fn().mockResolvedValue(passwordObj.password);
-            HashUtil.prototype.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(true));
-            User.updateOne = jest.fn().mockResolvedValue('changed');
-            const result = await service.editUser(userId, passwordObj);
+    //     it('올바른 userId와 password객체를 전송하면 Password Changed를 반환해야 한다.', async () => {
+    //         User.findById = jest.fn().mockResolvedValue(passwordObj.password);
+    //         HashUtil.prototype.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(true));
+    //         User.updateOne = jest.fn().mockResolvedValue('changed');
+    //         const result = await service.editUser(userId, passwordObj);
 
-            expect(result).toEqual({ message: 'Password Changed' });
-        });
-    });
+    //         expect(result).toEqual({ message: 'Password Changed' });
+    //     });
+    // });
 
     describe('passwordValid', () => {
         const inputData = {
@@ -265,10 +266,15 @@ describe('UserService', () => {
 
         it('교체된 비밀번호를 반환한다.', async () => {
             jest.spyOn(User.prototype, 'save')
-                    .mockImplementationOnce(() => Promise.resolve('validId'))
-            Math.round = jest.fn().mockReturnValue('randomNum')
+                    .mockImplementationOnce(() => Promise.resolve('saved'))
+            User.findById = jest.fn().mockReturnValue({
+                data:{id:'validId', password:'unchanged'},
+                save:jest.fn().mockResolvedValue('saved')
+            })
+            Math.random = jest.fn().mockReturnValue(1);
+            Math.round = jest.fn().mockReturnValue(100000000);
             const result = await service.tempPassword('validId');
-            expect(result).toEqual({message: 'randomNum'});
+            expect(result).toEqual({message: "100000000"});
         });
     });
 

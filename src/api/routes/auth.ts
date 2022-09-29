@@ -144,7 +144,9 @@ export default (app: Router) => {
         
         const userServiceInstance = createUserInstance();
         const { user, token } = await userServiceInstance.oauthLogin(googleOAuth.email, googleOAuth.password, signupType.GOOGLE);
-
+        if(!token) {
+          return res.status(400).json({ message:'token error' });
+        }
         return res.status(200).cookie('jwt', token).json({ user });
       } catch (err) {
         //logger.error('error: %o', err);
