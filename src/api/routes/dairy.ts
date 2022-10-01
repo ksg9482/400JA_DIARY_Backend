@@ -19,7 +19,7 @@ export default (app: Router) => {
     route.post('/',
         celebrate({
             body: Joi.object({
-                subject: Joi.string().max(20),
+                subject: Joi.string().max(30),
                 content: Joi.string().max(400).required()
             })
         }),
