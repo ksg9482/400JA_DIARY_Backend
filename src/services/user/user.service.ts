@@ -245,7 +245,7 @@ export default class UserService {
     public async tempPassword(id: any) {
         const randomPassword = String(Math.round(Math.random() * 100000000));
         let userRecord = await this.userModel.findById(id);
-        console.log(userRecord)
+       
         userRecord.password = randomPassword;
 
         const changePassword = await userRecord.save()

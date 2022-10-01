@@ -8,6 +8,7 @@ export interface IDiary {
     day: number;
 };
 
+
 export interface IdiaryContent {
     subject: string;
     content: string;
