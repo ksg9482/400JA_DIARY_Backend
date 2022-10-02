@@ -67,7 +67,6 @@ export default (app: Router) => {
         }
         return res.status(200).cookie('jwt', token).json({ user: user });
       } catch (err) {
-        console.log('err - ', err)
         logger.error('error: %o', err);
         return next(err);
       }
@@ -96,7 +95,6 @@ export default (app: Router) => {
         const tempPassword = await userServiceInstance.tempPassword(userCheck.id,);
         return res.status(200).json({ tempPassword:tempPassword });
       } catch (err) {
-        console.log('err - ', err)
         logger.error('error: %o', err);
         return next(err);
       }

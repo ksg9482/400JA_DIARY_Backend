@@ -9,13 +9,6 @@ const route = Router();
 export default (app: Router) => {
     app.use('/diary', attachCurrentUser, route)
 
-    route.get('/all', async (req: IattachCurrentUserRequest, res: Response) => {
-        const userId = req.currentUser._id;
-        const diaryServiceInstance = createDiaryInstance();
-        const result = await diaryServiceInstance.findAllDiary(userId);
-        return res.status(200).json(result);
-    });
-
     route.post('/',
         celebrate({
             body: Joi.object({
@@ -31,6 +24,14 @@ export default (app: Router) => {
             return res.status(200).json(result);
         });
 
+        route.get('/', async (req: IattachCurrentUserRequest, res: Response) => {
+            
+            const userId = req.currentUser._id;
+            const diaryServiceInstance = createDiaryInstance();
+            const result = await diaryServiceInstance.getDiary(userId);
+            return res.status(200).json(result);
+        });
+
     route.post('/diary',
         celebrate({
             body: Joi.object({
@@ -41,16 +42,16 @@ export default (app: Router) => {
             const userId = req.currentUser._id;
             const lastDiaryId = req.body.lastDiaryId
             const diaryServiceInstance = createDiaryInstance();
-            const result = await diaryServiceInstance.getDiary(userId, lastDiaryId);
+            const result = await diaryServiceInstance.getLastIdDiary(userId, lastDiaryId);
             return res.status(200).json(result);
         });
 
-    route.get('/weekly', async (req: IattachCurrentUserRequest, res: Response) => {
-        const userId = req.currentUser._id;
-        const diaryServiceInstance = createDiaryInstance();
-        const result = await diaryServiceInstance.weekleyDiary(userId)
-        return res.status(200).json(result);
-    });
+    // route.get('/weekly', async (req: IattachCurrentUserRequest, res: Response) => {
+    //     const userId = req.currentUser._id;
+    //     const diaryServiceInstance = createDiaryInstance();
+    //     const result = await diaryServiceInstance.weekleyDiary(userId)
+    //     return res.status(200).json(result);
+    // });
 
 
     // diary/search/keyword?keyword=XXXX

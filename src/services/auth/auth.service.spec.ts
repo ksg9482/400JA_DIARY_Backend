@@ -31,7 +31,6 @@ describe('UserService', () => {
             try {
                 axios.post = jest.fn().mockResolvedValue({ data: { access_token: null } })
                 const result = await service.kakaoOAuth(kakaoOAuthCode);
-                console.log('kakaoOAuth - ', result)
             } catch (error) {
                 expect(error).toEqual(new Error('Kakao OAuth Access token error'));
             };
@@ -40,7 +39,6 @@ describe('UserService', () => {
             try {
                 axios.post = jest.fn().mockResolvedValue({ data: null })
                 const result = await service.kakaoOAuth(kakaoOAuthCode);
-                console.log('kakaoOAuth - ', result)
             } catch (error) {
                 expect(error).toEqual(new Error('Kakao OAuth Access token error'));
             };
