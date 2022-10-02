@@ -1,5 +1,5 @@
 export interface IDiary {
-    _id: string;
+    _id?: string;
     userId: string;
     subject: string
     content: string;

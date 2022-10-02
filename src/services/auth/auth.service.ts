@@ -98,7 +98,7 @@ export default class AuthService {
         
         return googleDataForm;
       }
-      const googleUserInfo = await getGoogleUserInfo()
+      const googleUserInfo = await getGoogleUserInfo();
       return googleUserInfo;
     } catch (error) {
       return error

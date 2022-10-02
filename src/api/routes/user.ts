@@ -6,8 +6,6 @@ import attachCurrentUser from "../middlewares/attachCurrentUser";
 import DiaryService from "../../services/diary/diary.service";
 import { createDiaryInstance } from "../../services/diary/diary.factory";
 import UserService from "../../services/user/user.service";
-import axios from "axios";
-import config from "../../config";
 
 const route = Router();
 
@@ -19,28 +17,9 @@ export default (app: Router) => {
         const userServiceInstance = createUserInstance();
         const diaryServiceInstance = createDiaryInstance();
         const {id, email, type} = await userServiceInstance.findById(userId);
-        const diaryCount = await diaryServiceInstance.findDiaryCount(userId);
+        const {count:diaryCount} = await diaryServiceInstance.findDiaryCount(userId);
         return res.status(200).json({id, email, type, diaryCount});
     });
-
-    //이거 결국 안쓰일듯. password 변경은 전용 메서드로 하는게 좋다고 생각.
-    //이건 여러 시퀸스를 한번에 받음. 더 복잡?
-    // route.patch('/', 
-    // celebrate({
-    //     body:Joi.object({
-    //         password:Joi.string().required(),
-    //         changePassword:Joi.string().required()
-    //     })
-    // }),
-    // async (req: IattachCurrentUserRequest, res: Response) => {
-    //     const userId: string = req.currentUser._id;
-    //     const passwordObj = req.body
-    //     const userServiceInstance = createUserInstance();
-        
-    //     const result = await userServiceInstance.editUser(userId, passwordObj);
-    //     return res.status(200).json(result);
-    // });
-
     route.post('/valid',
     celebrate({
         body:Joi.object({
