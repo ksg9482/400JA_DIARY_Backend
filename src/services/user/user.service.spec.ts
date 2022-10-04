@@ -144,64 +144,39 @@ describe('UserService', () => {
         });
     });
 
-    // describe('editUser', () => {
-    //     const userId = 'userId'
-    //     const passwordObj = {
-    //         password: '123456',
-    //         changePassword: '654321'
-    //     }
-    //     it('password를 전송하지 않았으면 No Password를 반환해야 한다.', async () => {
-    //         try {
-    //             const result = await service.editUser(userId, { ...passwordObj, password: '' });
-    //         } catch (error) {
-    //             expect(error).toEqual(new Error('No Password'));
-    //         };
-    //     });
+    describe('passwordChange', () => {
+        const inputData = {
+            _id: 'validId',
+            passwordChange: 'validPassword'
+        };
 
-    //     it('changePassword를 전송하지 않았으면 No Password를 반환해야 한다.', async () => {
-    //         try {
-    //             const result = await service.editUser(userId, { ...passwordObj, changePassword: '' });
-    //         } catch (error) {
-    //             expect(error).toEqual(new Error('No Password'));
-    //         };
-    //     });
 
-    //     it('password와 changePassword가 같으면 No Password를 반환해야 한다.', async () => {
-    //         try {
-    //             const result = await service.editUser(userId, { ...passwordObj, changePassword: '123456' });
-    //         } catch (error) {
-    //             expect(error).toEqual(new Error('Same Password'));
-    //         };
-    //     });
-
-    //     it('해당하는 유저가 없다면 User not registered를 반환해야 한다.', async () => {
-    //         try {
-    //             User.findById = jest.fn().mockResolvedValue(undefined)
-    //             const result = await service.editUser(userId, passwordObj);
-    //         } catch (error) {
-    //             expect(error).toEqual(new Error('User not registered'));
-    //         };
-    //     });
-
-    //     it('입력한 비밀번호가 저장된 비밀번호와 같지 않으면 Invalid Password를 반환해야 한다.', async () => {
-    //         try {
-    //             User.findById = jest.fn().mockResolvedValue(passwordObj.password)
-    //             HashUtil.prototype.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(false))
-    //             const result = await service.editUser(userId, passwordObj);
-    //         } catch (error) {
-    //             expect(error).toEqual(new Error('Invalid Password'));
-    //         };
-    //     });
-
-    //     it('올바른 userId와 password객체를 전송하면 Password Changed를 반환해야 한다.', async () => {
-    //         User.findById = jest.fn().mockResolvedValue(passwordObj.password);
-    //         HashUtil.prototype.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(true));
-    //         User.updateOne = jest.fn().mockResolvedValue('changed');
-    //         const result = await service.editUser(userId, passwordObj);
-
-    //         expect(result).toEqual({ message: 'Password Changed' });
-    //     });
-    // });
+        it('passwordChange 길이가 0이거나 없으면 No Password를 반환한다', async () => {
+            try {
+                const result = await service.passwordChange(inputData._id, '');
+            } catch (error) {
+                expect(error).toEqual(new Error('No Password'));
+            };
+        });
+        it('유저를 찾을 수 없으면 User not registered를 반환한다', async () => {
+            try {
+                User.findById = jest.fn().mockResolvedValue(null);
+                const result = await service.passwordChange(inputData._id, inputData.passwordChange);
+            } catch (error) {
+                expect(error).toEqual(new Error('User not registered'));
+            };
+        });
+        it('비밀번호가 변경되었으면 Password Changed를 반환한다.', async () => {
+            jest.spyOn(User.prototype, 'save')
+                .mockImplementationOnce(() => Promise.resolve('saved'))
+            User.findById = jest.fn().mockReturnValue({
+                data: { id: 'validId', password: 'originPassword' },
+                save: jest.fn().mockResolvedValue('saved')
+            })
+            const result = await service.passwordChange(inputData._id, inputData.passwordChange);
+            expect(result).toEqual({ message: 'Password Changed' });
+        });
+    });
 
     describe('passwordValid', () => {
         const inputData = {
@@ -244,7 +219,7 @@ describe('UserService', () => {
                 const result = await service.passwordValid(inputData._id, inputData.password);
                 expect(result).toEqual(true);
             } catch (error) {
-                
+
             };
         });
     });
@@ -256,9 +231,9 @@ describe('UserService', () => {
             expect(result).toEqual(false);
         });
         it('해당하는 email이 있으면 ID를 반환한다.', async () => {
-            User.findOne = jest.fn().mockResolvedValue({id:'invalidId'});
+            User.findOne = jest.fn().mockResolvedValue({ id: 'invalidId' });
             const result = await service.checkEmail('test@test.com');
-            expect(result).toEqual({id:'invalidId'});
+            expect(result).toEqual({ id: 'invalidId' });
         });
     });
 
@@ -266,15 +241,15 @@ describe('UserService', () => {
 
         it('교체된 비밀번호를 반환한다.', async () => {
             jest.spyOn(User.prototype, 'save')
-                    .mockImplementationOnce(() => Promise.resolve('saved'))
+                .mockImplementationOnce(() => Promise.resolve('saved'))
             User.findById = jest.fn().mockReturnValue({
-                data:{id:'validId', password:'unchanged'},
-                save:jest.fn().mockResolvedValue('saved')
+                data: { id: 'validId', password: 'unchanged' },
+                save: jest.fn().mockResolvedValue('saved')
             })
             Math.random = jest.fn().mockReturnValue(1);
             Math.round = jest.fn().mockReturnValue(100000000);
             const result = await service.tempPassword('validId');
-            expect(result).toEqual({message: "100000000"});
+            expect(result).toEqual({ message: "100000000" });
         });
     });
 
@@ -282,23 +257,23 @@ describe('UserService', () => {
         it('유저 정보를 삭제하고 User Deleted를 반환해야 한다.', async () => {
             User.deleteOne = jest.fn().mockResolvedValue({})
             const result = await service.deleteUser('userId');
-            expect(result).toEqual({message:'User Deleted'});
+            expect(result).toEqual({ message: 'User Deleted' });
         });
     });
 
     describe('oauthLogin', () => {
-        const oauthLoginInput = {email:'email', id:'id', oauthType:'oauthType'}
+        const oauthLoginInput = { email: 'email', id: 'id', oauthType: 'oauthType' }
         it('해당하는 유저정보가 없으면 signup을 호출해야 한다.', async () => {
             User.findOne = jest.fn().mockResolvedValue(undefined);
             service.signup = jest.fn().mockResolvedValue('signup');
-            const result = await service.oauthLogin(oauthLoginInput.email,oauthLoginInput.id,oauthLoginInput.oauthType);
+            const result = await service.oauthLogin(oauthLoginInput.email, oauthLoginInput.id, oauthLoginInput.oauthType);
             expect(service.signup).toBeCalledTimes(1)
         });
 
         it('해당하는 유저정보가 있으면 login을 호출해야 한다.', async () => {
             User.findOne = jest.fn().mockResolvedValue('validUser');
             service.login = jest.fn().mockResolvedValue('login');
-            const result = await service.oauthLogin(oauthLoginInput.email,oauthLoginInput.id,oauthLoginInput.oauthType);
+            const result = await service.oauthLogin(oauthLoginInput.email, oauthLoginInput.id, oauthLoginInput.oauthType);
             expect(service.login).toBeCalledTimes(1)
         });
     });

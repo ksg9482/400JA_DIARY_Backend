@@ -27,22 +27,20 @@ export default class DiaryService {
         this.logger = logger;
     };
 
-    // 내용 변경시 오늘자 미리 썼던 내용이 에디터 창에 미리 적어져 있어야 한다.
-    /**
-     * 생성 날짜가 '오늘'을 지나지 않았으면 내용만 수정된다. 
-     */
     public async createDiaryContent(userId: string, diaryContentObj: IdiaryContent) { //만들어야 됨
         try {
-            if (!userId || userId.length <= 0) {
+            if (!userId) {
                 this.throwError('Invalid userId', 'inputError');
             };
-            if (!diaryContentObj || diaryContentObj?.content.length <= 0) {
+
+            if (!diaryContentObj || !diaryContentObj.content) {
                 this.throwError('Invalid Diary parametor', 'inputError');
             };
+
             const dateKR = this.getKRDate();
             const setDiarySaveForm = (setDiarySaveFormInput: { userId: string, diaryContentObj: IdiaryContent }) => {
                 const userId = setDiarySaveFormInput.userId;
-                const diarySubject = setDiarySaveFormInput.diaryContentObj.subject.length !== 0 ? setDiarySaveFormInput.diaryContentObj.subject : "";
+                const diarySubject = setDiarySaveFormInput.diaryContentObj.subject || '';
                 const diaryContent = setDiarySaveFormInput.diaryContentObj.content;
 
                 const diaryRecord: HydratedDocument<IDiary> = new this.diaryModel({
@@ -92,22 +90,28 @@ export default class DiaryService {
 
     public async getDiary(userId: string): Promise<IdiaryOutput> {
         try {
-            if (!userId || userId.length <= 0) {
+            if (!userId) {
                 this.throwError('Invalid userId', 'inputError');
             };
             const getDiaryRecord = async (getDiaryRecordInput: { userId: string, lastDiaryId?: string }): Promise<IDiaryForm[] | { error: any }> => {
                 const userId = getDiaryRecordInput.userId;
-                
+
                 try {
                     const diaryRecord = await this.diaryModel
                         .find({ userId: userId })
                         .limit(7)
                         .sort({ createdAt: -1 });
 
-                    if (!diaryRecord || diaryRecord.length <= 0) {
-                        this.throwError('DiaryRecord is Empty', 'emptyDiary');
+                    if (!diaryRecord) {
+                        this.throwError('Get diary fail', 'dataBaseError');
                     }
-                    const output = diaryRecord.map(this.setDiaryForm)
+
+                    if (diaryRecord.length <= 0) {
+                        return []
+                    }
+
+
+                    const output = diaryRecord.map(this.setDiaryForm);
 
                     return output;
                 } catch (error) {
@@ -117,7 +121,7 @@ export default class DiaryService {
 
             const funcs = [getDiaryRecord, this.setDiaryEnd];
             const firstValue = { userId: userId };
-           const result = await this.functionPipe(funcs, { ...firstValue });
+            const result = await this.functionPipe(funcs, { ...firstValue });
             return result
         } catch (error) {
             this.logger.error(error);
@@ -136,8 +140,9 @@ export default class DiaryService {
             const getDiaryRecord = async (getDiaryRecordInput: { userId: string, lastDiaryId?: string }): Promise<IDiaryForm[] | { error: any }> => {
                 const userId = getDiaryRecordInput.userId;
                 const lastDiaryId = getDiaryRecordInput.lastDiaryId;
-              
+
                 try {
+                    //결과 없으면 []반환
                     const diaryRecord = await this.diaryModel
                         .find()
                         .and([
@@ -147,9 +152,13 @@ export default class DiaryService {
                         .limit(7)
                         .sort({ createdAt: -1 });
 
-                    if (!diaryRecord || diaryRecord.length <= 0) {
-                        this.throwError('DiaryRecord is Empty', 'emptyDiary');
-                    }
+                        if (!diaryRecord) {
+                            this.throwError('Get diary fail', 'dataBaseError');
+                        }
+    
+                        if (diaryRecord.length <= 0) {
+                            return []
+                        }
                     const output = diaryRecord.map(this.setDiaryForm)
 
                     return output;
@@ -160,7 +169,7 @@ export default class DiaryService {
 
             const funcs = [getDiaryRecord, this.setDiaryEnd];
             const firstValue = { userId, lastDiaryId };
-           const result = await this.functionPipe(funcs, { ...firstValue });
+            const result = await this.functionPipe(funcs, { ...firstValue });
             return result
         } catch (error) {
             this.logger.error(error);
@@ -170,10 +179,10 @@ export default class DiaryService {
 
     public async findKeyword(userId: string, keyword: string): Promise<IdiaryOutput> {
         try {
-            if (!userId || userId.length <= 0) {
+            if (!userId) {
                 this.throwError('Invalid userId', 'inputError');
             };
-            if (!keyword || keyword.length <= 0) {
+            if (!keyword) {
                 this.throwError('Invalid keyword', 'inputError');
             };
             const getDiaryRecord = async (getDiaryRecordInput: { userId: string, keyword: string }): Promise<IDiaryForm[] | { error: any }> => {
@@ -187,9 +196,13 @@ export default class DiaryService {
                         ])
                         .sort({ createdAt: -1 });
 
-                    if (!diaryRecord || diaryRecord.length <= 0) {
-                        this.throwError('DiaryRecord is Empty', 'emptyDiary');
-                    }
+                        if (!diaryRecord) {
+                            this.throwError('Get diary fail', 'dataBaseError');
+                        }
+    
+                        if (diaryRecord.length <= 0) {
+                            return []
+                        }
                     const output = diaryRecord.map(this.setDiaryForm)
 
                     return output;
@@ -210,7 +223,7 @@ export default class DiaryService {
 
     public async findByDate(userId: string, findByDateDTO: IfindByDateDTO): Promise<IdiaryOutput> {
         try {
-            if (!userId || userId.length <= 0) {
+            if (!userId) {
                 this.throwError('Invalid userId', 'inputError');
             };
             if (!findByDateDTO) {
@@ -226,9 +239,14 @@ export default class DiaryService {
                         .lte('day', findByDate.day)
                         .sort({ createdAt: -1 });
 
-                    if (!diaryRecord || diaryRecord.length <= 0) {
-                        this.throwError('DiaryRecord is Empty', 'emptyDiary');
-                    }
+                        if (!diaryRecord) {
+                            this.throwError('Get diary fail', 'dataBaseError');
+                        }
+    
+                        if (diaryRecord.length <= 0) {
+                            return []
+                        }
+
                     const output = diaryRecord.map(this.setDiaryForm);
 
                     return output;
@@ -248,7 +266,7 @@ export default class DiaryService {
 
     public async findDiaryCount(userId: string) {
         try {
-            if (!userId || userId.length <= 0) {
+            if (!userId) {
                 this.throwError('Invalid userId', 'inputError');
             };
 
@@ -267,7 +285,7 @@ export default class DiaryService {
      */
     public async deleteAllDiary(userId: string) {
         try {
-            if (!userId || userId.length <= 0) {
+            if (!userId) {
                 this.throwError('Invalid userId', 'inputError');
             };
             await this.diaryModel.deleteMany({ userId: userId })
@@ -314,11 +332,8 @@ export default class DiaryService {
             diaryIsEnd = true;
         }
 
-        const diaryOutput = targetDiarys;
-        return { end: diaryIsEnd, list: diaryOutput };
-
-
-    }
+        return { end: diaryIsEnd, list: targetDiarys };
+    };
 
     private async functionPipe([...funcs]: Function[], firstValue: any) {
         //reduce도 있지만 에러 검출시 파이프라인을 멈추기 힘들어서 for loop 사용.
@@ -327,10 +342,9 @@ export default class DiaryService {
             for (let func of funcs) {
                 let temp = await func(result);
                 if (temp.error) {
-                    //빈배열일 경우 에러가 아니라 그냥 내용이 없음을 반환하는게 좋지 않을까?
-                    if (temp.error.name === 'emptyDiary') {
-                        return { end: true, list: [] }
-                    };
+                    // if (temp.error.name === 'emptyDiary') {
+                    //     return { end: true, list: [] }
+                    // };
                     this.throwError(temp.error.message, `${func.name}Error`);
                 };
                 result = temp;

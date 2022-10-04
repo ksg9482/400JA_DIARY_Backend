@@ -154,6 +154,4 @@ export default (app: Router) => {
   );
 
 
-  //logout
-  //signout? userdelete?
 };

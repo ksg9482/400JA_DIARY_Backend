@@ -137,12 +137,21 @@ describe('DiaryService', () => {
         it('다이어리를 검색해서 아무것도 나오지 않는다면 빈 배열을 반환해야 한다.', async () => { //이거 수정가능성 높음
             Diary.find = jest.fn().mockReturnValue({
                 and: jest.fn().mockReturnValue({
-                    sort: jest.fn().mockResolvedValue(undefined)
+                    sort: jest.fn().mockResolvedValue([])
                 })
             });
             const result = await service.findKeyword(userId, testKeyword);
             expect(result.list).toEqual([]);
+        });
 
+        it('검색에 실패하면 Get diary fail을 반환 한다.', async () => {
+            Diary.find = jest.fn().mockReturnValue({
+                and: jest.fn().mockReturnValue({
+                    sort: jest.fn().mockResolvedValue(null)
+                })
+            });
+            const result = await service.findKeyword(userId, testKeyword);
+            expect(result.error.message).toEqual('Get diary fail');
         });
 
         it('올바른 userId와 키워드를 전송하면 올바른 결과를 반환해야 한다.', async () => {
@@ -215,14 +224,27 @@ describe('DiaryService', () => {
                 lte: jest.fn().mockReturnValue({
                     lte: jest.fn().mockReturnValue({
                         lte: jest.fn().mockReturnValue({
-                            sort: jest.fn().mockResolvedValue(undefined)
+                            sort: jest.fn().mockResolvedValue([])
                         })
                     })
                 })
             });
             const result = await service.findByDate(userId, testDate);
             expect(result.list).toEqual([]);
+        });
 
+        it('검색에 실패하면 Get diary fail을 반환 한다.', async () => {
+            Diary.find = jest.fn().mockReturnValue({
+                lte: jest.fn().mockReturnValue({
+                    lte: jest.fn().mockReturnValue({
+                        lte: jest.fn().mockReturnValue({
+                            sort: jest.fn().mockResolvedValue(null)
+                        })
+                    })
+                })
+            });
+            const result = await service.findByDate(userId, testDate);
+            expect(result.error.message).toEqual('Get diary fail');
         });
 
         it('올바른 userId와 date를 전송하면 올바른 결과를 반환해야 한다.', async () => {
@@ -314,14 +336,23 @@ describe('DiaryService', () => {
         });
 
         it('검색 결과가 없을 경우 빈 배열을 반환 한다.', async () => {
+            Diary.find = jest.fn().mockReturnValue({
+                limit: jest.fn().mockReturnValue({
+                    sort: jest.fn().mockResolvedValue([])
+                })
+            });
+            const result = await service.getDiary(userId);
+            expect(result.list).toEqual([]);
+        });
 
+        it('검색에 실패하면 Get diary fail을 반환 한다.', async () => {
             Diary.find = jest.fn().mockReturnValue({
                 limit: jest.fn().mockReturnValue({
                     sort: jest.fn().mockResolvedValue(null)
                 })
             });
             const result = await service.getDiary(userId);
-            expect(result.list).toEqual([]);
+            expect(result.error.message).toEqual('Get diary fail');
         });
 
 
@@ -386,7 +417,18 @@ describe('DiaryService', () => {
         });
 
         it('검색 결과가 없을 경우 빈 배열을 반환 한다.', async () => {
+            Diary.find = jest.fn().mockReturnValue({
+                and: jest.fn().mockReturnValue({
+                    limit: jest.fn().mockReturnValue({
+                        sort: jest.fn().mockResolvedValue([])
+                    })
+                })
+            });
+            const result = await service.getLastIdDiary(userId, 'lastId');
+            expect(result.list).toEqual([]);
+        });
 
+        it('검색에 실패하면 Get diary fail을 반환 한다.', async () => {
             Diary.find = jest.fn().mockReturnValue({
                 and: jest.fn().mockReturnValue({
                     limit: jest.fn().mockReturnValue({
@@ -395,7 +437,7 @@ describe('DiaryService', () => {
                 })
             });
             const result = await service.getLastIdDiary(userId, 'lastId');
-            expect(result.list).toEqual([]);
+            expect(result.error.message).toEqual('Get diary fail');
         });
 
 

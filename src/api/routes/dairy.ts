@@ -24,15 +24,15 @@ export default (app: Router) => {
             return res.status(200).json(result);
         });
 
-        route.get('/', async (req: IattachCurrentUserRequest, res: Response) => {
-            
-            const userId = req.currentUser._id;
-            const diaryServiceInstance = createDiaryInstance();
-            const result = await diaryServiceInstance.getDiary(userId);
-            return res.status(200).json(result);
-        });
+    route.get('/', async (req: IattachCurrentUserRequest, res: Response) => {
 
-    route.post('/diary',
+        const userId = req.currentUser._id;
+        const diaryServiceInstance = createDiaryInstance();
+        const result = await diaryServiceInstance.getDiary(userId);
+        return res.status(200).json(result);
+    });
+
+    route.post('/nextdiary',
         celebrate({
             body: Joi.object({
                 lastDiaryId: Joi.string()
