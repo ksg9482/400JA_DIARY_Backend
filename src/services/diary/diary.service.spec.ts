@@ -1,10 +1,6 @@
 import Diary from '../../models/diary'
 import logger from "../../loaders/logger";
-import HashUtil from "../utils/hashUtils";
-import JwtUtil from "../utils/jwtUtils";
 import DiaryService from "./diary.service";
-import { Query } from 'mongoose';
-import { appendFile } from 'fs';
 
 describe('DiaryService', () => {
     let service: DiaryService;
@@ -209,55 +205,43 @@ describe('DiaryService', () => {
         it('userId가 없거나 length가 0이면 Invalid userId 에러를 반환해야 한다.', async () => {
             const userIdArr = [null, '']
             for (let userId of userIdArr) {
-                const result = await service.findByDate(userId, testDate);
+                const result = await service.findByDate(userId, '2022-10-01');
                 expect(result.error.message).toEqual("Invalid userId")
             };
         });
 
         it('findByDateDTO가 없으면 Invalid findByDateDTO 에러를 반환해야 한다.', async () => {
             const result = await service.findByDate('testUserId', null);
-            expect(result.error.message).toEqual("Invalid findByDateDTO")
+            expect(result.error.message).toEqual("Invalid targetDate")
         });
 
         it('다이어리를 검색해서 아무것도 나오지 않는다면 빈 배열을 반환해야 한다.', async () => { //이거 수정가능성 높음
             Diary.find = jest.fn().mockReturnValue({
                 lte: jest.fn().mockReturnValue({
-                    lte: jest.fn().mockReturnValue({
-                        lte: jest.fn().mockReturnValue({
-                            sort: jest.fn().mockResolvedValue([])
-                        })
-                    })
+                    sort: jest.fn().mockResolvedValue([])
                 })
             });
-            const result = await service.findByDate(userId, testDate);
+            const result = await service.findByDate(userId, '2022-10-01');
             expect(result.list).toEqual([]);
         });
 
         it('검색에 실패하면 Get diary fail을 반환 한다.', async () => {
             Diary.find = jest.fn().mockReturnValue({
                 lte: jest.fn().mockReturnValue({
-                    lte: jest.fn().mockReturnValue({
-                        lte: jest.fn().mockReturnValue({
-                            sort: jest.fn().mockResolvedValue(null)
-                        })
-                    })
+                    sort: jest.fn().mockResolvedValue(null)
                 })
             });
-            const result = await service.findByDate(userId, testDate);
+            const result = await service.findByDate(userId, '2022-10-01');
             expect(result.error.message).toEqual('Get diary fail');
         });
 
         it('올바른 userId와 date를 전송하면 올바른 결과를 반환해야 한다.', async () => {
             Diary.find = jest.fn().mockReturnValue({
                 lte: jest.fn().mockReturnValue({
-                    lte: jest.fn().mockReturnValue({
-                        lte: jest.fn().mockReturnValue({
-                            sort: jest.fn().mockResolvedValue(diaryContentArr)
-                        })
-                    })
+                    sort: jest.fn().mockResolvedValue(diaryContentArr)
                 })
             });
-            const result = await service.findByDate(userId, testDate);
+            const result = await service.findByDate(userId, '2022-10-01');
 
             expect(result.list).toEqual(validDiaryResult);
         });

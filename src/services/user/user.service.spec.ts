@@ -3,21 +3,7 @@ import logger from "../../loaders/logger";
 import HashUtil from "../utils/hashUtils";
 import JwtUtil from "../utils/jwtUtils";
 import UserService from "./user.service";
-import user from '@/api/routes/user';
-const mockRepository = () => (
-    {
-        save: jest.fn(),
-        findone: jest.fn()
-    }
-);
 
-const mockJwtService = () => ({
-    sign: jest.fn(() => 'signed-token'),
-    verify: jest.fn()
-});
-//jest.mock('@/models/user')
-//jest.mock('@/loaders/logger')
-//jest.mock('./auth.service')
 describe('UserService', () => {
     let service: UserService;
     //let jwtService: JwtService;

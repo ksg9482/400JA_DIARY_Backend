@@ -221,24 +221,20 @@ export default class DiaryService {
         }
     }
 
-    public async findByDate(userId: string, findByDateDTO: IfindByDateDTO): Promise<IdiaryOutput> {
+    public async findByDate(userId: string, targetDate: string): Promise<IdiaryOutput> {
         try {
             if (!userId) {
                 this.throwError('Invalid userId', 'inputError');
             };
-            if (!findByDateDTO) {
-                this.throwError('Invalid findByDateDTO', 'inputError');
+            if (!targetDate) {
+                this.throwError('Invalid targetDate', 'inputError');
             };
-            const getDiaryRecord = async (getDiaryRecordInput: { userId: string, findByDateDTO: IfindByDateDTO }): Promise<IDiaryForm[] | { error: any }> => {
+            const getDiaryRecord = async (getDiaryRecordInput: { userId: string, targetDate:string }): Promise<IDiaryForm[] | { error: any }> => {
                 const userId = getDiaryRecordInput.userId;
-                const findByDate = getDiaryRecordInput.findByDateDTO;
                 try {
                     const diaryRecord = await this.diaryModel.find({ userId: userId })
-                        .lte('year', findByDate.year)
-                        .lte('month', findByDate.month)
-                        .lte('day', findByDate.day)
+                        .lte('createdAt', new Date(targetDate))
                         .sort({ createdAt: -1 });
-
                         if (!diaryRecord) {
                             this.throwError('Get diary fail', 'dataBaseError');
                         }
@@ -255,7 +251,7 @@ export default class DiaryService {
                 }
             };
             const funcs = [getDiaryRecord, this.setDiaryEnd];
-            const firstValue = { userId, findByDateDTO };
+            const firstValue = { userId, targetDate };
             const result = await this.functionPipe(funcs, { ...firstValue });
             return result
         } catch (error) {

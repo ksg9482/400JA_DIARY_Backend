@@ -78,7 +78,7 @@ export default (app: Router) => {
         };
 
         const diaryServiceInstance = createDiaryInstance();
-        const result = await diaryServiceInstance.findByDate(userId, targetDateObj);
+        const result = await diaryServiceInstance.findByDate(userId, targetDate);
         return res.status(200).json(result);
     });
 
