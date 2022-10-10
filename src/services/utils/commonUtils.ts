@@ -8,11 +8,11 @@ export default class CommonUtils {
         return '사용자' + randomNum
     }
 
-    public throwError(errorObj:IError) {
-        let err = new Error();
-        err.name = errorObj.name;
-        err.message = errorObj.message;
-        throw err;
-    }
+    // public throwError(errorObj:IError) {
+    //     let err = new Error();
+    //     err.name = errorObj.name;
+    //     err.message = errorObj.message;
+    //     throw err;
+    // }
     
 };

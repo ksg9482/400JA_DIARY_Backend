@@ -33,11 +33,15 @@ export default (app: Router) => {
       logger.debug('Calling Sign-Up endpoint with body: %o', req.body);
       try {
         const userServiceInstance = createUserInstance();
-        const { user, token } = await userServiceInstance.signup(req.body as IUserInputDTO);
-        return res.status(200).json({ user, token });
-      } catch (err) {
-        logger.error('error: %o', err);
-        return next(err);
+        const result = await userServiceInstance.signup(req.body as IUserInputDTO);
+        return res.status(201).json(result);
+      } catch (error) {
+        logger.error('error: %o', error);
+        const errorMessage = error.message;
+        if(errorMessage === "Email Already Exists") {
+          return res.status(409).json({ error:errorMessage });
+        }
+        return next(error);
       }
     },
   );
@@ -53,22 +57,28 @@ export default (app: Router) => {
     }),
     async (req: Request, res: Response, next: NextFunction) => {
       logger.debug('Calling Login endpoint with body: %o', req.body);
-
+      const email = req.body.email;
+      const password = req.body.password;
       try {
         const userServiceInstance = createUserInstance();
-        const {user, token} = await userServiceInstance.login(req.body);
+        const result = await userServiceInstance.login(email, password);
         
-        //에러 처리 참고 ?
-        if(!user) {
-          return res.status(400).json({ error:'User not registered' });
+        
+        return res.status(200).cookie('jwt', result.token).json({ user: result.user });
+      } catch (error) {
+        logger.error('error: %o', error);
+        const errorMessage = error.message;
+        if(errorMessage === "No login parametor") {
+          return res.status(400).json({ error:errorMessage });
         }
-        if(!token) {
-          return res.status(400).json({ error:'token error' });
+        const UnauthorizedError = ['User not registered', 'Invalid Password'];
+        if(UnauthorizedError.includes(errorMessage)) {
+          return res.status(401).json({ error:errorMessage });
         }
-        return res.status(200).cookie('jwt', token).json({ user: user });
-      } catch (err) {
-        logger.error('error: %o', err);
-        return next(err);
+        if(errorMessage === 'Token generate fail') {
+          return res.status(500).json({ error:errorMessage });
+        }
+        return next(error);
       }
     },
   );
@@ -82,16 +92,11 @@ export default (app: Router) => {
       }),
     }),
     async (req: Request, res: Response, next: NextFunction) => {
-      
       logger.debug('Calling Login endpoint with body: %o', req.body);
-
       try {
         const email = req.body.email;
         const userServiceInstance = createUserInstance();
-        const userCheck = await userServiceInstance.checkEmail(email);
-        if(!userCheck) {
-          return res.status(400).json({ error:'User not found this Email' });
-        };
+        const userCheck = await userServiceInstance.findUserByEmail(email);
         const tempPassword = await userServiceInstance.tempPassword(userCheck.id,);
         return res.status(200).json({ tempPassword:tempPassword });
       } catch (err) {
@@ -111,19 +116,16 @@ export default (app: Router) => {
         const authServiceInstance = createAuthInstance();
         const kakaoOAuth = await authServiceInstance.kakaoOAuth(code);
   
-        //유저 정보로 db검색. 없으면 가입 후 로그인, 있으면 바로 로그인
-        //그냥 로그인이 아니라 OAuth메서드(findOrCreate) 따로 만드는게 좋을 듯.
-        
         const userServiceInstance = createUserInstance();
         //password는 id를 패스워드 삼았다
         const { user, token } = await userServiceInstance.oauthLogin(kakaoOAuth.email, kakaoOAuth.password, signupType.KAKAO);
 
-        if(!token) {
-          return res.status(400).json({ message:'token error' });
-        }
+        // if(!token) {
+        //   return res.status(400).json({ message:'token error' });
+        // }
         return res.status(200).cookie('jwt', token).json({ user });
       } catch (err) {
-        //logger.error('error: %o', err);
+        logger.error('error: %o', err);
         return next(err);
       }
     },
@@ -137,17 +139,14 @@ export default (app: Router) => {
         const authServiceInstance = createAuthInstance();
         const googleOAuth = await authServiceInstance.googleOAuth(accessToken);
   
-        //유저 정보로 db검색. 없으면 가입 후 로그인, 있으면 바로 로그인
-        //그냥 로그인이 아니라 OAuth메서드(findOrCreate) 따로 만드는게 좋을 듯.
-        
         const userServiceInstance = createUserInstance();
         const { user, token } = await userServiceInstance.oauthLogin(googleOAuth.email, googleOAuth.password, signupType.GOOGLE);
-        if(!token) {
-          return res.status(400).json({ message:'token error' });
-        }
+        // if(!token) {
+        //   return res.status(400).json({ message:'token error' });
+        // }
         return res.status(200).cookie('jwt', token).json({ user });
       } catch (err) {
-        //logger.error('error: %o', err);
+        logger.error('error: %o', err);
         return next(err);
       }
     },

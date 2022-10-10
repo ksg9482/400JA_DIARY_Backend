@@ -21,7 +21,7 @@ export default (app: Router) => {
             const diaryContent = req.body
             const diaryServiceInstance = createDiaryInstance();
             const result = await diaryServiceInstance.createDiaryContent(userId, diaryContent);
-            return res.status(200).json(result);
+            return res.status(201).json(result);
         });
 
     route.get('/', async (req: IattachCurrentUserRequest, res: Response) => {

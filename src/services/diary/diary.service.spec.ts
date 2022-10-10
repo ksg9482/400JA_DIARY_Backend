@@ -9,29 +9,31 @@ describe('DiaryService', () => {
         service = new DiaryService(Diary, logger)
     })
     describe('createDiaryContent', () => {
-        const userId = 'testUserId';
+        const userId = 'userId';
         const diaryContent = { subject: 'test subject', content: 'test content' };
 
-        it('userId가 없거나 length가 0이면 Invalid userId 에러를 반환해야 한다.', async () => {
-            const userIdArr = [null, '']
-            for (let userId of userIdArr) {
-                const result = await service.createDiaryContent(userId, diaryContent);
-                expect(result.error.message).toEqual("Invalid userId")
-            };
+        it('userId가 없으면 Invalid userId 에러를 반환해야 한다.', async () => {
+            try {
+                const result = await service.createDiaryContent(null, diaryContent);
+            } catch (error) {
+                expect(error.message).toEqual("Invalid userId");
+            }
         });
 
         it('diaryContent를 전송하지 않는다면 Invalid Diary parametor를 반환해야 한다.', async () => {
-
-            const result = await service.createDiaryContent(userId, null);
-            expect(result.error.message).toEqual('Invalid Diary parametor');
-
-
+            try {
+                const result = await service.createDiaryContent(userId, null);
+            } catch (error) {
+                expect(error.message).toEqual('Invalid Diary parametor');
+            }
         });
 
         it('diaryContent의 length가 0이면 No Diary parametor 에러를 반환해야 한다.', async () => {
-            const result = await service.createDiaryContent(userId, { ...diaryContent, subject: '', content: '' });
-            expect(result.error.message).toEqual('Invalid Diary parametor');
-
+            try {
+                const result = await service.createDiaryContent(userId, { ...diaryContent, subject: '', content: '' });
+            } catch (error) {
+                expect(error.message).toEqual('Invalid Diary parametor');
+            }
         });
 
         it('당일 다이어리가 이미 있으면 업데이트 한다.', async () => {
@@ -76,6 +78,7 @@ describe('DiaryService', () => {
 
             jest.spyOn(Diary.prototype, 'save')
                 .mockImplementationOnce(() => Promise.resolve({ message: 'saved' }))
+
             const result = await service.createDiaryContent(userId, diaryContent);
 
             expect(result).toEqual({ message: 'Diary save' });
@@ -116,48 +119,52 @@ describe('DiaryService', () => {
                 date: '2022-09-25'
             }
         ];
-        const testKeyword = 'keyword'
-        it('userId가 없거나 length가 0이면 Invalid userId를 반환해야 한다.', async () => {
-            const userIdArr = [null, '']
-            for (let userId of userIdArr) {
-                const result = await service.findKeyword(userId, testKeyword);
-                expect(result.error.message).toEqual("Invalid userId")
-            };
+        
+        const findKeywordMockFunc = (returnValue:any) => {
+            return Diary.find = jest.fn().mockReturnValue({
+                and: jest.fn().mockReturnValue({
+                    sort: jest.fn().mockResolvedValue(returnValue)
+                })
+            });
+        };
+
+        it('userId가 없으면 Invalid userId를 반환해야 한다.', async () => {
+            try {
+                const result = await service.findKeyword(null, 'keyword');
+            } catch (error) {
+                expect(error.message).toEqual("Invalid userId")
+            }
+            
         });
 
         it('keyword의 length가 0이면 Invalid keyword를 반환해야 한다.', async () => {
-            const result = await service.findKeyword(userId, '');
-                expect(result.error.message).toEqual("Invalid keyword")
+            try {
+                const result = await service.findKeyword(userId, '');
+            } catch (error) {
+                expect(error.message).toEqual("Invalid keyword")
+            }
+            
         });
 
         it('다이어리를 검색해서 아무것도 나오지 않는다면 빈 배열을 반환해야 한다.', async () => { //이거 수정가능성 높음
-            Diary.find = jest.fn().mockReturnValue({
-                and: jest.fn().mockReturnValue({
-                    sort: jest.fn().mockResolvedValue([])
-                })
-            });
-            const result = await service.findKeyword(userId, testKeyword);
+            findKeywordMockFunc([])
+            const result = await service.findKeyword(userId, 'keyword');
             expect(result.list).toEqual([]);
         });
 
         it('검색에 실패하면 Get diary fail을 반환 한다.', async () => {
-            Diary.find = jest.fn().mockReturnValue({
-                and: jest.fn().mockReturnValue({
-                    sort: jest.fn().mockResolvedValue(null)
-                })
-            });
-            const result = await service.findKeyword(userId, testKeyword);
-            expect(result.error.message).toEqual('Get diary fail');
+            findKeywordMockFunc(null)
+            try {
+                const result = await service.findKeyword(userId, 'keyword');
+            } catch (error) {
+                expect(error.message).toEqual('Get diary fail');
+            }
+            
         });
 
         it('올바른 userId와 키워드를 전송하면 올바른 결과를 반환해야 한다.', async () => {
-            Diary.find = jest.fn().mockReturnValue({
-                and: jest.fn().mockReturnValue({
-                    sort: jest.fn().mockResolvedValue(diaryContentArr)
-                })
-            });
-            const result = await service.findKeyword(userId, testKeyword);
-
+            findKeywordMockFunc(diaryContentArr)
+            const result = await service.findKeyword(userId, 'keyword');
             expect(result.list).toEqual(validDiaryResult);
         });
     });
@@ -202,75 +209,76 @@ describe('DiaryService', () => {
             }
         ];
 
-        it('userId가 없거나 length가 0이면 Invalid userId 에러를 반환해야 한다.', async () => {
-            const userIdArr = [null, '']
-            for (let userId of userIdArr) {
-                const result = await service.findByDate(userId, '2022-10-01');
-                expect(result.error.message).toEqual("Invalid userId")
-            };
+        const findByDateMockFunc = (returnValue:any) => {
+            return Diary.find = jest.fn().mockReturnValue({
+                lte: jest.fn().mockReturnValue({
+                    sort: jest.fn().mockResolvedValue(returnValue)
+                })
+            });
+        };
+
+        it('userId가 없으면 Invalid userId 에러를 반환해야 한다.', async () => {
+            try {
+            const result = await service.findByDate(userId, '2022-10-01');
+            } catch (error) {
+                expect(error.message).toEqual("Invalid userId");
+            }
         });
 
         it('findByDateDTO가 없으면 Invalid findByDateDTO 에러를 반환해야 한다.', async () => {
-            const result = await service.findByDate('testUserId', null);
-            expect(result.error.message).toEqual("Invalid targetDate")
+            try {
+                const result = await service.findByDate('testUserId', null);
+            } catch (error) {
+                expect(error.message).toEqual("Invalid targetDate")
+            }
         });
-
+       
         it('다이어리를 검색해서 아무것도 나오지 않는다면 빈 배열을 반환해야 한다.', async () => { //이거 수정가능성 높음
-            Diary.find = jest.fn().mockReturnValue({
-                lte: jest.fn().mockReturnValue({
-                    sort: jest.fn().mockResolvedValue([])
-                })
-            });
+            findByDateMockFunc([])
             const result = await service.findByDate(userId, '2022-10-01');
             expect(result.list).toEqual([]);
         });
 
         it('검색에 실패하면 Get diary fail을 반환 한다.', async () => {
-            Diary.find = jest.fn().mockReturnValue({
-                lte: jest.fn().mockReturnValue({
-                    sort: jest.fn().mockResolvedValue(null)
-                })
-            });
-            const result = await service.findByDate(userId, '2022-10-01');
-            expect(result.error.message).toEqual('Get diary fail');
+            findByDateMockFunc(null)
+            try {
+                const result = await service.findByDate(userId, '2022-10-01');
+            } catch (error) {
+                expect(error.message).toEqual('Get diary fail');
+            }
         });
 
         it('올바른 userId와 date를 전송하면 올바른 결과를 반환해야 한다.', async () => {
-            Diary.find = jest.fn().mockReturnValue({
-                lte: jest.fn().mockReturnValue({
-                    sort: jest.fn().mockResolvedValue(diaryContentArr)
-                })
-            });
+            findByDateMockFunc(diaryContentArr);
             const result = await service.findByDate(userId, '2022-10-01');
-
             expect(result.list).toEqual(validDiaryResult);
         });
     });
 
     describe('findDiaryCount', () => {
-
+        const findDiaryCountMockFunc = (returnValue:any) => {
+            return Diary.find = jest.fn().mockReturnValue({
+                count: jest.fn().mockResolvedValue(returnValue)
+            });
+        };
         it('userId가 없거나 length가 0이면 Invalid userId 에러를 반환해야 한다.', async () => {
-            const userIdArr = [null, '']
-            for (let userId of userIdArr) {
-                const result = await service.findDiaryCount(userId);
-                expect(result.error.message).toEqual("Invalid userId")
-            };
+            try {
+            const result = await service.findDiaryCount(null);
+            } catch (error) {
+                expect(error.message).toEqual("Invalid userId")
+            }
+                
         });
 
         it('다이어리를 검색해서 아무것도 나오지 않는다면 숫자 0을 반환해야 한다.', async () => {
-            Diary.find = jest.fn().mockReturnValue({
-                count: jest.fn().mockResolvedValue(undefined)
-            });
+            findDiaryCountMockFunc(null)
             const result = await service.findDiaryCount('userId');
             expect(result.count).toEqual(0);
         });
 
         it('올바른 userId를 전송하면 다이어리의 수를 반환 한다.', async () => {
-            Diary.find = jest.fn().mockReturnValue({
-                count: jest.fn().mockResolvedValue(2)
-            });
+            findDiaryCountMockFunc(2)
             const result = await service.findDiaryCount('userId');
-
             expect(result.count).toEqual(2);
         });
     });
@@ -309,43 +317,42 @@ describe('DiaryService', () => {
                 date: '2022-09-25'
             }
         ];
+        const getDiaryMockFunc = (returnValue:any) => {
+            return Diary.find = jest.fn().mockReturnValue({
+                limit: jest.fn().mockReturnValue({
+                    sort: jest.fn().mockResolvedValue(returnValue)
+                })
+            });
+        };
 
-        it('userId가 없거나 length가 0이면 Invalid userId 에러를 반환해야 한다.', async () => {
-            const userIdArr = [null, '']
-            for (let userId of userIdArr) {
-                const result = await service.getDiary(userId);
-                expect(result.error.message).toEqual("Invalid userId")
-            }
 
+        it('userId가 없으면 Invalid userId 에러를 반환해야 한다.', async () => {
+            try {
+               const result = await service.getDiary(userId);
+           } catch (error) {
+               expect(error.message).toEqual("Invalid userId")
+           } 
         });
 
         it('검색 결과가 없을 경우 빈 배열을 반환 한다.', async () => {
-            Diary.find = jest.fn().mockReturnValue({
-                limit: jest.fn().mockReturnValue({
-                    sort: jest.fn().mockResolvedValue([])
-                })
-            });
+            getDiaryMockFunc([])
+            
             const result = await service.getDiary(userId);
             expect(result.list).toEqual([]);
         });
 
         it('검색에 실패하면 Get diary fail을 반환 한다.', async () => {
-            Diary.find = jest.fn().mockReturnValue({
-                limit: jest.fn().mockReturnValue({
-                    sort: jest.fn().mockResolvedValue(null)
-                })
-            });
-            const result = await service.getDiary(userId);
-            expect(result.error.message).toEqual('Get diary fail');
+            getDiaryMockFunc(null)
+            try {
+                const result = await service.getDiary(userId);
+            } catch (error) {
+                expect(error.message).toEqual('Get diary fail');
+            }
         });
 
 
         it('올바른 userId를 전송하면 diary form을 반환 한다.', async () => {
-            Diary.find = jest.fn().mockReturnValue({
-                limit: jest.fn().mockReturnValue({
-                    sort: jest.fn().mockResolvedValue(diaryContentArr)
-                })
-            });
+            getDiaryMockFunc(diaryContentArr)
             const result = await service.getDiary(userId);
             expect(result.list).toEqual(validDiaryResult);
         });
@@ -385,54 +392,43 @@ describe('DiaryService', () => {
                 date: '2022-09-25'
             }
         ];
-
-        it('userId가 없거나 length가 0이면 Invalid userId 에러를 반환해야 한다.', async () => {
-            const userIdArr = [null, '']
-            for (let userId of userIdArr) {
-                const result = await service.getLastIdDiary(userId, 'test');
-                expect(result.error.message).toEqual("Invalid userId")
-            }
-
-        });
-
-        it('lastDiaryId length가 0이면 Invalid lastDiaryId 에러를 반환해야 한다.', async () => {
-            const result = await service.getLastIdDiary(userId, '');
-            expect(result.error.message).toEqual("Invalid lastDiaryId")
-        });
-
-        it('검색 결과가 없을 경우 빈 배열을 반환 한다.', async () => {
-            Diary.find = jest.fn().mockReturnValue({
+        const getLastIdDiaryMockFunc = (returnValue:any) => {
+            return Diary.find = jest.fn().mockReturnValue({
                 and: jest.fn().mockReturnValue({
                     limit: jest.fn().mockReturnValue({
-                        sort: jest.fn().mockResolvedValue([])
+                        sort: jest.fn().mockResolvedValue(returnValue)
                     })
                 })
             });
+        };
+
+        it('userId가 없으면 Invalid userId 에러를 반환해야 한다.', async () => {
+            try {
+                const result = await service.getLastIdDiary(null, 'test');
+            } catch (error) {
+                expect(error.message).toEqual("Invalid userId")
+            }
+        });
+
+        
+        it('검색 결과가 없을 경우 빈 배열을 반환 한다.', async () => {
+            getLastIdDiaryMockFunc([])
             const result = await service.getLastIdDiary(userId, 'lastId');
             expect(result.list).toEqual([]);
         });
 
         it('검색에 실패하면 Get diary fail을 반환 한다.', async () => {
-            Diary.find = jest.fn().mockReturnValue({
-                and: jest.fn().mockReturnValue({
-                    limit: jest.fn().mockReturnValue({
-                        sort: jest.fn().mockResolvedValue(null)
-                    })
-                })
-            });
-            const result = await service.getLastIdDiary(userId, 'lastId');
-            expect(result.error.message).toEqual('Get diary fail');
+            getLastIdDiaryMockFunc(null)
+            try {
+                const result = await service.getLastIdDiary(userId, 'lastId');
+            } catch (error) {
+                expect(error.message).toEqual('Get diary fail');
+            }
         });
 
 
         it('올바른 userId와 lastDiaryId를 전송하면 diary form을 반환 한다.', async () => {
-            Diary.find = jest.fn().mockReturnValue({
-                and: jest.fn().mockReturnValue({
-                    limit: jest.fn().mockReturnValue({
-                        sort: jest.fn().mockResolvedValue(diaryContentArr)
-                    })
-                })
-            });
+            getLastIdDiaryMockFunc(diaryContentArr);
             const result = await service.getLastIdDiary(userId, 'lastId');
             expect(result.list).toEqual(validDiaryResult);
         });
@@ -440,18 +436,17 @@ describe('DiaryService', () => {
 
     describe('deleteAllDiary', () => {
         const userId = 'testUserId';
-        it('userId가 없거나 length가 0이면 Invalid userId 에러를 반환해야 한다.', async () => {
-            const userIdArr = [null, '']
-            for (let userId of userIdArr) {
-                const result = await service.deleteAllDiary(userId);
-                expect(result.error.message).toEqual("Invalid userId")
-            };
+        it('userId가 없으면 Invalid userId 에러를 반환해야 한다.', async () => {
+            try {
+                const result = await service.deleteAllDiary(null);
+            } catch (error) {
+                expect(error.message).toEqual("Invalid userId")
+            }
         });
 
         it('올바른 userId를 전송하면 All diary deleted를 반환해야 한다.', async () => { //이거 수정가능성 높음
             Diary.deleteMany = jest.fn()
             const result = await service.deleteAllDiary(userId);
-
             expect(result.message).toEqual('All diary deleted!');
         });
     });
