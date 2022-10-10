@@ -30,11 +30,11 @@ export default class DiaryService {
     public async createDiaryContent(userId: string, diaryContentObj: IdiaryContent) { //만들어야 됨
         try {
             if (!userId) {
-                this.throwError('Invalid userId', 'inputError');
+                throw new Error('Invalid userId');
             };
 
             if (!diaryContentObj || !diaryContentObj.content) {
-                this.throwError('Invalid Diary parametor', 'inputError');
+                throw new Error('Invalid Diary parametor');
             };
 
             const dateKR = this.getKRDate();
@@ -84,18 +84,16 @@ export default class DiaryService {
             return result;
         } catch (error) {
             this.logger.error(error);
-            return { error: error };
+            return error;
         }
     };
 
     public async getDiary(userId: string): Promise<IdiaryOutput> {
         try {
             if (!userId) {
-                this.throwError('Invalid userId', 'inputError');
+                throw new Error('Invalid userId');
             };
-            const getDiaryRecord = async (getDiaryRecordInput: { userId: string, lastDiaryId?: string }): Promise<IDiaryForm[] | { error: any }> => {
-                const userId = getDiaryRecordInput.userId;
-
+            const getDiaryRecord = async (userId: string): Promise<IDiaryForm[]> => {
                 try {
                     const diaryRecord = await this.diaryModel
                         .find({ userId: userId })
@@ -103,7 +101,7 @@ export default class DiaryService {
                         .sort({ createdAt: -1 });
 
                     if (!diaryRecord) {
-                        this.throwError('Get diary fail', 'dataBaseError');
+                        throw new Error('Get diary fail');
                     }
 
                     if (diaryRecord.length <= 0) {
@@ -115,7 +113,7 @@ export default class DiaryService {
 
                     return output;
                 } catch (error) {
-                    return { error: error }
+                    return error
                 }
             };
 
@@ -125,24 +123,68 @@ export default class DiaryService {
             return result
         } catch (error) {
             this.logger.error(error);
-            return { error: error };
+            return error;
+        }
+    };
+
+    public async getDiary_test(userId: string): Promise<IdiaryOutput> {
+        try {
+            if (!userId) {
+                throw new Error('Invalid userId');
+            };
+            const getDiaryRecord = async (userId: string) => {
+                try {
+                    const diaryRecord = await this.diaryModel
+                        .find({ userId: userId })
+                        .limit(7)
+                        .sort({ createdAt: -1 });
+
+                    if (!diaryRecord) {
+                        throw new Error('Get diary fail');
+                    }
+
+                    if (diaryRecord.length <= 0) {
+                        return []
+                    }
+                    
+                    return diaryRecord;
+                } catch (error) {
+                    return error
+                }
+            };
+            const setDiaryEnd = (diarys: IDiaryForm[]): IdiaryOutput =>{
+                let diaryIsEnd = false;
+        
+                const length = diarys.length;
+                if (length < 7) {
+                    diaryIsEnd = true;
+                }
+        
+                return { end: diaryIsEnd, list: diarys };
+            };
+
+            const diaryRecord = (await getDiaryRecord(userId)).map(this.setDiaryForm);
+            const diaryForm = setDiaryEnd(diaryRecord)
+
+            return diaryForm
+        } catch (error) {
+            this.logger.error(error);
+            return error;
         }
     };
 
     public async getLastIdDiary(userId: string, lastDiaryId: string): Promise<IdiaryOutput> {
         try {
             if (!userId) {
-                this.throwError('Invalid userId', 'inputError');
+                throw new Error('Invalid userId')
             };
             if (!lastDiaryId) {
-                this.throwError('Invalid lastDiaryId', 'inputError');
+                throw new Error('Invalid lastDiaryId')
             };
             const getDiaryRecord = async (getDiaryRecordInput: { userId: string, lastDiaryId?: string }): Promise<IDiaryForm[] | { error: any }> => {
                 const userId = getDiaryRecordInput.userId;
                 const lastDiaryId = getDiaryRecordInput.lastDiaryId;
-
                 try {
-                    //결과 없으면 []반환
                     const diaryRecord = await this.diaryModel
                         .find()
                         .and([
@@ -151,19 +193,19 @@ export default class DiaryService {
                         ])
                         .limit(7)
                         .sort({ createdAt: -1 });
-
                         if (!diaryRecord) {
-                            this.throwError('Get diary fail', 'dataBaseError');
+                            throw new Error('Get diary fail')
                         }
     
                         if (diaryRecord.length <= 0) {
                             return []
                         }
+                        
                     const output = diaryRecord.map(this.setDiaryForm)
 
                     return output;
                 } catch (error) {
-                    return { error: error }
+                    return error
                 }
             };
 
@@ -173,17 +215,17 @@ export default class DiaryService {
             return result
         } catch (error) {
             this.logger.error(error);
-            return { error: error };
+            return error;
         }
     };
 
     public async findKeyword(userId: string, keyword: string): Promise<IdiaryOutput> {
         try {
             if (!userId) {
-                this.throwError('Invalid userId', 'inputError');
+                throw new Error('Invalid userId');
             };
             if (!keyword) {
-                this.throwError('Invalid keyword', 'inputError');
+                throw new Error('Invalid keyword');
             };
             const getDiaryRecord = async (getDiaryRecordInput: { userId: string, keyword: string }): Promise<IDiaryForm[] | { error: any }> => {
                 const userId = getDiaryRecordInput.userId;
@@ -197,7 +239,7 @@ export default class DiaryService {
                         .sort({ createdAt: -1 });
 
                         if (!diaryRecord) {
-                            this.throwError('Get diary fail', 'dataBaseError');
+                            throw new Error('Get diary fail');
                         }
     
                         if (diaryRecord.length <= 0) {
@@ -207,7 +249,7 @@ export default class DiaryService {
 
                     return output;
                 } catch (error) {
-                    return { error: error }
+                    return error
                 }
             };
             //
@@ -217,17 +259,17 @@ export default class DiaryService {
             return result
         } catch (error) {
             this.logger.error(error);
-            return { error: error };
+            return error;
         }
     }
 
     public async findByDate(userId: string, targetDate: string): Promise<IdiaryOutput> {
         try {
             if (!userId) {
-                this.throwError('Invalid userId', 'inputError');
+                throw new Error('Invalid userId');
             };
             if (!targetDate) {
-                this.throwError('Invalid targetDate', 'inputError');
+                throw new Error('Invalid targetDate');
             };
             const getDiaryRecord = async (getDiaryRecordInput: { userId: string, targetDate:string }): Promise<IDiaryForm[] | { error: any }> => {
                 const userId = getDiaryRecordInput.userId;
@@ -236,7 +278,7 @@ export default class DiaryService {
                         .lte('createdAt', new Date(targetDate))
                         .sort({ createdAt: -1 });
                         if (!diaryRecord) {
-                            this.throwError('Get diary fail', 'dataBaseError');
+                            throw new Error('Get diary fail');
                         }
     
                         if (diaryRecord.length <= 0) {
@@ -247,7 +289,7 @@ export default class DiaryService {
 
                     return output;
                 } catch (error) {
-                    return { error: error }
+                    return error
                 }
             };
             const funcs = [getDiaryRecord, this.setDiaryEnd];
@@ -256,14 +298,14 @@ export default class DiaryService {
             return result
         } catch (error) {
             this.logger.error(error);
-            return { error: error };
+            return error;
         }
     }
 
     public async findDiaryCount(userId: string) {
         try {
             if (!userId) {
-                this.throwError('Invalid userId', 'inputError');
+                throw new Error('Invalid userId');
             };
 
             const diaryCount = await this.diaryModel.find({ userId: userId }).count();
@@ -273,7 +315,7 @@ export default class DiaryService {
             return { count: diaryCount };
         } catch (error) {
             this.logger.error(error);
-            return { error: error };
+            return error;
         }
     }
     /**
@@ -282,13 +324,13 @@ export default class DiaryService {
     public async deleteAllDiary(userId: string) {
         try {
             if (!userId) {
-                this.throwError('Invalid userId', 'inputError');
+                throw new Error('Invalid userId');
             };
             await this.diaryModel.deleteMany({ userId: userId })
             return { message: "All diary deleted!" };
         } catch (error) {
             this.logger.error(error);
-            return { error: error };
+            return error;
         }
     };
 
@@ -318,8 +360,7 @@ export default class DiaryService {
         return diaryForm
     }
 
-    private async setDiaryEnd(diarys: Promise<IDiaryForm[]>)
-        : Promise<IdiaryOutput | { error: any }> {
+    private async setDiaryEnd(diarys: Promise<IDiaryForm[]>): Promise<IdiaryOutput> {
         let diaryIsEnd = false;
 
         const targetDiarys = (await diarys);
@@ -338,25 +379,26 @@ export default class DiaryService {
             for (let func of funcs) {
                 let temp = await func(result);
                 if (temp.error) {
-                    // if (temp.error.name === 'emptyDiary') {
-                    //     return { end: true, list: [] }
-                    // };
-                    this.throwError(temp.error.message, `${func.name}Error`);
+                    let err = new Error();
+                    err.name = `${func.name}Error`;
+                    err.message = temp.error.message;
+                    throw err;
+                    //this.throwError(temp.error.message, `${func.name}Error`);
                 };
                 result = temp;
             }
             return result;
         } catch (error) {
-            return { error: error }
+            return error
         }
     }
 
-    private throwError(errormessage: string, errorName?: string) {
-        let err = new Error();
-        if (errorName) {
-            err.name = errorName
-        }
-        err.message = errormessage;
-        throw err;
-    }
+    // private throwError(errormessage: string, errorName?: string) {
+    //     let err = new Error();
+    //     if (errorName) {
+    //         err.name = errorName
+    //     }
+    //     err.message = errormessage;
+    //     throw err;
+    // }
 }

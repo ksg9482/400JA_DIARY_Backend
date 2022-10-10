@@ -28,45 +28,43 @@ export default class UserService {
     public async signup(userInputDTO: IUserInputDTO, oauthType?: string): Promise<{ user: IUser, token: string }> {
         try {
             //DTO 체크
-            const checkUserInputDTO = (userInputDTO: IUserInputDTO) => {
-                let isValid = true;
-                const checkArr = ['email', 'password'];
-                checkArr.forEach((targetParametor) => {
-                    if (!userInputDTO[targetParametor]) {
-                        isValid = false;
-                    }
-                });
-                return isValid;
-            };
-
-            if (!checkUserInputDTO(userInputDTO)) {
-                throw new Error("No user parametor");
+            // const checkUserInputDTO = (userInputDTO: IUserInputDTO) => {
+            //     let isValid = true;
+            //     const checkArr = ['email', 'password'];
+            //     checkArr.forEach((targetParametor) => {
+            //         if (!userInputDTO[targetParametor]) {
+            //             isValid = false;
+            //         }
+            //     });
+            //     return isValid;
+            // };
+            if (!userInputDTO.email || !userInputDTO.password) {
+                throw new Error("No signup parametor");
             }
             //중복 체크
             const userCheck = await this.userModel.findOne({ email: userInputDTO.email });
             if (userCheck) {
-                throw new Error('Already Email');
+                throw new Error('Email Already Exists');
             }
 
             this.logger.silly('Hashing password');
             //const hashedPassword = await this.hashUtil.hashPassword(userInputDTO.password);
 
             this.logger.silly('Creating user db record');
-
+            //const oauthTypeInput = oauthType ? oauthType : 'BASIC'
             const userRecord: HydratedDocument<IUser> = new this.userModel(
                 {
                     ...userInputDTO,
-                    type: oauthType,
+                    type: oauthType
                 }
             );
-
             const userSave = await userRecord.save()
             if (userSave.errors) {
-                throw new Error('User cannot be created');
+                throw new Error('Create User Account Fail');
             };
 
-            this.logger.silly('Generating JWT');
-            const token = this.jwt.generateToken(userRecord)
+            // this.logger.silly('Generating JWT');
+            // const token = this.jwt.generateToken(userRecord)
 
             this.logger.silly('Sending welcome email');
             // 여기에 메일러로 월컴 이메일 보내는 로직
@@ -77,38 +75,37 @@ export default class UserService {
             //const user = {...userRecord}; //이거보단 usersave로 받는게 좋을듯?
             const user = { ...userSave['_doc'] };
             Reflect.deleteProperty(user, 'password');
-            return { user, token };
+            return user;
         } catch (error) {
             this.logger.error(error);
             //이미 만들어진 Error 객체를 보내는 역할. 여기도 new Error 하면 뎁스만 더 깊어짐.
-            return error;
+            throw error;
         }
     };
 
-    public async login(userInputDTO: IUserInputDTO) {
+    public async login(email:string, password:string) {
         try {
-            const checkUserInputDTO = (userInputDTO: IUserInputDTO) => {
-                let isValid = true;
-                const checkArr = ['email', 'password'];
-                checkArr.forEach((targetParametor) => {
-                    if (!userInputDTO[targetParametor]) {
-                        isValid = false;
-                    }
-                });
-                return isValid;
-            };
-            if (!checkUserInputDTO(userInputDTO)) {
-                throw new Error("No user parametor");
+            // const checkUserInputDTO = (userInputDTO: IUserInputDTO) => {
+            //     let isValid = true;
+            //     const checkArr = ['email', 'password'];
+            //     checkArr.forEach((targetParametor) => {
+            //         if (!userInputDTO[targetParametor]) {
+            //             isValid = false;
+            //         }
+            //     });
+            //     return isValid;
+            // };
+            if (!email || !password) {
+                throw new Error("No login parametor");
             }
 
-            const userRecord = await this.userModel.findOne({ email: userInputDTO.email });
+            const userRecord = await this.userModel.findOne({ email: email });
             if (!userRecord) {
                 throw new Error('User not registered');
             };
 
             this.logger.silly('Checking password');
-           
-            const validPassword = await this.hashUtil.checkPassword(userInputDTO.password, userRecord.password);
+            const validPassword = await this.hashUtil.checkPassword(password, userRecord.password);
             if (!validPassword) {
                 throw new Error('Invalid Password');
             };
@@ -117,14 +114,16 @@ export default class UserService {
             this.logger.silly('Generating JWT');
 
             const token = this.jwt.generateToken(userRecord);
-            const user = { ...userRecord['_doc'] };
-
-            Reflect.deleteProperty(user, 'password');
+            if(!token) {
+                throw new Error('Token generate fail');
+            }
+            
+            const user = this.setUserForm(userRecord);
             return { user, token };
 
         } catch (error) {
             this.logger.error(error);
-            return error;
+            throw error;
         };
     };
 
@@ -139,7 +138,7 @@ export default class UserService {
             return { id: userRecord.id, email: userRecord.email, role: userRecord.role, type: userRecord.type }
         } catch (error) {
             this.logger.error(error);
-            return error;
+            throw error;
         }
     };
 
@@ -159,7 +158,7 @@ export default class UserService {
             return { message: 'Password Changed' };
         } catch (error) {
             this.logger.error(error);
-            return error;
+            throw error;
         };
     };
 
@@ -185,26 +184,27 @@ export default class UserService {
             return true;
         } catch (error) {
             this.logger.error(error);
-            return error;
+            throw error;
         }
     }
-    public async checkEmail(email: string) {
+    public async findUserByEmail(email: string) {
         const userRecord = await this.userModel.findOne({ email: email });
+        
         if (!userRecord) {
-            return false;
+            return null
         };
-        return { id: userRecord.id };
+        return userRecord;
+        
     };
 
     public async tempPassword(id: any) {
         const randomPassword = String(Math.round(Math.random() * 100000000));
+        
         let userRecord = await this.userModel.findById(id);
-       
         userRecord.password = randomPassword;
 
-        const changePassword = await userRecord.save()
+        const changePassword = await userRecord.save();
 
-        //const changePassword = await this.userModel.updateOne({ id: id }, { password: randomPassword });
         const sendTempPassword = await this.sendEmail(String(randomPassword));
         return { message: `${randomPassword}` };
         //임시비밀번호로 변경
@@ -220,11 +220,17 @@ export default class UserService {
     public async oauthLogin(email: string, id: string, oauthType: string) {
         const userCheck = await this.userModel.findOne({ email: email });
         if (userCheck) {
-            return await this.login({ email: email, password: id });
+            return await this.login(email, id/*password*/);
         } else {
             return await this.signup({ email: email, password: id }, oauthType)
         };
     };
+
+    protected setUserForm (userRecord:any) {
+        const userRecordCopy = {...userRecord['_doc']};
+        Reflect.deleteProperty(userRecordCopy, 'password');
+        return userRecordCopy;
+    }
 
     public async sendEmail(content: string) {
         // 메일건 가져와서 보내기

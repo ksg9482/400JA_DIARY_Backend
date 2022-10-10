@@ -14,22 +14,23 @@ describe('UserService', () => {
     describe('kakaoOAuth', () => {
         const kakaoOAuthCode = 'kakaoCode'
 
-        it('kakaoOauth 기능에 오류가 있어 액세스 토큰이 발급되지 않으면 Kakao OAuth Access token error를 반환 한다.', async () => {
+        it('kakaoOauth 기능에 오류가 있어 액세스 토큰이 발급되지 않으면 Kakao OAuth get Access token fail를 반환 한다.', async () => {
             try {
                 axios.post = jest.fn().mockResolvedValue({ data: { access_token: null } })
                 const result = await service.kakaoOAuth(kakaoOAuthCode);
             } catch (error) {
-                expect(error).toEqual(new Error('Kakao OAuth Access token error'));
+                expect(error).toEqual(new Error('Kakao OAuth get Access token fail'));
             };
         });
-        it('kakaoOauth 기능에 오류가 있어 데이터가 전송되지 않으면 Kakao OAuth Access token error를 반환 한다.', async () => {
-            try {
-                axios.post = jest.fn().mockResolvedValue({ data: null })
-                const result = await service.kakaoOAuth(kakaoOAuthCode);
-            } catch (error) {
-                expect(error).toEqual(new Error('Kakao OAuth Access token error'));
-            };
-        });
+
+        // it('kakaoOauth 기능에 오류가 있어 데이터가 전송되지 않으면 Kakao OAuth Access token error를 반환 한다.', async () => {
+        //     try {
+        //         axios.post = jest.fn().mockResolvedValue({ data: null })
+        //         const result = await service.kakaoOAuth(kakaoOAuthCode);
+        //     } catch (error) {
+        //         expect(error).toEqual(new Error('Kakao OAuth Access token error'));
+        //     };
+        // });
 
         it('kakaoOauth 기능에 오류가 있어 유저정보를 받아오지 못하면 Kakao OAuth get user info fail를 반환 한다.', async () => {
             try {

@@ -37,9 +37,8 @@ export default class AuthService {
           + `&redirect_uri=${kakaoParametor.redirect_uri}`
           + `&code=${code}`,
         );
-
         if (!kakaoToken.data.access_token) {
-          throw new Error('Kakao OAuth Access token error')
+          throw new Error('Kakao OAuth get Access token fail')
         }
 
         const getUserInfo = await axios.get(
@@ -55,7 +54,7 @@ export default class AuthService {
           throw new Error('Kakao OAuth get user info fail')
         }
 
-        const userInfo = getUserInfo.data
+        const userInfo = getUserInfo.data;
 
         //소셜로그인 시 사용자가 이메일 동의에 거부할 경우를 대비.
         //아이디에 전송아이디를 넣고 그 아이디로 검색해야 해당하는 유저 나옴
@@ -72,7 +71,7 @@ export default class AuthService {
 
       return kakaoUserInfo;
     } catch (error) {
-      return error
+      throw error
     }
 
   }

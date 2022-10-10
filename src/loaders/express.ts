@@ -43,6 +43,7 @@ export default ({app}:{app: express.Application}) => {
     //에러 핸들러
     app.use((err, req, res, next) => {
         //Validation failed에러 -> celebrate에 걸렸음
+        console.log(`에러핸들러 검출: ${err}`)
         if(err.name === 'UnauthorizedError') {
             return res
             .status(err.status)
