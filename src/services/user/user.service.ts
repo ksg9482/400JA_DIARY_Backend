@@ -143,51 +143,6 @@ export default class UserService {
         }
     };
 
-    // public async editUser(_id: string, passwordObj: IpasswordObj) {
-    //     try {
-    //         const checkPasswordObj = (passwordObj: IpasswordObj) => {
-    //             let isValid = true;
-    //             const checkArr = ['password', 'changePassword'];
-    //             checkArr.forEach((targetParametor) => {
-    //                 if (!passwordObj[targetParametor]) {
-    //                     isValid = false;
-    //                 }
-    //             });
-    //             return isValid;
-    //         };
-
-    //         if (!checkPasswordObj(passwordObj)) {
-    //             throw new Error('No Password');
-    //         }; // length로 보는게 좋을지도? 아니면 검증함수 만들기
-
-    //         const checkSamePassword = (passwordObj: IpasswordObj) => {
-    //             return passwordObj.password === passwordObj.changePassword
-    //         }
-    //         if (checkSamePassword(passwordObj)) {
-    //             throw new Error('Same Password');
-    //         };
-
-    //         const userRecord = await this.userModel.findById(_id);
-    //         if (!userRecord) {
-    //             throw new Error('User not registered');
-    //         };
-
-    //         const passwordIsTrue = await this.hashUtil.checkPassword(passwordObj.password, userRecord.password);
-    //         if (!passwordIsTrue) {
-    //             throw new Error('Invalid Password');
-    //         }
-    //         userRecord.password = passwordObj.changePassword;
-    //         const result = await userRecord.save();
-    //         //const hashChangePassword = await this.hashUtil.hashPassword(passwordObj.changePassword);
-    //         //await this.userModel.updateOne({ id: _id }, { password: passwordObj.changePassword });
-
-    //         return { message: 'Password Changed' };
-    //     } catch (error) {
-    //         this.logger.error(error);
-    //         return error;
-    //     };
-    // };
-
     public async passwordChange(_id: string, passwordChange: string) {
         try {
             if (!passwordChange) {
@@ -200,8 +155,6 @@ export default class UserService {
             };
             userRecord.password = passwordChange;
             const result = await userRecord.save();
-            //const hashChangePassword = await this.hashUtil.hashPassword(passwordObj.changePassword);
-            //const result = await this.userModel.updateOne({ id: _id }, { password: String(passwordChange)});
             
             return { message: 'Password Changed' };
         } catch (error) {
@@ -241,7 +194,8 @@ export default class UserService {
             return false;
         };
         return { id: userRecord.id };
-    }
+    };
+
     public async tempPassword(id: any) {
         const randomPassword = String(Math.round(Math.random() * 100000000));
         let userRecord = await this.userModel.findById(id);
@@ -256,17 +210,13 @@ export default class UserService {
         //임시비밀번호로 변경
         //등록된 이메일로 임시비번 전송
         //임시 비밀번호 보냈다고 전송.
-    }
+    };
+
     public async deleteUser(id: string) {
         const userDelete = await this.userModel.deleteOne({ id: String(id) });
         return { message: 'User Deleted' };
     };
 
-    /**
-     * 소셜로 가입이 되어있으면 바로 로그인(토큰발행)으로
-     * 가입이 되어 있지 않으면 가입하고 토큰 발행
-     */
-    //kakaoOauthId를 id로 받음
     public async oauthLogin(email: string, id: string, oauthType: string) {
         const userCheck = await this.userModel.findOne({ email: email });
         if (userCheck) {

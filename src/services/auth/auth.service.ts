@@ -61,8 +61,7 @@ export default class AuthService {
         //아이디에 전송아이디를 넣고 그 아이디로 검색해야 해당하는 유저 나옴
         
         const kakaoDataForm = {
-          //email: !userInfo.email || userInfo.email.length <= 0 ? this.common.createRandomId() : userInfo.email,
-          email: !userInfo.email || userInfo.email.length <= 0 ? '사용자' + userInfo.id : userInfo.email,
+          email: !userInfo.email ? '사용자' + userInfo.id : userInfo.email,
           password: String(userInfo.id),
           type: 'kakao'
         };

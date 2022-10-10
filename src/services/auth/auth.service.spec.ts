@@ -3,20 +3,7 @@ import logger from "../../loaders/logger";
 import CommonUtils from "../utils/commonUtils";
 import JwtUtil from "../utils/jwtUtils";
 import AuthService from "./auth.service";
-const mockRepository = () => (
-    {
-        save: jest.fn(),
-        findone: jest.fn()
-    }
-);
 
-const mockJwtService = () => ({
-    sign: jest.fn(() => 'signed-token'),
-    verify: jest.fn()
-});
-//jest.mock('@/models/user')
-//jest.mock('@/loaders/logger')
-//jest.mock('./auth.service')
 describe('UserService', () => {
     let service: AuthService;
     //let jwtService: JwtService;
