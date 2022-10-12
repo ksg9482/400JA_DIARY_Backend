@@ -10,8 +10,18 @@ import UserService from "../../services/user/user.service";
 const route = Router();
 
 export default (app: Router) => {
+ 
     app.use('/user', attachCurrentUser, route);
-   
+
+    /**
+    * @swagger
+    * /:
+    *   get:
+    *     description: Welcome to swagger-jsdoc!
+    *     responses:
+    *       200:
+    *         description: Returns a mysterious string.
+    */
     route.get('/me', async (req: IattachCurrentUserRequest, res: Response) => {
         const userId = req.currentUser._id;
         const userServiceInstance = createUserInstance();

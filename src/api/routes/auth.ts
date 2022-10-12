@@ -126,6 +126,7 @@ export default (app: Router) => {
         return res.status(200).cookie('jwt', token).json({ user });
       } catch (err) {
         logger.error('error: %o', err);
+        err.message = 'Kakao Oauth fail';
         return next(err);
       }
     },
@@ -147,6 +148,7 @@ export default (app: Router) => {
         return res.status(200).cookie('jwt', token).json({ user });
       } catch (err) {
         logger.error('error: %o', err);
+        err.message = 'Google Oauth fail';
         return next(err);
       }
     },
