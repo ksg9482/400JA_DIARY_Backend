@@ -1,9 +1,11 @@
 import express from 'express';
-import cors from 'cors'
+import cors from 'cors';
 import config from '../config';
 import routes from '../api'
+import swaggerOptions from '../../swagger';
 import helmet from 'helmet';
-
+import swaggerUi from 'swagger-ui-express';
+import swaggerJSDoc from 'swagger-jsdoc';
 export default ({app}:{app: express.Application}) => {
     //헬스체크 엔드포인트 넣기
 
@@ -18,6 +20,30 @@ export default ({app}:{app: express.Application}) => {
 
     app.use(helmet())
 
+    // const swaggerDefinition = {
+    //     openapi: '3.0.0',
+    //     info: { // API informations (required)
+    //       title: '400JA Service', // Title (required)
+    //       version: '1.0.0', // Version (required)
+    //       description: '400JA API' // Description (optional)
+    //     },
+    //     servers: [
+    //         {
+    //           url: `http://localhost:8080`,
+    //         },
+    //     ]
+    // };
+
+    // const options = {
+    //     // Import swaggerDefinitions
+    //     swaggerDefinition,
+    //     // Path to the API docs
+    //     apis: ['../models*.js','../routes/*.ts', '../routes*.js']
+    // };
+
+    const swaggerSpec = swaggerJSDoc(swaggerOptions);
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec,{explorer:true}));
+   
     const whiteList = ['http://localhost:3000'];
     const corsMethods = ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'];
     app.use(
@@ -43,7 +69,6 @@ export default ({app}:{app: express.Application}) => {
     //에러 핸들러
     app.use((err, req, res, next) => {
         //Validation failed에러 -> celebrate에 걸렸음
-        console.log(`에러핸들러 검출: ${err}`)
         if(err.name === 'UnauthorizedError') {
             return res
             .status(err.status)

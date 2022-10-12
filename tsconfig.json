@@ -20,6 +20,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["./src/**/*", "./test/*"],
+  "include": ["./src/**/*", "./test/*", "swagger.js"],
   "exclude": ["node_modules", "tests"]
 }
