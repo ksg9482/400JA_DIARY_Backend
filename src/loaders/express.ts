@@ -20,28 +20,8 @@ export default ({app}:{app: express.Application}) => {
 
     app.use(helmet())
 
-    // const swaggerDefinition = {
-    //     openapi: '3.0.0',
-    //     info: { // API informations (required)
-    //       title: '400JA Service', // Title (required)
-    //       version: '1.0.0', // Version (required)
-    //       description: '400JA API' // Description (optional)
-    //     },
-    //     servers: [
-    //         {
-    //           url: `http://localhost:8080`,
-    //         },
-    //     ]
-    // };
-
-    // const options = {
-    //     // Import swaggerDefinitions
-    //     swaggerDefinition,
-    //     // Path to the API docs
-    //     apis: ['../models*.js','../routes/*.ts', '../routes*.js']
-    // };
-
     const swaggerSpec = swaggerJSDoc(swaggerOptions);
+    console.log(swaggerSpec)
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec,{explorer:true}));
    
     const whiteList = ['http://localhost:3000'];

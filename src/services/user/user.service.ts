@@ -27,17 +27,6 @@ export default class UserService {
 
     public async signup(userInputDTO: IUserInputDTO, oauthType?: string): Promise<{ user: IUser, token: string }> {
         try {
-            //DTO 체크
-            // const checkUserInputDTO = (userInputDTO: IUserInputDTO) => {
-            //     let isValid = true;
-            //     const checkArr = ['email', 'password'];
-            //     checkArr.forEach((targetParametor) => {
-            //         if (!userInputDTO[targetParametor]) {
-            //             isValid = false;
-            //         }
-            //     });
-            //     return isValid;
-            // };
             if (!userInputDTO.email || !userInputDTO.password) {
                 throw new Error("No signup parametor");
             }
@@ -72,10 +61,15 @@ export default class UserService {
             // 이벤트 디스페처
             // this.eventDispatcher.dispatch(events.user.signUp, { user: userRecord });
 
-            //const user = {...userRecord}; //이거보단 usersave로 받는게 좋을듯?
-            const user = { ...userSave['_doc'] };
-            Reflect.deleteProperty(user, 'password');
-            return user;
+            //회원가입에서도 토큰을 발급하는 이유는 소셜로그인으로 가입했을 경우 바로 토큰을 보내주기 위함
+            const token = this.jwt.generateToken(userRecord);
+            if (!token) {
+                throw new Error('Token generate fail');
+            }
+
+            const user = this.setUserForm(userRecord);
+            return { user, token };
+
         } catch (error) {
             this.logger.error(error);
             //이미 만들어진 Error 객체를 보내는 역할. 여기도 new Error 하면 뎁스만 더 깊어짐.
@@ -83,7 +77,7 @@ export default class UserService {
         }
     };
 
-    public async login(email:string, password:string) {
+    public async login(email: string, password: string) {
         try {
             // const checkUserInputDTO = (userInputDTO: IUserInputDTO) => {
             //     let isValid = true;
@@ -109,15 +103,15 @@ export default class UserService {
             if (!validPassword) {
                 throw new Error('Invalid Password');
             };
-            
+
             this.logger.silly('Password is valid');
             this.logger.silly('Generating JWT');
 
             const token = this.jwt.generateToken(userRecord);
-            if(!token) {
+            if (!token) {
                 throw new Error('Token generate fail');
             }
-            
+
             const user = this.setUserForm(userRecord);
             return { user, token };
 
@@ -154,7 +148,7 @@ export default class UserService {
             };
             userRecord.password = passwordChange;
             const result = await userRecord.save();
-            
+
             return { message: 'Password Changed' };
         } catch (error) {
             this.logger.error(error);
@@ -188,25 +182,42 @@ export default class UserService {
         }
     }
     public async findUserByEmail(email: string) {
-        const userRecord = await this.userModel.findOne({ email: email });
-        
-        if (!userRecord) {
-            return null
-        };
-        return userRecord;
-        
+        try {
+            const userRecord = await this.userModel.findOne({ email: email });
+
+            if (!userRecord) {
+                throw new Error('User not registered');
+            };
+            return userRecord;
+        } catch (error) {
+            this.logger.error(error);
+            throw error;
+        }
+
+
     };
 
+    /**
+     * 
+     * @returns 임의의 8자리 숫자로 생성된 문자열
+     */
     public async tempPassword(id: any) {
-        const randomPassword = String(Math.round(Math.random() * 100000000));
-        
-        let userRecord = await this.userModel.findById(id);
-        userRecord.password = randomPassword;
+        try {
+            const randomPassword = String(Math.round(Math.random() * 100000000));
 
-        const changePassword = await userRecord.save();
+            let userRecord = await this.userModel.findById(id);
+            userRecord.password = randomPassword;
 
-        const sendTempPassword = await this.sendEmail(String(randomPassword));
-        return { message: `${randomPassword}` };
+            //실패할경우 임시비밀번호 발급 안되고 500에러
+            const changePassword = await userRecord.save();
+            const sendTempPassword = await this.sendEmail(String(randomPassword));
+
+            return { message: `${randomPassword}` };
+        } catch (error) {
+            this.logger.error(error);
+            throw error;
+        }
+
         //임시비밀번호로 변경
         //등록된 이메일로 임시비번 전송
         //임시 비밀번호 보냈다고 전송.
@@ -226,9 +237,15 @@ export default class UserService {
         };
     };
 
-    protected setUserForm (userRecord:any) {
-        const userRecordCopy = {...userRecord['_doc']};
-        Reflect.deleteProperty(userRecordCopy, 'password');
+    protected setUserForm(userRecord: any) {
+        const userRecordCopy = { ...userRecord['_doc'] };
+        if (userRecordCopy.password) {
+            Reflect.deleteProperty(userRecordCopy, 'password');
+        };
+        if (userRecordCopy.role) {
+            Reflect.deleteProperty(userRecordCopy, 'role');
+        };
+
         return userRecordCopy;
     }
 

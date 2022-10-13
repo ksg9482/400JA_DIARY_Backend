@@ -8,8 +8,8 @@ interface BaseOutput {
 };
 interface IDiaryForm extends BaseOutput {
     id?: string;
-    subject?: any;
-    content?: any;
+    subject?: string;
+    content?: string;
     date?: string;
 };
 interface IdiaryOutput extends BaseOutput {
@@ -105,7 +105,7 @@ export default class DiaryService {
                         .limit(7)
                         .sort({ createdAt: -1 });
 
-                    if (!diaryRecord) {
+                    if (!diaryRecord) { //500
                         throw new Error('Get diary fail');
                     };
 
@@ -143,7 +143,7 @@ export default class DiaryService {
                         ])
                         .limit(7)
                         .sort({ createdAt: -1 });
-                    if (!diaryRecord) {
+                    if (!diaryRecord) { //500
                         throw new Error('Get diary fail')
                     };
 
@@ -180,7 +180,7 @@ export default class DiaryService {
                         ])
                         .sort({ createdAt: -1 });
 
-                    if (!diaryRecord) {
+                    if (!diaryRecord) { //500
                         throw new Error('Get diary fail');
                     };
 
