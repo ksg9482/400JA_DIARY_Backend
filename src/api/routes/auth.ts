@@ -5,10 +5,12 @@ import logger from '../../loaders/logger';
 import { createUserInstance } from '../../services/user/user.factory';
 import { createAuthInstance } from '../../services/auth/auth.factory';
 import { signupType } from '../../models/user';
+import MailerService from '@/services/mail/mailer';
 
 
 const route = Router();
 
+//이거 적용하면 swagger도 바꿔야함
 const cookieOption: CookieOptions = {
   sameSite: 'none',
   domain: 'localhost',
@@ -67,6 +69,8 @@ export default (app: Router) => {
   *                    type: string
   *                    example:  
   *                       $ref: '#/components/schemas/User/properties/type/example'
+  *        "400":
+  *          description: 잘못된 파라미터 전달
   *        "409":
   *          description: 이미 해당 이메일로 가입되어 있음
   *        "500":
@@ -91,9 +95,18 @@ export default (app: Router) => {
       } catch (error) {
         logger.error('error: %o', error);
         const errorMessage = error.message;
+
+        const badParametorErr = ["Bad email parametor", "Bad password parametor"]
+        if (badParametorErr.includes(errorMessage)) {
+          error.status = 400;
+          error.message = '잘못된 파라미터 값입니다.'
+          return next(error);
+        };
         if (errorMessage === "Email Already Exists") {
-          return res.status(409).json({ error: errorMessage });
-        }
+          error.status = 409;
+          error.message = '이미 가입된 이메일입니다.'
+          return next(error);
+        };
         return next(error);
       }
     },
@@ -140,8 +153,14 @@ export default (app: Router) => {
   *                    type: string
   *                    example:  
   *                       $ref: '#/components/schemas/User/properties/type/example'
+  *          headers:
+  *            Set-cookie:
+  *              description: cookie에 jwt저장
+  *              schema:
+  *                type: string
+  *                example: 'jwt=asd123.zxc456.qwe789; Path=/'
   *        "400":
-  *          description: 잘못된 파라미터 전달, 잘못된 비밀번호 입력
+  *          description: 잘못된 파라미터 전달 또는 잘못된 비밀번호 입력
   *        "404":
   *          description: 해당하는 유저가 없음
   *        "500":
@@ -169,14 +188,22 @@ export default (app: Router) => {
       } catch (error) {
         logger.error('error: %o', error);
         const errorMessage = error.message;
-        if (errorMessage === "No login parametor") {
-          return res.status(400).json({ error: errorMessage });
+        const badParametorErr = ["Bad email parametor", "Bad password parametor"]
+        if (badParametorErr.includes(errorMessage)) {
+          error.status = 400;
+          error.message = '잘못된 파라미터 값입니다.'
+          return next(error);
         };
         if (errorMessage === 'Invalid Password') {
-          return res.status(400).json({ message: errorMessage });
+          error.status = 400;
+          error.message = '잘못된 비밀번호입니다.'
+          return next(error);
         };
+        
         if (errorMessage === 'User not registered') {
-          return res.status(404).json({ message: errorMessage });
+          error.status = 404;
+          error.message = '등록된 유저가 없습니다.'
+          return next(error);
         };
         return next(error);
       }
@@ -239,14 +266,36 @@ export default (app: Router) => {
       } catch (error) {
         logger.error('error: %o', error);
         const errorMessage = error.message;
+
         if (errorMessage === 'User not registered') {
-          return res.status(404).json({ message: errorMessage });
+          error.status = 404;
+          error.message = '등록된 유저가 없습니다.'
+          return next(error);
         };
         return next(error);
       }
     },
   );
 
+  //메일테스트
+  route.get('/mail',
+    async (req: Request, res: Response, next: NextFunction) => {
+      logger.debug('Calling Login endpoint with body: %o', req.body);
+      try {
+        //이거 로직 바꿔야 함
+        //본인확인(이메일로) -> 확인되면 해당 이메일로 임시비밀번호 발급
+        // const userServiceInstance = createUserInstance();
+        // const tempPassword = await userServiceInstance.sendEmail('test용');
+        const mailService = new MailerService()
+        const result = await mailService.SendWellcomeEmail('ksg930523@gmail.com')
+        
+        return res.status(200).json({...result});
+      } catch (error) {
+        console.log('SendWellcomeEmail 에러 -',error)
+        return next(error);
+      }
+    },
+  );
  /**
   * @swagger
   * paths:
@@ -282,6 +331,12 @@ export default (app: Router) => {
   *                    type: string
   *                    example:  
   *                       $ref: '#/components/schemas/User/properties/type/example'
+  *          headers:
+  *            Set-cookie:
+  *              description: cookie에 jwt저장
+  *              schema:
+  *                type: string
+  *                example: 'jwt=asd123.zxc456.qwe789; Path=/'
   *        "500":
   *          description: 서버 에러
   */
@@ -343,6 +398,12 @@ export default (app: Router) => {
   *                    type: string
   *                    example:  
   *                       $ref: '#/components/schemas/User/properties/type/example'
+  *          headers:
+  *            Set-cookie:
+  *              description: cookie에 jwt저장
+  *              schema:
+  *                type: string
+  *                example: 'jwt=asd123.zxc456.qwe789; Path=/'
   *        "500":
   *          description: 서버 에러
   */

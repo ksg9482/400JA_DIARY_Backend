@@ -10,7 +10,7 @@ export default class JwtUtil {
         const today = new Date();
         const exp = new Date(today);
         exp.setDate(today.getDate() + 60);
-        return jwt.sign(
+        const token = jwt.sign(
             {
                 _id: user._id,
                 email: user.email,
@@ -19,6 +19,10 @@ export default class JwtUtil {
             },
             config.jwtSecret
         );
+        if(!token) {
+            throw new Error('Token generate fail');
+        }
+        return token;
     };
 
     public verifyToken(token:string) {

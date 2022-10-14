@@ -21,7 +21,6 @@ export default ({app}:{app: express.Application}) => {
     app.use(helmet())
 
     const swaggerSpec = swaggerJSDoc(swaggerOptions);
-    console.log(swaggerSpec)
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec,{explorer:true}));
    
     const whiteList = ['http://localhost:3000'];
@@ -48,21 +47,16 @@ export default ({app}:{app: express.Application}) => {
 
     //에러 핸들러
     app.use((err, req, res, next) => {
-        //Validation failed에러 -> celebrate에 걸렸음
-        if(err.name === 'UnauthorizedError') {
-            return res
-            .status(err.status)
-            .send({message: err.message})
-            .end();
-        };
-        return next(err);
-    });
-    app.use((err, req, res, next) => {
-        res.status(err.status || 500);
-        res.json({
-            errors: {
+        
+        if(!err.status) {
+            return res.status(500).json({error:{message: 'Server error'}});
+        }
+        let errorBody:{message: any, name?:string} = {
                 message: err.message
-            }
-        });
+        };
+        if(err.name && err.name !== 'Error') {
+            errorBody.name = err.name;
+        };
+        return res.status(err.status).json({error:{...errorBody}});
     });
 };

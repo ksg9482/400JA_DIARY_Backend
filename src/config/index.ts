@@ -33,8 +33,8 @@ export default {
     //email 메일건?
     emails: {
         apiKey:process.env.MAILGUN_API_KEY,
-        apiUserName:process.env.MAILGUN_DOMAIN_NAME,
-        domain:process.env.MAILGUN_FROMEMAIL
+        apiUserName:process.env.MAILGUN_FROMEMAIL,
+        domain:process.env.MAILGUN_DOMAIN_NAME
     },
 
     testDatabaseURL: process.env.TEST_MONGODB_URI, //host로 이름바꾸는게 좋을지도?

@@ -68,10 +68,10 @@ export default (app: Router) => {
                 return res.status(201).json(result);
             } catch (error) {
                 const errorMessage = error.message;
-                if (errorMessage === 'Invalid userId') {
+                if (errorMessage === 'Bad userId parametor') {
                     return res.status(400).json({ message: errorMessage });
                 };
-                if (errorMessage === 'Invalid Diary parametor') {
+                if (errorMessage === 'Bad Diary parametor') {
                     return res.status(400).json({ message: errorMessage });
                 };
                 return next(error);
@@ -128,7 +128,7 @@ export default (app: Router) => {
             return res.status(200).json(result);
         } catch (error) {
             const errorMessage = error.message;
-            if (errorMessage === 'Invalid userId') {
+            if (errorMessage === 'Bad userId parametor') {
                 return res.status(400).json({ message: errorMessage });
             };
             return next(error);
@@ -202,11 +202,12 @@ export default (app: Router) => {
                 return res.status(200).json(result);
             } catch (error) {
                 const errorMessage = error.message;
-                if (errorMessage === 'Invalid userId') {
-                    return res.status(400).json({ message: errorMessage });
-                };
-                if (errorMessage === 'Invalid lastDiaryId') {
-                    return res.status(400).json({ message: errorMessage });
+
+                const badParametorErr = ["Bad userId parametor", "Bad lastDiaryId parametor"]
+                if (badParametorErr.includes(errorMessage)) {
+                  error.status = 400;
+                  error.message = '잘못된 파라미터 값입니다.'
+                  return next(error);
                 };
                 return next(error);
             };
@@ -271,10 +272,10 @@ export default (app: Router) => {
             return res.status(200).json(result);
         } catch (error) {
             const errorMessage = error.message;
-            if (errorMessage === 'Invalid userId') {
+            if (errorMessage === 'Bad userId parametor') {
                 return res.status(400).json({ message: errorMessage });
             };
-            if (errorMessage === 'Invalid keyword') {
+            if (errorMessage === 'Bad keyword parametor') {
                 return res.status(400).json({ message: errorMessage });
             };
             return next(error);
@@ -352,10 +353,10 @@ export default (app: Router) => {
 
         } catch (error) {
             const errorMessage = error.message;
-            if (errorMessage === 'Invalid userId') {
+            if (errorMessage === 'Bad userId parametor') {
                 return res.status(400).json({ message: errorMessage });
             };
-            if (errorMessage === 'Invalid targetDate') {
+            if (errorMessage === 'Bad targetDate parametor') {
                 return res.status(400).json({ message: errorMessage });
             };
             return next(error);

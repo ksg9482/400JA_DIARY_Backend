@@ -19,12 +19,13 @@ const attachCurrentUser = async (req: IattachCurrentUserRequest, res: Response, 
         const verifyToken = jwt.prototype.verifyToken(getToken(req));
         
         const userRecord = await User.findById(verifyToken['_id']);
+        //
         if (!userRecord) {
-            throw new Error('Invalid User Id')
+            throw new Error('AttachCurrentUser error');
         };
         
         const currentUser:Object = { ...userRecord['_doc'] };
-        const deleteTargetArr = ['password', 'createdAt', 'updatedAt', '__v']
+        const deleteTargetArr = ['password', 'createdAt', 'updatedAt', '__v'];
        
         deleteTargetArr.forEach((target)=>{
             Reflect.deleteProperty(currentUser, target);

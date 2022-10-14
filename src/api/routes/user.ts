@@ -66,8 +66,10 @@ export default (app: Router) => {
         } catch (error) {
             const errorMessage = error.message;
             if (errorMessage === 'User not registered') {
-                return res.status(404).json({ message: errorMessage });
-            };
+                error.status = 404;
+                error.message = '등록된 유저가 없습니다.'
+                return next(error);
+              };
             return next(error);
         }
     });
@@ -128,11 +130,16 @@ export default (app: Router) => {
             } catch (error) {
                 const errorMessage = error.message;
                 if (errorMessage === 'Invalid Password') {
-                    return res.status(400).json({ message: errorMessage });
-                };
-                if (errorMessage === 'User not registered') {
-                    return res.status(404).json({ message: errorMessage });
-                };
+                    error.status = 400;
+                    error.message = '잘못된 비밀번호입니다.'
+                    return next(error);
+                  };
+                  
+                  if (errorMessage === 'User not registered') {
+                    error.status = 404;
+                    error.message = '등록된 유저가 없습니다.'
+                    return next(error);
+                  };
                 return next(error);
             };
         }
@@ -153,6 +160,12 @@ export default (app: Router) => {
     *              schema:
     *                type: string
     *                example: 'delete'
+    *          headers:
+    *            Set-cookie:
+    *              description: 쿠키에서 jwt 삭제
+    *              schema:
+    *                type: string
+    *                example: 'jwt=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT' 
     *        "500":
     *          description: 서버 에러
     */
@@ -220,11 +233,16 @@ export default (app: Router) => {
             } catch (error) {
                 const errorMessage = error.message;
                 if (errorMessage === 'Invalid Password') {
-                    return res.status(400).json({ message: errorMessage });
-                };
-                if (errorMessage === 'User not registered') {
-                    return res.status(404).json({ message: errorMessage });
-                };
+                    error.status = 400;
+                    error.message = '잘못된 비밀번호입니다.'
+                    return next(error);
+                  };
+                  
+                  if (errorMessage === 'User not registered') {
+                    error.status = 404;
+                    error.message = '등록된 유저가 없습니다.'
+                    return next(error);
+                  };
                 return next(error);
             };
         }
@@ -248,6 +266,12 @@ export default (app: Router) => {
     *                  message:
     *                    type: string
     *                    example: 'logout'
+    *          headers:
+    *            Set-cookie:
+    *              description: 쿠키에서 jwt 삭제
+    *              schema:
+    *                type: string
+    *                example: 'jwt=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT' 
     */
     route.get('/logout', async (req: IattachCurrentUserRequest, res: Response) => {
         return res.clearCookie('jwt').json({ message: 'logout' })
