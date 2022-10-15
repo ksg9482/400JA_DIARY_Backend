@@ -12,19 +12,19 @@ describe('DiaryService', () => {
         const userId = 'userId';
         const diaryContent = { subject: 'test subject', content: 'test content' };
 
-        it('userId가 없으면 Invalid userId 에러를 반환해야 한다.', async () => {
+        it('userId가 없으면 Bad userId parametor 에러를 반환해야 한다.', async () => {
             try {
                 const result = await service.createDiaryContent(null, diaryContent);
             } catch (error) {
-                expect(error.message).toEqual("Invalid userId");
+                expect(error.message).toEqual("Bad userId parametor");
             }
         });
 
-        it('diaryContent를 전송하지 않는다면 Invalid Diary parametor를 반환해야 한다.', async () => {
+        it('diaryContent를 전송하지 않는다면 Bad Diary parametor를 반환해야 한다.', async () => {
             try {
                 const result = await service.createDiaryContent(userId, null);
             } catch (error) {
-                expect(error.message).toEqual('Invalid Diary parametor');
+                expect(error.message).toEqual('Bad Diary parametor');
             }
         });
 
@@ -32,7 +32,7 @@ describe('DiaryService', () => {
             try {
                 const result = await service.createDiaryContent(userId, { ...diaryContent, subject: '', content: '' });
             } catch (error) {
-                expect(error.message).toEqual('Invalid Diary parametor');
+                expect(error.message).toEqual('Bad Diary parametor');
             }
         });
 
@@ -144,20 +144,20 @@ describe('DiaryService', () => {
             });
         };
 
-        it('userId가 없으면 Invalid userId를 반환해야 한다.', async () => {
+        it('userId가 없으면 Bad userId parametor를 반환해야 한다.', async () => {
             try {
                 const result = await service.findKeyword(null, keyword);
             } catch (error) {
-                expect(error.message).toEqual("Invalid userId")
+                expect(error.message).toEqual("Bad userId parametor")
             }
 
         });
 
-        it('keyword의 length가 0이면 Invalid keyword를 반환해야 한다.', async () => {
+        it('keyword의 length가 0이면 Bad keyword parametor를 반환해야 한다.', async () => {
             try {
                 const result = await service.findKeyword(userId, '');
             } catch (error) {
-                expect(error.message).toEqual("Invalid keyword")
+                expect(error.message).toEqual("Bad keyword parametor")
             }
 
         });
@@ -238,11 +238,11 @@ describe('DiaryService', () => {
             });
         };
 
-        it('userId가 없으면 Invalid userId 에러를 반환해야 한다.', async () => {
+        it('userId가 없으면 Bad userId parametor 에러를 반환해야 한다.', async () => {
             try {
                 const result = await service.findByDate('', testDate);
             } catch (error) {
-                expect(error.message).toEqual("Invalid userId");
+                expect(error.message).toEqual("Bad userId parametor");
             }
         });
 
@@ -250,7 +250,7 @@ describe('DiaryService', () => {
             try {
                 const result = await service.findByDate('testUserId', null);
             } catch (error) {
-                expect(error.message).toEqual("Invalid targetDate")
+                expect(error.message).toEqual("Bad targetDate parametor")
             }
         });
 
@@ -293,11 +293,11 @@ describe('DiaryService', () => {
             });
         };
         const userId = 'userId'
-        it('userId가 없거나 length가 0이면 Invalid userId 에러를 반환해야 한다.', async () => {
+        it('userId가 없거나 length가 0이면 Bad userId parametor 에러를 반환해야 한다.', async () => {
             try {
                 const result = await service.findDiaryCount(null);
             } catch (error) {
-                expect(error.message).toEqual("Invalid userId")
+                expect(error.message).toEqual("Bad userId parametor")
             }
 
         });
@@ -366,11 +366,11 @@ describe('DiaryService', () => {
             });
         };
 
-        it('userId가 없으면 Invalid userId 에러를 반환해야 한다.', async () => {
+        it('userId가 없으면 Bad userId parametor 에러를 반환해야 한다.', async () => {
             try {
                 const result = await service.getDiary('');
             } catch (error) {
-                expect(error.message).toEqual("Invalid userId")
+                expect(error.message).toEqual("Bad userId parametor")
             }
         });
 
@@ -452,19 +452,19 @@ describe('DiaryService', () => {
             });
         };
 
-        it('userId가 없으면 Invalid userId 에러를 반환해야 한다.', async () => {
+        it('userId가 없으면 Bad userId parametor 에러를 반환해야 한다.', async () => {
             try {
                 const result = await service.getLastIdDiary(null, lastDiaryId);
             } catch (error) {
-                expect(error.message).toEqual("Invalid userId")
+                expect(error.message).toEqual("Bad userId parametor")
             }
         });
 
-        it('lastDiaryId가 없으면 Invalid lastDiaryId 에러를 반환해야 한다.', async () => {
+        it('lastDiaryId가 없으면 Bad lastDiaryId parametor 에러를 반환해야 한다.', async () => {
             try {
                 const result = await service.getLastIdDiary(userId, null);
             } catch (error) {
-                expect(error.message).toEqual("Invalid lastDiaryId")
+                expect(error.message).toEqual("Bad lastDiaryId parametor")
             }
         });
 
@@ -504,11 +504,11 @@ describe('DiaryService', () => {
 
     describe('deleteAllDiary', () => {
         const userId = 'testUserId';
-        it('userId가 없으면 Invalid userId 에러를 반환해야 한다.', async () => {
+        it('userId가 없으면 Bad userId parametor 에러를 반환해야 한다.', async () => {
             try {
                 const result = await service.deleteAllDiary(null);
             } catch (error) {
-                expect(error.message).toEqual("Invalid userId")
+                expect(error.message).toEqual("Bad userId parametor")
             }
         });
 

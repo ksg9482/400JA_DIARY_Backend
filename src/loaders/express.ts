@@ -20,27 +20,6 @@ export default ({app}:{app: express.Application}) => {
 
     app.use(helmet())
 
-    // const swaggerDefinition = {
-    //     openapi: '3.0.0',
-    //     info: { // API informations (required)
-    //       title: '400JA Service', // Title (required)
-    //       version: '1.0.0', // Version (required)
-    //       description: '400JA API' // Description (optional)
-    //     },
-    //     servers: [
-    //         {
-    //           url: `http://localhost:8080`,
-    //         },
-    //     ]
-    // };
-
-    // const options = {
-    //     // Import swaggerDefinitions
-    //     swaggerDefinition,
-    //     // Path to the API docs
-    //     apis: ['../models*.js','../routes/*.ts', '../routes*.js']
-    // };
-
     const swaggerSpec = swaggerJSDoc(swaggerOptions);
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec,{explorer:true}));
    
@@ -68,21 +47,16 @@ export default ({app}:{app: express.Application}) => {
 
     //에러 핸들러
     app.use((err, req, res, next) => {
-        //Validation failed에러 -> celebrate에 걸렸음
-        if(err.name === 'UnauthorizedError') {
-            return res
-            .status(err.status)
-            .send({message: err.message})
-            .end();
-        };
-        return next(err);
-    });
-    app.use((err, req, res, next) => {
-        res.status(err.status || 500);
-        res.json({
-            errors: {
+        
+        if(!err.status) {
+            return res.status(500).json({error:{message: 'Server error'}});
+        }
+        let errorBody:{message: any, name?:string} = {
                 message: err.message
-            }
-        });
+        };
+        if(err.name && err.name !== 'Error') {
+            errorBody.name = err.name;
+        };
+        return res.status(err.status).json({error:{...errorBody}});
     });
 };
