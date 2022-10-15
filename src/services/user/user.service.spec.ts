@@ -20,7 +20,7 @@ describe('UserService', () => {
             password: 'mockPassword'
         };
 
-        it('email이 없다면 No user data를 반환해야 한다.', async () => {
+        it('email이 없다면 Bad email parametor 에러를 반환해야 한다.', async () => {
             try {
                 const result = await service.signup({ email: '', password: signupArg.password });
             } catch (error) {
@@ -28,7 +28,7 @@ describe('UserService', () => {
             };
         });
 
-        it('password가 없다면 No user data를 반환해야 한다.', async () => {
+        it('password가 없다면 Bad password parametord 에러를 반환해야 한다.', async () => {
             try {
                 const result = await service.signup({ email: signupArg.email, password: '' });
             } catch (error) {
@@ -146,25 +146,25 @@ describe('UserService', () => {
             };
         });
 
-        // it('토큰 발급에 실패하면 Token generate fail 에러를 반환해야 한다.', async () => {
-        //     try {
-        //         User.findOne = jest.fn().mockResolvedValue(loginArg)
-        //         HashUtil.prototype.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(true))
-        //         JwtUtil.prototype.generateToken = jest.fn().mockReturnValue(undefined)
+        it('토큰 발급에 실패하면 Token generate fail 에러를 반환해야 한다.', async () => {
+            try {
+                User.findOne = jest.fn().mockResolvedValue(loginArg)
+                HashUtil.prototype.checkPassword = jest.fn().mockResolvedValue(Promise.resolve(true))
+                JwtUtil.prototype.generateToken = jest.fn().mockReturnValue(undefined)
 
-        //         const result = await service.login(loginArg.email, loginArg.password);
-        //     } catch (error) {
-        //         expect(User.findOne).toHaveBeenCalledTimes(1);
-        //         expect(User.findOne).toHaveBeenCalledWith({ email: loginArg.email });
-        //         expect(HashUtil.prototype.checkPassword).toHaveBeenCalledTimes(1);
-        //         expect(HashUtil.prototype.checkPassword).toHaveBeenCalledWith(loginArg.password, loginArg.password);
-        //         expect(JwtUtil.prototype.generateToken).toHaveBeenCalledTimes(1);
-        //         expect(JwtUtil.prototype.generateToken).toHaveBeenCalledWith(loginArg);
+                const result = await service.login(loginArg.email, loginArg.password);
+            } catch (error) {
+                expect(User.findOne).toHaveBeenCalledTimes(1);
+                expect(User.findOne).toHaveBeenCalledWith({ email: loginArg.email });
+                expect(HashUtil.prototype.checkPassword).toHaveBeenCalledTimes(1);
+                expect(HashUtil.prototype.checkPassword).toHaveBeenCalledWith(loginArg.password, loginArg.password);
+                expect(JwtUtil.prototype.generateToken).toHaveBeenCalledTimes(1);
+                expect(JwtUtil.prototype.generateToken).toHaveBeenCalledWith(loginArg);
 
-        //         expect(error).toEqual(new Error('Token generate fail'));
-        //     }
+                expect(error).toEqual(new Error('Token generate fail'));
+            }
 
-        // });
+        });
 
         it('올바른 email과 password면 user와 token를 반환해야 한다.', async () => {
             const jwt = 'valid_token'
@@ -334,7 +334,7 @@ describe('UserService', () => {
         });
     });
 
-    describe('tempPassword', () => {
+    describe('changeTempPassword', () => {
         const userId = 'userId';
         it('교체된 비밀번호 저장에 실패할 경우 Change password fail 에러를 반환한다.', async () => {
             try {
@@ -344,7 +344,7 @@ describe('UserService', () => {
                 })
                 Math.random = jest.fn().mockReturnValue(1);
                 Math.round = jest.fn().mockReturnValue(100000000);
-                const result = await service.tempPassword(userId);
+                const result = await service.changeTempPassword(userId);
             } catch (error) {
                 expect(User.findById).toHaveBeenCalledTimes(1);
                 expect(User.findById).toHaveBeenCalledWith(userId);
@@ -353,19 +353,17 @@ describe('UserService', () => {
         });
 
         it('교체된 비밀번호를 반환한다.', async () => {
-            jest.spyOn(User.prototype, 'save')
-                .mockImplementationOnce(() => Promise.resolve('saved'))
             User.findById = jest.fn().mockReturnValue({
                 data: { id: userId, password: 'originalPassword' },
-                save: jest.fn().mockResolvedValue('saved')
+                save: jest.fn().mockImplementationOnce(() => Promise.resolve('saved'))
             })
             Math.random = jest.fn().mockReturnValue(1);
             Math.round = jest.fn().mockReturnValue(100000000);
-            const result = await service.tempPassword(userId);
+            const result = await service.changeTempPassword(userId);
 
             expect(User.findById).toHaveBeenCalledTimes(1);
             expect(User.findById).toHaveBeenCalledWith(userId);
-            expect(result).toEqual({ message: "100000000" });
+            expect(result).toEqual("100000000");
         });
     });
 

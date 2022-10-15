@@ -5,7 +5,7 @@ import logger from '../../loaders/logger';
 import { createUserInstance } from '../../services/user/user.factory';
 import { createAuthInstance } from '../../services/auth/auth.factory';
 import { signupType } from '../../models/user';
-import MailerService from '@/services/mail/mailer';
+import {createMailInstance} from '../../services/mail/mail.factory';
 
 
 const route = Router();
@@ -215,10 +215,10 @@ export default (app: Router) => {
   * paths:
   *  /auth/findPassword:
   *    post:
-  *      summary: 비밀번호를 분실했을 시 임시비밀번호 발급. 로직 변경 예정
+  *      summary: 비밀번호를 분실했을 시 임시비밀번호 발급. 인증링크를 유제메일로 전송.
   *      tags: [Auth]
   *      requestBody:
-  *        description: 로그인을 위한 이메일, 비밀번호 전송
+  *        description: 접속하기 원하는 이메일
   *        content:
   *            application/json:
   *              schema:
@@ -230,23 +230,23 @@ export default (app: Router) => {
   *                      $ref: '#/components/schemas/User/properties/email/example'
   *      responses:
   *        "200":
-  *          description: 비밀번호 찾기 성공
+  *          description: 유저 이메일에 인증링크를 보냄
   *          content:
   *            application/json:
   *              schema:
   *                type: object
   *                properties:
-  *                  tempPassword:
+  *                  message:
   *                    type: string
-  *                    description: 랜덤생성한 번호 8자리 문자열
-  *                    example: '15792257'
+  *                    description: 인증링크 보냈음을 안내
+  *                    example: '등록된 이메일로 인증코드를 보냈습니다.'
   *        "404":
   *          description: 해당하는 유저가 없음
   *        "500":
   *          description: 서버 에러
   */  
   route.post(
-    '/findPassword',
+    '/findPassword', //인증코드를 유저 메일로 보낸다.
     // api prefix로 인해 /api/auth/signup로 들어감. api접두사 없애려면 config 설정에서.
     celebrate({
       body: Joi.object({
@@ -260,9 +260,13 @@ export default (app: Router) => {
         //본인확인(이메일로) -> 확인되면 해당 이메일로 임시비밀번호 발급
         const email = req.body.email;
         const userServiceInstance = createUserInstance();
-        const userCheck = await userServiceInstance.findUserByEmail(email);
-        const tempPassword = await userServiceInstance.tempPassword(userCheck.id,);
-        return res.status(200).json({ tempPassword: tempPassword });
+        const mailServiceInstance = createMailInstance();
+        const {email: userEmail} = await userServiceInstance.findUserByEmail(email);
+        const verifyCode = mailServiceInstance.createVerifyCode();
+        const saveCode = await mailServiceInstance.saveValidCode(userEmail, verifyCode)
+        const sendVerifyEmail = await mailServiceInstance.sendUserValidEmail(userEmail, verifyCode);
+      
+        return res.status(200).json({ message: '등록된 이메일로 인증코드를 보냈습니다' });
       } catch (error) {
         logger.error('error: %o', error);
         const errorMessage = error.message;
@@ -277,24 +281,56 @@ export default (app: Router) => {
     },
   );
 
-  //메일테스트
-  route.get('/mail',
+   /**
+  * @swagger
+  * paths:
+  *  /auth/verify/code:
+  *    get:
+  *      summary: parametor로 전송된 code가 발급한 코드가 맞으면 임시비밀번호를 메일로 보내고 안내한다.
+  *      tags: [Auth]
+  *      parameters:
+  *      - in: 'query'
+  *        name: 'code'
+  *        description: '유저 본인확인용 코드'
+  *        required: true
+  *        schema:
+  *          type: string
+  *          example: 'z52q898f6a8x844c'
+  *      responses:
+  *        "200":
+  *          description: 가입한 이메일로 임시 비밀번호 전송
+  *          content:
+  *            application/json:
+  *              schema:
+  *                type: object
+  *                properties:
+  *                  message:
+  *                    type: string
+  *                    description: 확인 메시지
+  *                    example: '이메일로 임시 비밀번호를 전송했습니다.'
+  *        "404":
+  *          description: 해당하는 유저가 없음
+  *        "500":
+  *          description: 서버 에러
+  */  
+  route.get('/verify/code', //code를 받는데서부터
     async (req: Request, res: Response, next: NextFunction) => {
       logger.debug('Calling Login endpoint with body: %o', req.body);
       try {
-        //이거 로직 바꿔야 함
-        //본인확인(이메일로) -> 확인되면 해당 이메일로 임시비밀번호 발급
-        // const userServiceInstance = createUserInstance();
-        // const tempPassword = await userServiceInstance.sendEmail('test용');
-        const mailService = new MailerService()
-        const result = await mailService.SendWellcomeEmail('ksg930523@gmail.com')
+        // auth/verify/code?code=XXXX
+        const code = req.query?.code ? String(req.query.code) : '';
+        const mailServiceInstance = createMailInstance();
+        const userServiceInstance = createUserInstance();
+        const {email} = await mailServiceInstance.emailValidCheck(code); //이메일이 있다 OR 없다
+        const {id: userId} = await userServiceInstance.findUserByEmail(email);
+        const tempPassword = await userServiceInstance.changeTempPassword(userId);
+        const result = await mailServiceInstance.sendTempPassword(email, tempPassword);
         
         return res.status(200).json({...result});
       } catch (error) {
-        console.log('SendWellcomeEmail 에러 -',error)
         return next(error);
       }
-    },
+    }
   );
  /**
   * @swagger

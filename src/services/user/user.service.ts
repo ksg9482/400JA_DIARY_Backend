@@ -1,7 +1,7 @@
 //get - me
 //patch -  user data
 //delete -  user
-import { IUser, IUserDocument, IUserInputDTO } from '@/interfaces/IUser';
+import { IUser, IUserInputDTO } from '@/interfaces/IUser';
 import { Logger } from 'winston'; //@로 표기했었음. jest오류
 import HashUtil from '../utils/hashUtils';
 import { HydratedDocument } from 'mongoose';
@@ -148,7 +148,7 @@ export default class UserService {
      * 
      * @returns 임의의 8자리 숫자로 생성된 문자열
      */
-    public async tempPassword(id: any) {
+    public async changeTempPassword(id: any) {
         const randomPassword = String(Math.round(Math.random() * 100000000));
 
         let userRecord = await this.userModel.findById(id);
@@ -159,13 +159,8 @@ export default class UserService {
         if (changePassword.errors) {
             throw new Error('Change password fail');
         };
-        const sendTempPassword = await this.sendEmail(String(randomPassword));
 
-        return { message: `${randomPassword}` };
-
-        //임시비밀번호로 변경
-        //등록된 이메일로 임시비번 전송
-        //임시 비밀번호 보냈다고 전송.
+        return randomPassword;
     };
 
     public async deleteUser(id: string) {
@@ -192,13 +187,6 @@ export default class UserService {
         };
 
         return userRecordCopy;
-    }
-
-    public async sendEmail(content: string) {
-        // 메일건 가져와서 보내기
-        return true
     };
-
-
 };
 

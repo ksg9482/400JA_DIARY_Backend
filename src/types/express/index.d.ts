@@ -1,5 +1,6 @@
 import { IDiary } from "@/interfaces/IDiary";
 import { IUser } from "@/interfaces/IUser";
+import { Mail } from "@/interfaces/Mail";
 // import { IDiary } from "@/interfaces/IDiary";
 import { Model, HydratedDocument } from "mongoose";
 
@@ -8,5 +9,6 @@ declare global {
     namespace Models {
         export type UserModel = Model<IUser>;
         export type DiaryModel = Model<IDiary>;
+        export type MailModel = Model<Mail>;
       }
 }
