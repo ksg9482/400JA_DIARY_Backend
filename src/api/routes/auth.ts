@@ -215,7 +215,7 @@ export default (app: Router) => {
   * paths:
   *  /auth/findPassword:
   *    post:
-  *      summary: 비밀번호를 분실했을 시 임시비밀번호 발급. 인증링크를 유제메일로 전송.
+  *      summary: 본인인증 링크를 유저 메일로 전송.
   *      tags: [Auth]
   *      requestBody:
   *        description: 접속하기 원하는 이메일
@@ -246,9 +246,8 @@ export default (app: Router) => {
   *          description: 서버 에러
   */  
   route.post(
-    '/findPassword', //인증코드를 유저 메일로 보낸다.
-    // api prefix로 인해 /api/auth/signup로 들어감. api접두사 없애려면 config 설정에서.
-    celebrate({
+    '/findPassword',
+   celebrate({
       body: Joi.object({
         email: Joi.string().required(),
       }),
@@ -256,8 +255,6 @@ export default (app: Router) => {
     async (req: Request, res: Response, next: NextFunction) => {
       logger.debug('Calling Login endpoint with body: %o', req.body);
       try {
-        //이거 로직 바꿔야 함
-        //본인확인(이메일로) -> 확인되면 해당 이메일로 임시비밀번호 발급
         const email = req.body.email;
         const userServiceInstance = createUserInstance();
         const mailServiceInstance = createMailInstance();
@@ -286,7 +283,7 @@ export default (app: Router) => {
   * paths:
   *  /auth/verify/code:
   *    get:
-  *      summary: parametor로 전송된 code가 발급한 코드가 맞으면 임시비밀번호를 메일로 보내고 안내한다.
+  *      summary: 임시비밀번호를 유저 메일로 전송.
   *      tags: [Auth]
   *      parameters:
   *      - in: 'query'
@@ -326,7 +323,7 @@ export default (app: Router) => {
         const tempPassword = await userServiceInstance.changeTempPassword(userId);
         const result = await mailServiceInstance.sendTempPassword(email, tempPassword);
         
-        return res.status(200).json({...result});
+        return res.status(200).json({...result})
       } catch (error) {
         return next(error);
       }

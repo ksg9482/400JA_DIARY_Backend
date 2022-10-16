@@ -54,12 +54,15 @@ export default class MailService {
             throw new Error("Bad email parametor");
         };
         const PROTOCOL = 'http';
-        const HOST = 'localhost';
-        const PORT = 8080;
+        const FRONTEND_HOST = 'localhost';
+        const FRONTEND_PORT = 3000;
         const mailSubject = verifySubject
         const mailContent = '회원인증용 이메일입니다. 링크를 클릭해주세요 \n'
-        +`${PROTOCOL}://${HOST}:${PORT}/api/auth/verify/code?code=${randomCode}`
-       
+        +`${PROTOCOL}://${FRONTEND_HOST}:${FRONTEND_PORT}/verify/code?code=${randomCode}`
+       //서버로 보내는 게 아니라 프론트엔드 verify페이지로 보냄.
+       //거기서 code를 백엔드로 보내고, 백엔드에서 처리
+       //클라이언트는 성공메시지 감지 -> 모달창. 이메일 보냈다.
+       //확인 누르면 그창 꺼짐
         const result = await this.sendEmail(email, mailSubject, mailContent);
         
         return {message:'Send verify Email'};

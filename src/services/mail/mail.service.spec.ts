@@ -91,7 +91,7 @@ describe('UserService', () => {
             expect(service.sendEmail).toHaveBeenCalledWith(
                 testEmail,
                 verifySubject,
-                '회원인증용 이메일입니다. 링크를 클릭해주세요 \n' + `http://localhost:8080/api/auth/verify/code?code=${randomCode}`
+                '회원인증용 이메일입니다. 링크를 클릭해주세요 \n' + `http://localhost:3000/verify/code?code=${randomCode}`
             );
             expect(result).toEqual({ message: 'Send verify Email' });
         });
