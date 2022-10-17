@@ -1,4 +1,4 @@
-import { Mail } from '../interfaces/Mail';
+import { Mail } from '@/interfaces/Mail';
 import { Schema, model } from 'mongoose';
 
 
@@ -12,7 +12,7 @@ import { Schema, model } from 'mongoose';
  *          - email
  *          - verifyCode
  *        properties:
- *          _id:
+ *          id:
  *            type: Objdct ID
  *            description: 자동 생성된 ID
  *            example: ObjectID('632db203145cddef30eced92')

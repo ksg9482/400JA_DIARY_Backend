@@ -1,7 +1,3 @@
-interface IError {
-    name: string;
-    message: string;
-}
 export default class CommonUtils {
     public createRandomId() {
         const randomNum = Math.round(Math.random() * 100000000);

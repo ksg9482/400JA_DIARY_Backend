@@ -1,14 +1,13 @@
-import { IDiary } from "@/interfaces/IDiary";
-import { IUser } from "@/interfaces/IUser";
+import { Diary } from "@/interfaces/Diary";
+import { User } from "@/interfaces/User";
 import { Mail } from "@/interfaces/Mail";
-// import { IDiary } from "@/interfaces/IDiary";
-import { Model, HydratedDocument } from "mongoose";
+import { Model } from "mongoose";
 
 //mongoose 모델 설정
 declare global {
     namespace Models {
-        export type UserModel = Model<IUser>;
-        export type DiaryModel = Model<IDiary>;
+        export type UserModel = Model<User>;
+        export type DiaryModel = Model<Diary>;
         export type MailModel = Model<Mail>;
       }
 }

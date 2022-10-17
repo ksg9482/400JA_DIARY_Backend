@@ -1,4 +1,4 @@
-import { IDiary } from "@/interfaces/IDiary";
+import { Diary } from "@/interfaces/Diary";
 import { Schema, model } from "mongoose";
 
 /**
@@ -15,7 +15,7 @@ import { Schema, model } from "mongoose";
  *          - month
  *          - day
  *        properties:
- *          _id:
+ *          id:
  *            type: Objdct ID
  *            description: 자동 생성된 ID
  *            example: ObjectID('632db203145cddef30eced92')
@@ -53,7 +53,7 @@ import { Schema, model } from "mongoose";
  *            description: 자동 생성된 타임 스탬프
  *            example: 2022-10-01 12:30:30
  */
-const diarySchema = new Schema<IDiary>(
+const diarySchema = new Schema<Diary>(
     {
         userId:{
             type:String,
@@ -89,6 +89,6 @@ diarySchema.index({
     content:'text'
 })
 
-const Diary = model<IDiary>('Diary', diarySchema);
+const Diary = model<Diary>('Diary', diarySchema);
 
 export default Diary

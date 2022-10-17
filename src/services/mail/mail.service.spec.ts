@@ -1,5 +1,5 @@
-import Mail from '../../models/mail'
-import logger from "../../loaders/logger";
+import Mail from '@/models/mail'
+import logger from "@/loaders/logger";
 import MailService from "./mail.service";
 import mailgun from "mailgun-js";
 import uuid from "uuid";

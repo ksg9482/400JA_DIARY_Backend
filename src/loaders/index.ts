@@ -8,6 +8,6 @@ export default async ({expressApp}) => {
     await mongooseLoader();
     Logger.info('DB loaded and connected');
     
-    expressLoader({app:expressApp}); //await?
+    expressLoader({app:expressApp});
     Logger.info('express loaded');
 }

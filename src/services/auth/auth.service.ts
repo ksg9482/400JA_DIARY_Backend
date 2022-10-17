@@ -1,8 +1,8 @@
 import { Logger } from 'winston';
 import axios from 'axios';
-import config from '../../config'; //@로 표기했었음. jest오류
-import JwtUtil from '../utils/jwtUtils';
-import CommonUtils from '../utils/commonUtils';
+import config from '@/config'; //@로 표기했었음. jest오류
+import JwtUtil from '@/services/utils/jwtUtils';
+import CommonUtils from '@/services/utils/commonUtils';
 interface IOAuthResult {
   email: string;
   password: string;
@@ -31,14 +31,14 @@ export default class AuthService {
   public async kakaoOAuth(code: string): Promise<IOAuthResult> {
     const kakaoHost = 'kauth.kakao.com';
     const kakaoParametor = {
-      client_id: config.KAKAO_REST_API_KEY,
+      clientid: config.KAKAO_REST_API_KEY,
       redirect_uri: config.KAKAO_REDIRECT_URI,
     };
 
-    const getKakaoAccessToken = async (kakaoHost: string, kakaoParametor: { client_id: string, redirect_uri: string }, code: string) => {
+    const getKakaoAccessToken = async (kakaoHost: string, kakaoParametor: { clientid: string, redirect_uri: string }, code: string) => {
       const kakaoToken = await axios.post(
         `https://${kakaoHost}/oauth/token?grant_type=authorization_code`
-        + `&client_id=${kakaoParametor.client_id}`
+        + `&clientid=${kakaoParametor.clientid}`
         + `&redirect_uri=${kakaoParametor.redirect_uri}`
         + `&code=${code}`,
       );

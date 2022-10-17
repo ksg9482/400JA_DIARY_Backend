@@ -1,11 +1,11 @@
-import { IUserInputDTO } from '../../interfaces/IUser';
+import { UserBase as UserInputDTO } from '@/interfaces/User';
 import { celebrate, Joi } from 'celebrate';
 import { CookieOptions, NextFunction, Request, Response, Router } from 'express';
-import logger from '../../loaders/logger';
-import { createUserInstance } from '../../services/user/user.factory';
-import { createAuthInstance } from '../../services/auth/auth.factory';
-import { signupType } from '../../models/user';
-import {createMailInstance} from '../../services/mail/mail.factory';
+import logger from '@/loaders/logger';
+import { createUserInstance } from '@/services/user/user.factory';
+import { createAuthInstance } from '@/services/auth/auth.factory';
+import { signupType } from '@/models/user';
+import { createMailInstance } from '@/services/mail/mail.factory';
 
 
 const route = Router();
@@ -60,7 +60,7 @@ export default (app: Router) => {
   *                  id:
   *                    type: string
   *                    example:  
-  *                       $ref: '#/components/schemas/User/properties/_id/example'
+  *                       $ref: '#/components/schemas/User/properties/id/example'
   *                  email:
   *                    type: string
   *                    example:  
@@ -89,7 +89,7 @@ export default (app: Router) => {
       logger.debug('Calling Sign-Up endpoint with body: %o', req.body);
       try {
         const userServiceInstance = createUserInstance();
-        const {user} = await userServiceInstance.signup(req.body as IUserInputDTO);
+        const {user} = await userServiceInstance.signup(req.body as UserInputDTO);
         
         return res.status(201).json(user);
       } catch (error) {
@@ -144,7 +144,7 @@ export default (app: Router) => {
   *                  id:
   *                    type: string
   *                    example:  
-  *                       $ref: '#/components/schemas/User/properties/_id/example'
+  *                       $ref: '#/components/schemas/User/properties/id/example'
   *                  email:
   *                    type: string
   *                    example:  
@@ -355,7 +355,7 @@ export default (app: Router) => {
   *                  id:
   *                    type: string
   *                    example:  
-  *                       $ref: '#/components/schemas/User/properties/_id/example'
+  *                       $ref: '#/components/schemas/User/properties/id/example'
   *                  email:
   *                    type: string
   *                    example:  
@@ -422,7 +422,7 @@ export default (app: Router) => {
   *                  id:
   *                    type: string
   *                    example:  
-  *                       $ref: '#/components/schemas/User/properties/_id/example'
+  *                       $ref: '#/components/schemas/User/properties/id/example'
   *                  email:
   *                    type: string
   *                    example:  

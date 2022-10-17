@@ -1,5 +1,5 @@
-import { IUser } from '../interfaces/IUser';
-import HashUtil from '../services/utils/hashUtils';
+import { User } from '@/interfaces/User';
+import HashUtil from '@/services/utils/hashUtils';
 import { Schema, model } from 'mongoose';
 export enum signupType {
   BASIC = 'BASIC',
@@ -19,7 +19,7 @@ export enum signupType {
  *          - role
  *          - type
  *        properties:
- *          _id:
+ *          id:
  *            type: Objdct ID
  *            description: 자동 생성된 ID
  *            example: ObjectID('632db203145cddef30eced92')
@@ -55,7 +55,7 @@ export enum signupType {
  *            description: 자동 생성된 타임 스탬프
  *            example: 2022-10-01 12:30:30
  */
-const userSchema = new Schema<IUser>(
+const userSchema = new Schema<User>(
   {
     email: {
       type: String,
@@ -92,6 +92,6 @@ userSchema.pre('save', async function (next) {
 
 
 
-const User = model<IUser>('User', userSchema);
+const User = model<User>('User', userSchema);
 
 export default User;

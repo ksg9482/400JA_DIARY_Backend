@@ -1,13 +1,13 @@
-import { IattachCurrentUserRequest } from "../../interfaces/IRequest";
-import logger from "../../loaders/logger";
-import User from "../../models/user";
+import { AttachCurrentUserRequest } from "@/interfaces/Request";
+import logger from "@/loaders/logger";
+import User from "@/models/user";
 import { NextFunction, Request, Response } from "express";
-import jwt from "../../services/utils/jwtUtils"
+import jwt from "@/services/utils/jwtUtils"
 //현재 사용하는 유저를 req객체에 추가
 
-const attachCurrentUser = async (req: IattachCurrentUserRequest, res: Response, next: NextFunction) => {
+const attachCurrentUser = async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
     try {
-        const getToken = (req: IattachCurrentUserRequest) => {
+        const getToken = (req: AttachCurrentUserRequest) => {
             const token = req.headers.cookie?.split('=')[1];
             return typeof token === 'string' ? token : undefined
         };
@@ -18,13 +18,13 @@ const attachCurrentUser = async (req: IattachCurrentUserRequest, res: Response, 
 
         const verifyToken = jwt.prototype.verifyToken(getToken(req));
         
-        const userRecord = await User.findById(verifyToken['_id']);
+        const userRecord = await User.findById(verifyToken['id']);
         //
         if (!userRecord) {
             throw new Error('AttachCurrentUser error');
         };
         
-        const currentUser:Object = { ...userRecord['_doc'] };
+        const currentUser:Object = { ...userRecord['_doc'], id:userRecord['_doc']['_id'] };
         const deleteTargetArr = ['password', 'createdAt', 'updatedAt', '__v'];
        
         deleteTargetArr.forEach((target)=>{
