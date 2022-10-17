@@ -30,21 +30,21 @@ export default {
         prefix: '/api'
     },
 
-    //email 메일건?
+    //email
     emails: {
         apiKey:process.env.MAILGUN_API_KEY,
-        apiUserName:process.env.MAILGUN_FROMEMAIL,
+        apUserName:process.env.MAILGUN_FROMEMAIL,
         domain:process.env.MAILGUN_DOMAIN_NAME
     },
 
-    testDatabaseURL: process.env.TEST_MONGODB_URI, //host로 이름바꾸는게 좋을지도?
+    testDatabaseURL: process.env.TEST_MONGODB_URI,
     testDatabaseUsername:process.env.TEST_MONGODB_USERNAME,
     testDatabasePassword:process.env.TEST_MONGODB_PASSWORD,
 
     KAKAO_REST_API_KEY: process.env.KAKAO_REST_API_KEY,
     KAKAO_REDIRECT_URI: process.env.KAKAO_REDIRECT_URI,
 
-    GOOGLE_CLIENT_ID:process.env.GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENTID:process.env.GOOGLE_CLIENTID,
     GOOGLE_REDIRECT_URI:process.env.GOOGLE_REDIRECT_URI,
     GOOGLE_CLIENT_SECRET:process.env.GOOGLE_CLIENT_SECRET
 }

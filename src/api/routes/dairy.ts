@@ -1,8 +1,8 @@
 import { NextFunction, Response, Router } from "express";
 import { celebrate, Joi } from "celebrate";
-import { IattachCurrentUserRequest } from "../../interfaces/IRequest";
-import attachCurrentUser from "../middlewares/attachCurrentUser";
-import { createDiaryInstance } from "../../services/diary/diary.factory";
+import { AttachCurrentUserRequest } from "@/interfaces/Request";
+import attachCurrentUser from "@/api/middlewares/attachCurrentUser";
+import { createDiaryInstance } from "@/services/diary/diary.factory";
 
 const route = Router();
 
@@ -59,9 +59,9 @@ export default (app: Router) => {
                 content: Joi.string().max(400).required()
             })
         }),
-        async (req: IattachCurrentUserRequest, res: Response, next: NextFunction) => {
+        async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
             try {
-                const userId = req.currentUser._id;
+                const userId = req.currentUser.id;
                 const diaryContent = req.body
                 const diaryServiceInstance = createDiaryInstance();
                 const result = await diaryServiceInstance.createDiaryContent(userId, diaryContent);
@@ -103,7 +103,7 @@ export default (app: Router) => {
     *                        id: 
     *                          type: string
     *                          example: 
-    *                            $ref: '#/components/schemas/Diary/properties/_id/example'
+    *                            $ref: '#/components/schemas/Diary/properties/id/example'
     *                        subject: 
     *                          type: string
     *                          example: 
@@ -120,9 +120,9 @@ export default (app: Router) => {
     *        "500":
     *          description: 서버 에러
     */
-    route.get('/', async (req: IattachCurrentUserRequest, res: Response, next: NextFunction) => {
+    route.get('/', async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
         try {
-            const userId = req.currentUser._id;
+            const userId = req.currentUser.id;
             const diaryServiceInstance = createDiaryInstance();
             const result = await diaryServiceInstance.getDiary(userId);
             return res.status(200).json(result);
@@ -170,7 +170,7 @@ export default (app: Router) => {
     *                        id: 
     *                          type: string
     *                          example: 
-    *                            $ref: '#/components/schemas/Diary/properties/_id/example'
+    *                            $ref: '#/components/schemas/Diary/properties/id/example'
     *                        subject: 
     *                          type: string
     *                          example: 
@@ -193,9 +193,9 @@ export default (app: Router) => {
                 lastDiaryId: Joi.string()
             })
         }),
-        async (req: IattachCurrentUserRequest, res: Response, next: NextFunction) => {
+        async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
             try {
-                const userId = req.currentUser._id;
+                const userId = req.currentUser.id;
                 const lastDiaryId = req.body.lastDiaryId
                 const diaryServiceInstance = createDiaryInstance();
                 const result = await diaryServiceInstance.getLastIdDiary(userId, lastDiaryId);
@@ -245,7 +245,7 @@ export default (app: Router) => {
     *                        id: 
     *                          type: string
     *                          example: 
-    *                            $ref: '#/components/schemas/Diary/properties/_id/example'
+    *                            $ref: '#/components/schemas/Diary/properties/id/example'
     *                        subject: 
     *                          type: string
     *                          example: 
@@ -262,10 +262,10 @@ export default (app: Router) => {
     *        "500":
     *          description: 서버 에러
     */
-    route.get('/search/keyword', async (req: IattachCurrentUserRequest, res: Response, next: NextFunction) => {
+    route.get('/search/keyword', async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
         try {
             // diary/search/keyword?keyword=XXXX
-            const userId = req.currentUser._id;
+            const userId = req.currentUser.id;
             const keyword = req.query?.keyword ? String(req.query.keyword) : '';
             const diaryServiceInstance = createDiaryInstance();
             const result = await diaryServiceInstance.findKeyword(userId, keyword);
@@ -315,7 +315,7 @@ export default (app: Router) => {
     *                        id: 
     *                          type: string
     *                          example: 
-    *                            $ref: '#/components/schemas/Diary/properties/_id/example'
+    *                            $ref: '#/components/schemas/Diary/properties/id/example'
     *                        subject: 
     *                          type: string
     *                          example: 
@@ -332,10 +332,10 @@ export default (app: Router) => {
     *        "500":
     *          description: 서버 에러
     */
-    route.get('/search/date', async (req: IattachCurrentUserRequest, res: Response, next: NextFunction) => {
+    route.get('/search/date', async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
         try {
             // diary/search/date?date=2022-08-09
-            const userId = req.currentUser._id;
+            const userId = req.currentUser.id;
             //2022-08-09 형식
             const targetDate = req.query?.date ? String(req.query.date) : '';
             //split하고 객체 만드는 거 함수로 묶기

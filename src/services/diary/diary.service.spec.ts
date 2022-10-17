@@ -1,5 +1,5 @@
-import Diary from '../../models/diary'
-import logger from "../../loaders/logger";
+import Diary from '@/models/diary'
+import logger from "@/loaders/logger";
 import DiaryService from "./diary.service";
 
 describe('DiaryService', () => {
@@ -44,7 +44,7 @@ describe('DiaryService', () => {
                 year: 2022,
                 month: 9,
                 day: 30,
-                _id: "63452567b9c93d409a07940c"
+                id: "63452567b9c93d409a07940c"
             };
             Diary.findOne = jest.fn().mockReturnValue({
                 and: jest.fn().mockResolvedValue(todayDiary)
@@ -57,7 +57,7 @@ describe('DiaryService', () => {
             expect(Diary.findOne).toHaveBeenCalledWith({ userId: userId });
             expect(Diary.updateOne).toHaveBeenCalledTimes(1);
             expect(Diary.updateOne).toHaveBeenCalledWith(
-                { _id: todayDiary['_id'] }, 
+                { id: todayDiary['id'] }, 
                 {
                     subject: todayDiary.subject, 
                     content: todayDiary.content,
@@ -103,7 +103,7 @@ describe('DiaryService', () => {
         const userId = 'testUserId';
         const diaryRecordArr = [
             {
-                _id: "a1",
+                id: "a1",
                 subject: 'subject1',
                 content: 'content1',
                 year: 2022,
@@ -111,7 +111,7 @@ describe('DiaryService', () => {
                 day: 26,
             },
             {
-                _id: "b2",
+                id: "b2",
                 subject: 'subject2',
                 content: 'content2',
                 year: 2022,
@@ -199,7 +199,7 @@ describe('DiaryService', () => {
         const testDate = '2022-10-01';
         const diaryRecordArr = [
             {
-                _id: "a1",
+                id: "a1",
                 subject: 'subject1',
                 content: 'content1',
                 year: 2022,
@@ -207,7 +207,7 @@ describe('DiaryService', () => {
                 day: 26,
             },
             {
-                _id: "b2",
+                id: "b2",
                 subject: 'subject2',
                 content: 'content2',
                 year: 2022,
@@ -327,7 +327,7 @@ describe('DiaryService', () => {
         const userId = 'testUserId';
         const diaryRecordArr = [
             {
-                _id: "a1",
+                id: "a1",
                 subject: 'subject1',
                 content: 'content1',
                 year: 2022,
@@ -335,7 +335,7 @@ describe('DiaryService', () => {
                 day: 26,
             },
             {
-                _id: "b2",
+                id: "b2",
                 subject: 'subject2',
                 content: 'content2',
                 year: 2022,
@@ -412,7 +412,7 @@ describe('DiaryService', () => {
         const lastDiaryId = 'lastDiaryId';
         const diaryRecordArr = [
             {
-                _id: "a1",
+                id: "a1",
                 subject: 'subject1',
                 content: 'content1',
                 year: 2022,
@@ -420,7 +420,7 @@ describe('DiaryService', () => {
                 day: 26,
             },
             {
-                _id: "b2",
+                id: "b2",
                 subject: 'subject2',
                 content: 'content2',
                 year: 2022,

@@ -1,11 +1,9 @@
 import { celebrate, Joi } from "celebrate";
-import { NextFunction, Request, Response, Router } from "express";
-import { createUserInstance } from "../../services/user/user.factory";
-import { IattachCurrentUserRequest } from "../../interfaces/IRequest";
-import attachCurrentUser from "../middlewares/attachCurrentUser";
-import DiaryService from "../../services/diary/diary.service";
-import { createDiaryInstance } from "../../services/diary/diary.factory";
-import UserService from "../../services/user/user.service";
+import { NextFunction, Response, Router } from "express";
+import { createUserInstance } from "@/services/user/user.factory";
+import { AttachCurrentUserRequest } from "@/interfaces/Request";
+import attachCurrentUser from "@/api/middlewares/attachCurrentUser";
+import { createDiaryInstance } from "@/services/diary/diary.factory";
 
 const route = Router();
 
@@ -36,7 +34,7 @@ export default (app: Router) => {
      *                  id:
      *                    type: string
      *                    example:  
-     *                       $ref: '#/components/schemas/User/properties/_id/example'
+     *                       $ref: '#/components/schemas/User/properties/id/example'
      *                  email:
      *                    type: string
      *                    example:  
@@ -53,9 +51,9 @@ export default (app: Router) => {
      *        "500":
      *          description: 서버 에러
      */
-    route.get('/me', async (req: IattachCurrentUserRequest, res: Response, next: NextFunction) => {
+    route.get('/me', async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
         try {
-            const userId = req.currentUser._id;
+            const userId = req.currentUser.id;
 
             const userServiceInstance = createUserInstance();
             const diaryServiceInstance = createDiaryInstance();
@@ -117,9 +115,9 @@ export default (app: Router) => {
                 passwordChange: Joi.string().required(),
             })
         }),
-        async (req: IattachCurrentUserRequest, res: Response, next: NextFunction) => {
+        async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
             try {
-                const userId: string = req.currentUser._id;
+                const userId: string = req.currentUser.id;
                 const { password, passwordChange } = req.body;
 
                 const userServiceInstance = createUserInstance();
@@ -170,9 +168,9 @@ export default (app: Router) => {
     *          description: 서버 에러
     */
     route.delete('/',
-        async (req: IattachCurrentUserRequest, res: Response, next: NextFunction) => {
+        async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
             try {
-                const userId: string = req.currentUser._id;
+                const userId: string = req.currentUser.id;
 
                 const userServiceInstance = createUserInstance();
                 const diaryServiceInstance = createDiaryInstance();
@@ -221,9 +219,9 @@ export default (app: Router) => {
                 password: Joi.string().required(),
             })
         }),
-        async (req: IattachCurrentUserRequest, res: Response, next: NextFunction) => {
+        async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
             try {
-                const userId: string = req.currentUser._id;
+                const userId: string = req.currentUser.id;
                 const password: string = req.body.password;
 
                 const userServiceInstance = createUserInstance();
@@ -273,7 +271,7 @@ export default (app: Router) => {
     *                type: string
     *                example: 'jwt=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT' 
     */
-    route.get('/logout', async (req: IattachCurrentUserRequest, res: Response) => {
+    route.get('/logout', async (req: AttachCurrentUserRequest, res: Response) => {
         return res.clearCookie('jwt').json({ message: 'logout' })
     })
 };

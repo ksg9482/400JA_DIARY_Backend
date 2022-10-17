@@ -1,8 +1,8 @@
-import config from "../../config";
+import config from "@/config";
 import axios from "axios";
-import logger from "../../loaders/logger";
-import CommonUtils from "../utils/commonUtils";
-import JwtUtil from "../utils/jwtUtils";
+import logger from "@/loaders/logger";
+import JwtUtil from '@/services/utils/jwtUtils';
+import CommonUtils from '@/services/utils/commonUtils';
 import AuthService from "./auth.service";
 
 describe('UserService', () => {
@@ -17,12 +17,12 @@ describe('UserService', () => {
         const kakaoHost = 'kauth.kakao.com';
 
         const kakaoParametor = {
-            client_id: config.KAKAO_REST_API_KEY,
+            clientid: config.KAKAO_REST_API_KEY,
             redirect_uri: config.KAKAO_REDIRECT_URI,
         };
 
         const kakaoOuathURL = `https://${kakaoHost}/oauth/token?grant_type=authorization_code`
-            + `&client_id=${kakaoParametor.client_id}`
+            + `&clientid=${kakaoParametor.clientid}`
             + `&redirect_uri=${kakaoParametor.redirect_uri}`
             + `&code=${kakaoOAuthCode}`;
 

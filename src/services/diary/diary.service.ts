@@ -1,21 +1,6 @@
-import { IDiary, IdiaryContent, IfindByDateDTO } from '@/interfaces/IDiary';
-import { Logger } from 'winston'; //@로 표기했었음. jest오류
-
+import { Diary, DiaryContent, DiaryDate, DiaryOutputForm, DiaryListWithEnd } from '@/interfaces/Diary';
+import { Logger } from 'winston'; 
 import { HydratedDocument } from 'mongoose';
-
-interface BaseOutput {
-    error?: any
-};
-interface IDiaryForm extends BaseOutput {
-    id?: string;
-    subject?: string;
-    content?: string;
-    date?: string;
-};
-interface IdiaryOutput extends BaseOutput {
-    end?: boolean;
-    list?: IDiaryForm[];
-};
 
 export default class DiaryService {
     diaryModel: Models.DiaryModel;
@@ -27,7 +12,7 @@ export default class DiaryService {
         this.logger = logger;
     };
 
-    public async createDiaryContent(userId: string, diaryContentObj: IdiaryContent) { //만들어야 됨
+    public async createDiaryContent(userId: string, diaryContentObj: DiaryContent): Promise<{ message: string }> { 
         if (!userId) {
             throw new Error('Bad userId parametor');
         };
@@ -37,43 +22,43 @@ export default class DiaryService {
         };
 
         const dateKR = this.getKRDate();
-        const setDiaryRecord = (userId: string, diaryContentObj: IdiaryContent) => {
+        const setDiaryRecord = (userId: string, diaryContentObj: DiaryContent) => {
             const diarySubject = diaryContentObj.subject;
             const diaryContent = diaryContentObj.content;
 
-            const diaryRecord: HydratedDocument<IDiary> = new this.diaryModel({
+            const diaryRecord: HydratedDocument<Diary> = new this.diaryModel({
                 userId: userId,
                 subject: diarySubject,
                 content: diaryContent,
-                year: Number(dateKR.year),
-                month: Number(dateKR.month),
-                day: Number(dateKR.day)
+                year: dateKR.year,
+                month: dateKR.month,
+                day: dateKR.day
             });
             return diaryRecord
         };
-        const getTodayDiary = async (userId: string, dateKR: { year: string, month: string, day: string; }) => {
+        const getTodayDiary = async (userId: string, dateKR: DiaryDate) => {
             const nowDiary = await this.diaryModel //object or null
                 .findOne({ userId: userId })
                 .and([
-                    { year: Number(dateKR.year) },
-                    { month: Number(dateKR.month) },
-                    { day: Number(dateKR.day) }
+                    { year: dateKR.year },
+                    { month: dateKR.month },
+                    { day: dateKR.day }
                 ]);
             return nowDiary;
         };
 
-        const updateTodayDiary = async (diaryRecord: HydratedDocument<IDiary>) => {
+        const updateTodayDiary = async (diaryRecord: HydratedDocument<Diary>) => {
             const diaryUpdate = await this.diaryModel.updateOne(
-                { _id: diaryRecord['_id'] }, //filter
+                { id: diaryRecord['id'] },
                 {
-                    subject: diaryRecord.subject, //update
+                    subject: diaryRecord.subject, 
                     content: diaryRecord.content,
                 }
             );
             return diaryUpdate;
         };
 
-        const diarySave = async (diaryRecord: HydratedDocument<IDiary>) => {
+        const diarySave = async (diaryRecord: HydratedDocument<Diary>) => {
             const todayDiary = await getTodayDiary(userId, dateKR)
             if (todayDiary) {
                 updateTodayDiary(todayDiary);
@@ -88,7 +73,7 @@ export default class DiaryService {
         return diaryRecord;
     };
 
-    public async getDiary(userId: string) {
+    public async getDiary(userId: string): Promise<DiaryListWithEnd> {
         if (!userId) {
             throw new Error('Bad userId parametor');
         };
@@ -111,7 +96,7 @@ export default class DiaryService {
     };
 
 
-    public async getLastIdDiary(userId: string, lastDiaryId: string): Promise<IdiaryOutput> {
+    public async getLastIdDiary(userId: string, lastDiaryId: string): Promise<DiaryListWithEnd> {
         if (!userId) {
             throw new Error('Bad userId parametor')
         };
@@ -123,7 +108,7 @@ export default class DiaryService {
                     .find()
                     .and([
                         { userId: userId },
-                        { '_id': { '$lt': lastDiaryId } }
+                        { 'id': { '$lt': lastDiaryId } }
                     ])
                     .limit(7)
                     .sort({ createdAt: -1 });
@@ -140,7 +125,7 @@ export default class DiaryService {
         return getLastIdDiaryOutput;
     };
 
-    public async findKeyword(userId: string, keyword: string): Promise<IdiaryOutput> {
+    public async findKeyword(userId: string, keyword: string): Promise<DiaryListWithEnd> {
         if (!userId) {
             throw new Error('Bad userId parametor');
         };
@@ -167,7 +152,7 @@ export default class DiaryService {
         return findKeywordOutput;
     }
 
-    public async findByDate(userId: string, targetDate: string) {
+    public async findByDate(userId: string, targetDate: string): Promise<DiaryListWithEnd> {
         if (!userId) {
             throw new Error('Bad userId parametor');
         };
@@ -194,7 +179,7 @@ export default class DiaryService {
         return getDiaryOutput;
     };
 
-    public async findDiaryCount(userId: string) {
+    public async findDiaryCount(userId: string): Promise<{count: number}> {
         if (!userId) {
             throw new Error('Bad userId parametor');
         };
@@ -208,7 +193,7 @@ export default class DiaryService {
     /**
      * 회원탈퇴 때 사용
      */
-    public async deleteAllDiary(userId: string) {
+    public async deleteAllDiary(userId: string): Promise<{ message: string }>  {
         if (!userId) {
             throw new Error('Bad userId parametor');
         };
@@ -216,18 +201,18 @@ export default class DiaryService {
         return { message: "All diary deleted!" };
     };
 
-    protected getKRDate() {
+    protected getKRDate(): DiaryDate {
         const date = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
         const dateSplitArr = date.split('. ');// 공백문자도 포함해 분리
         return {
-            year: dateSplitArr[0],
-            month: dateSplitArr[1].padStart(2, '0'),
-            day: dateSplitArr[2].padStart(2, '0')
+            year: Number(dateSplitArr[0]),
+            month: Number(dateSplitArr[1]),
+            day: Number(dateSplitArr[2])
         };
     };
 
-    protected setDiaryForm(rawDiary: any) {
-        const diaryId = rawDiary._id;
+    protected setDiaryForm(rawDiary: any): DiaryOutputForm {
+        const diaryId = rawDiary.id;
         const diaryYear = String(rawDiary.year);
         const diaryMonth = String(rawDiary.month).padStart(2, '0');
         const diaryDay = String(rawDiary.day).padStart(2, '0');
@@ -241,7 +226,7 @@ export default class DiaryService {
         return diaryForm;
     };
 
-    private async setDiaryEnd(diarys: IDiaryForm[]) {
+    private async setDiaryEnd(diarys: DiaryOutputForm[]): Promise<DiaryListWithEnd> {
         let diaryIsEnd = false;
 
         const targetDiarys = diarys;

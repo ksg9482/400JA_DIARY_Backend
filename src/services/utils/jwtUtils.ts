@@ -1,18 +1,16 @@
-import { IUser } from "../../interfaces/IUser";
-import jwt, { Secret } from 'jsonwebtoken';
-import config from "../../config";
-import { IattachCurrentUserRequest } from "@/interfaces/IRequest";
-import { IToken } from "@/interfaces/IToken";
+import { User } from "@/interfaces/User";
+import jwt from 'jsonwebtoken';
+import config from "@/config";
 
 export default class JwtUtil {
     
-    public generateToken(user:IUser):string {
+    public generateToken(user:User):string {
         const today = new Date();
         const exp = new Date(today);
         exp.setDate(today.getDate() + 60);
         const token = jwt.sign(
             {
-                _id: user._id,
+                id: user.id,
                 email: user.email,
                 role: user.role,
                 exp: exp.getTime() / 1000

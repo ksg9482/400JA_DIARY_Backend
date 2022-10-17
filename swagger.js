@@ -12,9 +12,9 @@ const swaggerDefinition = {
     ]
 };
 
-const options = {
+const swaggerOptions = {
     swaggerDefinition,
     apis: ['./src/models/*.ts', './src/api/routes/*.ts']
 };
 
-export default options;
+export default swaggerOptions;

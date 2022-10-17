@@ -1,4 +1,4 @@
-import config from "../../config";
+import config from "@/config";
 import { Mail } from "@/interfaces/Mail";
 import mailgun from "mailgun-js";
 import { HydratedDocument } from "mongoose";
@@ -124,7 +124,7 @@ export default class MailService {
         const randomCode = uuidv4();
         return randomCode
     }
-    // public async startEmailSequence(sequence, user: Partial<IUser>) {
+    // public async startEmailSequence(sequence, user: Partial<User>) {
     //     if (!user.email) {
     //         throw new Error('No email provided');
     //     }
