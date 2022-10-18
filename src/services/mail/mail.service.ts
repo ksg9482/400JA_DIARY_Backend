@@ -53,9 +53,9 @@ export default class MailService {
         if (!email) {
             throw new Error("Bad email parametor");
         };
-        const PROTOCOL = 'http';
-        const FRONTEND_HOST = 'localhost';
-        const FRONTEND_PORT = 3000;
+        const PROTOCOL = config.prontendProtocol;
+        const FRONTEND_HOST = config.prontendHost;
+        const FRONTEND_PORT = config.prontendport;
         const mailSubject = verifySubject
         const mailContent = '회원인증용 이메일입니다. 링크를 클릭해주세요 \n'
         +`${PROTOCOL}://${FRONTEND_HOST}:${FRONTEND_PORT}/verify/code?code=${randomCode}`

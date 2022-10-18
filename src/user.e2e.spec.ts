@@ -2,15 +2,8 @@ import mongoose, { Connection } from 'mongoose';
 
 export let jwtToken: string;
 
-//서버시작이 함수 내부에 있다보니 app.address is not a function이 발생. 
-//이 프로젝트는 참고한 구조를 최대한 따르려다 보니 지금으로썬 통합테스트 구현이 힘들다 판단.
-//module.exports 실패
-//supertest로 서버생성 실패
-
 export const tokenData = (res: any) => {
-    //console.log(res)
     const token: string = res.headers["set-cookie"][0].split(';')[0];
-    //console.log(token)
     jwtToken = token;
     return token ? token : 'search error';
 };

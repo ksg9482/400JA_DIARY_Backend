@@ -10,11 +10,16 @@ if(envFound.error) {
 
 export default {
     //express port
-    port: Number(process.env.PORT),
+    port: Number(process.env.PORT) || 8080,
     domain: process.env.DOMAIN || 'localhost',
 
+    //prontend-Oauth 리다이렉트
+    prontendProtocol: process.env.PRONTEND_PROTOCOL,
+    prontendHost: process.env.PRONTEND_HOST,
+    prontendport: process.env.PRONTEND_PORT,
+
     //database
-    databaseURL: process.env.MONGODB_URI, //host로 이름바꾸는게 좋을지도?
+    databaseURL: process.env.MONGODB_URI,
     databaseUsername:process.env.MONGODB_USERNAME,
     databasePassword:process.env.MONGODB_PASSWORD,
     //jwt
@@ -42,9 +47,5 @@ export default {
     testDatabasePassword:process.env.TEST_MONGODB_PASSWORD,
 
     KAKAO_REST_API_KEY: process.env.KAKAO_REST_API_KEY,
-    KAKAO_REDIRECT_URI: process.env.KAKAO_REDIRECT_URI,
-
-    GOOGLE_CLIENTID:process.env.GOOGLE_CLIENTID,
-    GOOGLE_REDIRECT_URI:process.env.GOOGLE_REDIRECT_URI,
-    GOOGLE_CLIENT_SECRET:process.env.GOOGLE_CLIENT_SECRET
+    KAKAO_REDIRECT_URI: process.env.KAKAO_REDIRECT_URI
 }
