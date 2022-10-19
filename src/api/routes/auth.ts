@@ -13,7 +13,7 @@ const route = Router();
 //이거 적용하면 swagger도 바꿔야함
 const cookieOption: CookieOptions = {
   sameSite: 'none',
-  domain: '.bejewelled-scone-ecb41c.netlify.app',
+  domain: 'netlify.app',
   path: '/',
   secure: true,
   httpOnly: true,
@@ -183,7 +183,8 @@ export default (app: Router) => {
         const userServiceInstance = createUserInstance();
         const result = await userServiceInstance.login(email, password);
 
-
+        logger.debug('token', result.token);
+        logger.debug('cookieOption', cookieOption);
         return res.status(200).cookie('jwt', result.token, cookieOption).json({ user: result.user });
       } catch (error) {
         logger.error('error: %o', error);
