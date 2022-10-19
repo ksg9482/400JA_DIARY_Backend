@@ -1,4 +1,4 @@
-{
+{ "extends": "./tsconfig.paths.json",
   "compilerOptions": {
     "target": "es2017",
     "lib": ["es2017", "esnext.asynciterable"],
@@ -11,15 +11,11 @@
     "module": "commonjs",
     "pretty": true,
     "sourceMap": true,
-    "outDir": "./build",
+    "outDir": "./dist",
     "allowJs": true,
     "noEmit": false,
-    "esModuleInterop": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "esModuleInterop": true
   },
-  "include": ["./src/**/*", "./test/*", "swagger.js"],
+  "include": ["./src/**/*", "./test/*", "swagger.js","./*.json"],
   "exclude": ["node_modules", "tests"]
 }

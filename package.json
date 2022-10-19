@@ -4,8 +4,11 @@
   "description": "",
   "main": "src/app.ts",
   "scripts": {
-    "build": "tsc",
-    "start": "NODE_ENV=production nodemon",
+    "postinstall": "npm run build",
+    "build": "tsc -p tsconfig.json",
+    "prestart": "rm -rf ./dist && npm run build",
+    "start": "NODE_ENV=production node -r ./tsconfig-paths-bootstrap.js dist/src/app.js",
+    "start:prod": "NODE_ENV=production nodemon",
     "start:dev": "NODE_ENV=development nodemon",
     "inspect": "nodemon --inspect src/app.ts",
     "test": "clear && jest",
