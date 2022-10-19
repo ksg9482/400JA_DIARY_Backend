@@ -27,6 +27,9 @@ ___
 
 ___
 
+## API 명세
+[링크](https://project-400ja-diary.herokuapp.com/api-docs/)
+
 ## 디렉토리 구성
 * 모델
   * User - 유저 등록 정보, 소셜로그인 여부 구분

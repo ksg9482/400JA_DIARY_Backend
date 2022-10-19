@@ -38,10 +38,9 @@ export default class MailService {
             throw new Error("Bad email parametor");
         };
         const FRONTEND_HOST = config.frontendHost;
-        const FRONTEND_PORT = config.frontendport;
         const mailSubject = verifySubject
         const mailContent = '회원인증용 이메일입니다. 링크를 클릭해주세요 \n'
-        +`${FRONTEND_HOST}:${FRONTEND_PORT}/verify/code?code=${randomCode}`
+        +`${FRONTEND_HOST}/verify/code?code=${randomCode}`
        
         const result = await this.sendEmail(email, mailSubject, mailContent);
         

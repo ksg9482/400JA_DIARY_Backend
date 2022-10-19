@@ -7,7 +7,6 @@ export default {
 
     //prontend-Oauth 리다이렉트
     frontendHost: process.env.FRONTEND_HOST,
-    frontendport: process.env.FRONTEND_PORT,
 
     //database
     databaseURL: process.env.MONGODB_URI,
