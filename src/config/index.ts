@@ -10,16 +10,15 @@ if(envFound.error) {
 
 export default {
     //express port
-    port: Number(process.env.PORT) || 8080,
-    domain: process.env.DOMAIN || 'localhost',
+    port: Number(process.env.PORT),
 
     //prontend-Oauth 리다이렉트
-    prontendProtocol: process.env.PRONTEND_PROTOCOL,
-    prontendHost: process.env.PRONTEND_HOST,
-    prontendport: process.env.PRONTEND_PORT,
+    frontendHost: process.env.FRONTEND_HOST,
+    frontendport: process.env.FRONTEND_PORT,
 
     //database
     databaseURL: process.env.MONGODB_URI,
+    databaseURL_Prod: process.env.MONGODB_URI_PRODUCTION,
     databaseUsername:process.env.MONGODB_USERNAME,
     databasePassword:process.env.MONGODB_PASSWORD,
     //jwt
@@ -41,10 +40,6 @@ export default {
         apUserName:process.env.MAILGUN_FROMEMAIL,
         domain:process.env.MAILGUN_DOMAIN_NAME
     },
-
-    testDatabaseURL: process.env.TEST_MONGODB_URI,
-    testDatabaseUsername:process.env.TEST_MONGODB_USERNAME,
-    testDatabasePassword:process.env.TEST_MONGODB_PASSWORD,
 
     KAKAO_REST_API_KEY: process.env.KAKAO_REST_API_KEY,
     KAKAO_REDIRECT_URI: process.env.KAKAO_REDIRECT_URI

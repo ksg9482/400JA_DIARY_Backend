@@ -1,17 +1,10 @@
 import express from 'express';
 import config from '@/config';
 import Logger from '@/loaders/logger';
+
 export const startServer = async () => {
-    // process.env.NODE_ENV = 
-    // ( 
-    //     process.env.NODE_ENV 
-    //     && ( process.env.NODE_ENV ).trim().toLowerCase() == 'production' 
-    // ) 
-    // ? 'production' 
-    // : 'development';
-
     const app = express();
-
+    
     await require('./loaders').default({expressApp: app})
 
   

@@ -29,7 +29,7 @@ export default class AuthService {
   }
 
   public async kakaoOAuth(code: string): Promise<IOAuthResult> {
-    const kakaoHost = 'kauth.kakao.com';
+    const kakaoHost = 'https://kauth.kakao.com';
     const kakaoParametor = {
       clientid: config.KAKAO_REST_API_KEY,
       redirect_uri: config.KAKAO_REDIRECT_URI,
@@ -37,7 +37,7 @@ export default class AuthService {
 
     const getKakaoAccessToken = async (kakaoHost: string, kakaoParametor: { clientid: string, redirect_uri: string }, code: string) => {
       const kakaoToken = await axios.post(
-        `https://${kakaoHost}/oauth/token?grant_type=authorization_code`
+        `${kakaoHost}/oauth/token?grant_type=authorization_code`
         + `&clientid=${kakaoParametor.clientid}`
         + `&redirect_uri=${kakaoParametor.redirect_uri}`
         + `&code=${code}`,
@@ -65,8 +65,6 @@ export default class AuthService {
     };
 
     const setKakaoUserForm = (userData: KakaoUserData): IOAuthResult => {
-      //소셜로그인 시 사용자가 이메일 동의에 거부할 경우를 대비.
-      //아이디에 전송아이디를 넣고 그 아이디로 검색해야 해당하는 유저 나옴
       const userForm = {
         email: userData.email ? userData.email : '사용자' + userData.id,
         password: String(userData.id),
