@@ -8,13 +8,14 @@
     "emitDecoratorMetadata": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
     "module": "commonjs",
     "pretty": true,
     "sourceMap": true,
     "outDir": "./dist",
     "allowJs": true,
-    "noEmit": false,
-    "esModuleInterop": true
+    "noEmit": false
   },
   "include": ["./src/**/*", "./test/*", "swagger.js","./*.json"],
   "exclude": ["node_modules", "tests", "./src/**/*.spec.ts"]
