@@ -184,7 +184,7 @@ export default (app: Router) => {
         const result = await userServiceInstance.login(email, password);
 
 
-        return res.status(200).cookie('jwt', result.token).json({ user: result.user });
+        return res.status(200).cookie('jwt', result.token, cookieOption).json({ user: result.user });
       } catch (error) {
         logger.error('error: %o', error);
         const errorMessage = error.message;
@@ -385,7 +385,7 @@ export default (app: Router) => {
         //password는 id를 패스워드 삼았다
         const { user, token } = await userServiceInstance.oauthLogin(kakaoOAuth.email, kakaoOAuth.password, signupType.KAKAO);
 
-        return res.status(200).cookie('jwt', token).json({ user });
+        return res.status(200).cookie('jwt', token, cookieOption).json({ user });
       } catch (err) {
         logger.error('error: %o', err);
         err.message = 'Kakao Oauth fail';
@@ -451,7 +451,7 @@ export default (app: Router) => {
         const userServiceInstance = createUserInstance();
         const { user, token } = await userServiceInstance.oauthLogin(googleOAuth.email, googleOAuth.password, signupType.GOOGLE);
         
-        return res.status(200).cookie('jwt', token).json({ user });
+        return res.status(200).cookie('jwt', token, cookieOption).json({ user });
       } catch (err) {
         logger.error('error: %o', err);
         err.message = 'Google Oauth fail';
