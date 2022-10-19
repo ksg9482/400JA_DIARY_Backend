@@ -13,7 +13,7 @@ const route = Router();
 //이거 적용하면 swagger도 바꿔야함
 const cookieOption: CookieOptions = {
   sameSite: 'none',
-  domain: 'localhost',
+  domain: '.bejewelled-scone-ecb41c.netlify.app',
   path: '/',
   secure: true,
   httpOnly: true,
