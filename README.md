@@ -20,7 +20,6 @@ ___
 ### 기술 스택
 * Node.Js, Express
 * mongoDB(mongoose)
-* Nginx
 * Docker
 * Jest
 * Swagger
