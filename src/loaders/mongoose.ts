@@ -8,6 +8,6 @@ export default async (): Promise<Db> => {
 
   const connectionString = `mongodb://${batabaseUsername}:${databasePassword}@${config.databaseURL}`;
   
-  const connection = await connect(process.env.NODE_ENV === 'production' ? config.databaseURL_Prod : connectionString);
+  const connection = await connect(connectionString);
   return connection.connection.db;
 };
