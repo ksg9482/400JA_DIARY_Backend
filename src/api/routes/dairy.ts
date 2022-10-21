@@ -56,7 +56,8 @@ export default (app: Router) => {
         celebrate({
             body: Joi.object({
                 subject: Joi.string().max(30),
-                content: Joi.string().max(400).required()
+                content: Joi.string().max(400).required(),
+                token:Joi.string()
             })
         }),
         async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
@@ -120,7 +121,7 @@ export default (app: Router) => {
     *        "500":
     *          description: 서버 에러
     */
-    route.get('/', async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
+    route.post('/getDiary', async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
         try {
             const userId = req.currentUser.id;
             const diaryServiceInstance = createDiaryInstance();
@@ -190,7 +191,8 @@ export default (app: Router) => {
     route.post('/nextdiary',
         celebrate({
             body: Joi.object({
-                lastDiaryId: Joi.string()
+                lastDiaryId: Joi.string(),
+                token:Joi.string()
             })
         }),
         async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
@@ -262,7 +264,7 @@ export default (app: Router) => {
     *        "500":
     *          description: 서버 에러
     */
-    route.get('/search/keyword', async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
+    route.post('/search/keyword', async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
         try {
             // diary/search/keyword?keyword=XXXX
             const userId = req.currentUser.id;
@@ -332,7 +334,7 @@ export default (app: Router) => {
     *        "500":
     *          description: 서버 에러
     */
-    route.get('/search/date', async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
+    route.post('/search/date', async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
         try {
             // diary/search/date?date=2022-08-09
             const userId = req.currentUser.id;

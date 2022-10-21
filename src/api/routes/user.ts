@@ -51,7 +51,7 @@ export default (app: Router) => {
      *        "500":
      *          description: 서버 에러
      */
-    route.get('/me', async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
+    route.post('/getMe', async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
         try {
             const userId = req.currentUser.id;
 
@@ -113,6 +113,7 @@ export default (app: Router) => {
             body: Joi.object({
                 password: Joi.string().required(),
                 passwordChange: Joi.string().required(),
+                token:Joi.string()
             })
         }),
         async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
@@ -167,7 +168,7 @@ export default (app: Router) => {
     *        "500":
     *          description: 서버 에러
     */
-    route.delete('/',
+    route.post('/delete',
         async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
             try {
                 const userId: string = req.currentUser.id;
@@ -216,7 +217,7 @@ export default (app: Router) => {
     route.post('/valid',
         celebrate({
             body: Joi.object({
-                password: Joi.string().required(),
+                password: Joi.string().required()
             })
         }),
         async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
@@ -271,7 +272,7 @@ export default (app: Router) => {
     *                type: string
     *                example: 'jwt=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT' 
     */
-    route.get('/logout', async (req: AttachCurrentUserRequest, res: Response) => {
+    route.post('/logout', async (req: AttachCurrentUserRequest, res: Response) => {
         return res.clearCookie('jwt').json({ message: 'logout' })
     })
 };

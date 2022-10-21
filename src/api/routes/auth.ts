@@ -17,6 +17,7 @@ const cookieOption: CookieOptions = {
   path: '/',
   secure: true,
   httpOnly: true,
+  maxAge:60*60*24*1 //1일
 };
 
 export default (app: Router) => {
@@ -185,7 +186,7 @@ export default (app: Router) => {
 
         logger.debug('token', result.token);
         logger.debug('cookieOption', cookieOption);
-        return res.status(200).cookie('jwt', result.token, cookieOption).json({ user: result.user });
+        return res.status(200).cookie('jwt', result.token, cookieOption).json({ user: result.user, token:result.token });
       } catch (error) {
         logger.error('error: %o', error);
         const errorMessage = error.message;
@@ -386,7 +387,7 @@ export default (app: Router) => {
         //password는 id를 패스워드 삼았다
         const { user, token } = await userServiceInstance.oauthLogin(kakaoOAuth.email, kakaoOAuth.password, signupType.KAKAO);
 
-        return res.status(200).cookie('jwt', token, cookieOption).json({ user });
+        return res.status(200).cookie('jwt', token, cookieOption).json({ user, token });
       } catch (err) {
         logger.error('error: %o', err);
         err.message = 'Kakao Oauth fail';
@@ -452,7 +453,7 @@ export default (app: Router) => {
         const userServiceInstance = createUserInstance();
         const { user, token } = await userServiceInstance.oauthLogin(googleOAuth.email, googleOAuth.password, signupType.GOOGLE);
         
-        return res.status(200).cookie('jwt', token, cookieOption).json({ user });
+        return res.status(200).cookie('jwt', token, cookieOption).json({ user, token });
       } catch (err) {
         logger.error('error: %o', err);
         err.message = 'Google Oauth fail';

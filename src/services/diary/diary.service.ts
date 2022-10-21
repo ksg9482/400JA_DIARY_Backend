@@ -160,13 +160,13 @@ export default class DiaryService {
             throw new Error('Bad targetDate parametor');
         };
         const getDiaryRecord = async (userId: string, targetDate: string) => {
+            const nowDate = new Date(targetDate+'T23:59:59.000Z');
             const diaryRecord = await this.diaryModel.find({ userId: userId })
-                    .lte('createdAt', new Date(targetDate))
+                    .lte('createdAt', nowDate)
                     .sort({ createdAt: -1 });
                 if (!diaryRecord) {
                     throw new Error('Get diary fail');
                 }
-
                 if (diaryRecord.length <= 0) {
                     return []
                 }
