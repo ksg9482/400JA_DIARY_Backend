@@ -6,7 +6,6 @@ export default class HashUtil {
     return await bcrypt.hash(password, salt);
   };
 
-//db에 저장된 비밀번호랑 들어온 비밀번호랑 비교해야함
   public async checkPassword(password: string, hashedPassword: string):Promise<boolean> {
     return await bcrypt.compare(password, hashedPassword)
   };

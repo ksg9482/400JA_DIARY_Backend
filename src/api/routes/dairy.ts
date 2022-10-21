@@ -336,9 +336,9 @@ export default (app: Router) => {
         try {
             // diary/search/date?date=2022-08-09
             const userId = req.currentUser.id;
-            //2022-08-09 형식
+           
             const targetDate = req.query?.date ? String(req.query.date) : '';
-            //split하고 객체 만드는 거 함수로 묶기
+          
 
             const targetDateSplit = targetDate.split('-')
             const targetDateObj = {

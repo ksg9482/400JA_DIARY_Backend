@@ -1,6 +1,6 @@
 import { Logger } from 'winston';
 import axios from 'axios';
-import config from '@/config'; //@로 표기했었음. jest오류
+import config from '@/config';
 import JwtUtil from '@/services/utils/jwtUtils';
 import CommonUtils from '@/services/utils/commonUtils';
 interface IOAuthResult {
@@ -21,7 +21,7 @@ export default class AuthService {
   logger: Logger;
   jwt: JwtUtil;
   common: CommonUtils;
-  //global과 namespace 사용. model로 선언해서 monguuse메서드 사용
+  
   constructor(logger: Logger, jwt: JwtUtil, common: CommonUtils) {
     this.logger = logger;
     this.jwt = jwt;
@@ -50,7 +50,6 @@ export default class AuthService {
 
     const getKakaoUserData = async (accessToken: string): Promise<KakaoUserData> => {
       const getUserInfo = await axios.get(
-        // access token로 유저정보 요청
         'https://kapi.kakao.com/v2/user/me',
         {
           headers: {

@@ -6,7 +6,6 @@ import UserService from "./user.service";
 
 describe('UserService', () => {
     let service: UserService;
-    //let jwtService: JwtService;
 
     beforeEach(() => {
         service = new UserService(User, logger, new JwtUtil, new HashUtil)

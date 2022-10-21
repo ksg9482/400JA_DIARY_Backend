@@ -3,7 +3,6 @@ import { User } from "@/interfaces/User";
 import { Mail } from "@/interfaces/Mail";
 import { Model } from "mongoose";
 
-//mongoose 모델 설정
 declare global {
     namespace Models {
         export type UserModel = Model<User>;

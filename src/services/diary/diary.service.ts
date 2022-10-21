@@ -6,7 +6,6 @@ export default class DiaryService {
     diaryModel: Models.DiaryModel;
     logger: Logger;
 
-    //global과 namespace 사용. model로 선언해서 monguuse메서드 사용
     constructor(diaryModel: Models.DiaryModel, logger: Logger) {
         this.diaryModel = diaryModel;
         this.logger = logger;
@@ -83,7 +82,7 @@ export default class DiaryService {
                     .limit(7)
                     .sort({ createdAt: -1 });
 
-                if (!diaryRecord) { //500
+                if (!diaryRecord) { 
                     throw new Error('Get diary fail');
                 };
 
@@ -113,7 +112,7 @@ export default class DiaryService {
                     .limit(7)
                     .sort({ createdAt: -1 });
                     
-                if (!diaryRecord) { //500
+                if (!diaryRecord) { 
                     throw new Error('Get diary fail')
                 };
 
@@ -141,7 +140,7 @@ export default class DiaryService {
                     ])
                     .sort({ createdAt: -1 });
 
-                if (!diaryRecord) { //500
+                if (!diaryRecord) { 
                     throw new Error('Get diary fail');
                 };
 
