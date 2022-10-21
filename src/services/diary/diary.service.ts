@@ -161,7 +161,7 @@ export default class DiaryService {
         };
         const getDiaryRecord = async (userId: string, targetDate: string) => {
             const diaryRecord = await this.diaryModel.find({ userId: userId })
-                    .lte('createdAt', new Date(targetDate))
+                    .lte('createdAt', new Date(targetDate+'T23:59:59.000Z'))
                     .sort({ createdAt: -1 });
                 if (!diaryRecord) {
                     throw new Error('Get diary fail');
