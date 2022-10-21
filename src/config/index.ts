@@ -10,9 +10,7 @@ export default {
 
     //database
     databaseURL: process.env.MONGODB_URI,
-    databaseURL_Prod: process.env.MONGODB_URI_PRODUCTION,
-    databaseUsername:process.env.MONGODB_USERNAME,
-    databasePassword:process.env.MONGODB_PASSWORD,
+    
     //jwt
     jwtSecret: process.env.JWT_SECRET,
 

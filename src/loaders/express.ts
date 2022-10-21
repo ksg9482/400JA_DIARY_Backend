@@ -23,12 +23,11 @@ export default ({app}:{app: express.Application}) => {
     const swaggerSpec = swaggerJSDoc(swaggerOptions);
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec,{explorer:true}));
    
-    const whiteList = ['http://localhost:3000', 'https://bejewelled-scone-ecb41c.netlify.app'];
     const corsMethods = ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'];
     app.use(
         cors(
         {
-            origin:whiteList,
+            origin:'http://localhost:3000',
             credentials:true,
             methods:corsMethods
         }
