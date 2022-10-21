@@ -9,7 +9,17 @@ import swaggerJSDoc from 'swagger-jsdoc';
 export default ({app}:{app: express.Application}) => {
     //헬스체크 엔드포인트 넣기
 
-
+    app.all("*", function (req, res, next) {
+        console.log(req.get("Origin"))
+        if (!req.get("Origin")) return next();
+        // res.set("Access-Control-Allow-Origin", "*");
+        // res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, PATCH");
+        // res.set(
+        //   "Access-Control-Allow-Headers",
+        //   "X-Requested-With,Content-Type,x-auth-token"
+        // );
+        next();
+      });
     //연결 확인용
     app.get('/status', (req, res) => {
         res.status(200).json({message:'connect'});
