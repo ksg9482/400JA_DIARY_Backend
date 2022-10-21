@@ -10,7 +10,6 @@ import { createMailInstance } from '@/services/mail/mail.factory';
 
 const route = Router();
 
-//이거 적용하면 swagger도 바꿔야함
 const cookieOption: CookieOptions = {
   sameSite: 'none',
   domain: 'netlify.app',
@@ -78,7 +77,7 @@ export default (app: Router) => {
   */
   route.post(
     '/signup',
-    // api prefix로 인해 /api/auth/signup로 들어감. api접두사 없애려면 config 설정에서.
+    
     celebrate({
       body: Joi.object({
         email: Joi.string().required(),
@@ -168,7 +167,6 @@ export default (app: Router) => {
   */
   route.post(
     '/login',
-    // api prefix로 인해 /api/auth/signup로 들어감. api접두사 없애려면 config 설정에서.
     celebrate({
       body: Joi.object({
         email: Joi.string().required(),
@@ -311,7 +309,7 @@ export default (app: Router) => {
   *        "500":
   *          description: 서버 에러
   */  
-  route.get('/verify/code', //code를 받는데서부터
+  route.get('/verify/code', 
     async (req: Request, res: Response, next: NextFunction) => {
       logger.debug('Calling Login endpoint with body: %o', req.body);
       try {
@@ -319,7 +317,7 @@ export default (app: Router) => {
         const code = req.query?.code ? String(req.query.code) : '';
         const mailServiceInstance = createMailInstance();
         const userServiceInstance = createUserInstance();
-        const {email} = await mailServiceInstance.emailValidCheck(code); //이메일이 있다 OR 없다
+        const {email} = await mailServiceInstance.emailValidCheck(code); 
         const {id: userId} = await userServiceInstance.findUserByEmail(email);
         const tempPassword = await userServiceInstance.changeTempPassword(userId);
         const result = await mailServiceInstance.sendTempPassword(email, tempPassword);
@@ -378,12 +376,12 @@ export default (app: Router) => {
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const code = req.query?.code ? String(req.query.code) : ''
-        //클라이언트 단에서 전송한 코드로 카카오 인증 -> 유저 정보 리턴
+        
         const authServiceInstance = createAuthInstance();
         const kakaoOAuth = await authServiceInstance.kakaoOAuth(code);
 
         const userServiceInstance = createUserInstance();
-        //password는 id를 패스워드 삼았다
+        
         const { user, token } = await userServiceInstance.oauthLogin(kakaoOAuth.email, kakaoOAuth.password, signupType.KAKAO);
 
         return res.status(200).cookie('jwt', token, cookieOption).json({ user });
@@ -445,7 +443,7 @@ export default (app: Router) => {
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { accessToken } = req.body;
-        //클라이언트 단에서 전송한 코드로 카카오 인증 -> 유저 정보 리턴
+        
         const authServiceInstance = createAuthInstance();
         const googleOAuth = await authServiceInstance.googleOAuth(accessToken);
 
