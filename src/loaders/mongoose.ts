@@ -3,11 +3,8 @@ import { Db } from 'mongodb';
 import config from '@/config';
 
 export default async (): Promise<Db> => {
-  const batabaseUsername = config.databaseUsername;
-  const databasePassword = config.databasePassword;
-
-  const connectionString = `mongodb://${batabaseUsername}:${databasePassword}@${config.databaseURL}`;
   
-  const connection = await connect(connectionString);
+
+  const connection = await connect(config.databaseURL);
   return connection.connection.db;
 };
