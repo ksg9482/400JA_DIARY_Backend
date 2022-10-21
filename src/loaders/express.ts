@@ -38,7 +38,7 @@ export default ({app}:{app: express.Application}) => {
     app.use(
         cors(
         {
-            origin:'*',
+            origin:'https://bejewelled-scone-ecb41c.netlify.app',
             credentials:true,
             methods:corsMethods
         }
