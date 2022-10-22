@@ -48,6 +48,12 @@ ___
   * attachCurrentUser - 로그인한 유저의 요청에서 JWT를 유저정보로 전환하여 전달
 ___
 
+## 미리보기
+![로그인](https://user-images.githubusercontent.com/83062886/197341642-a64f437a-197d-41d5-be8e-57337cc71d22.jpg)
+![일기 페이지](https://user-images.githubusercontent.com/83062886/197341651-0e7634b2-e449-4837-80d7-7c94eb1273b2.jpg)
+![마이페이지](https://user-images.githubusercontent.com/83062886/197341658-b70442f6-2fc9-483e-a4a5-bd937ee2610d.jpg)
+___
+
 ### 도커 컴포즈
 sudo user=root pass=pass env=.env docker-compose up -d
 
