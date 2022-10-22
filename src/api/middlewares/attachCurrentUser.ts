@@ -19,7 +19,7 @@ const attachCurrentUser = async (req: AttachCurrentUserRequest, res: Response, n
         const verifyToken = jwt.prototype.verifyToken(getToken(req));
         
         const userRecord = await User.findById(verifyToken['id']);
-        //
+        
         if (!userRecord) {
             throw new Error('AttachCurrentUser error');
         };
