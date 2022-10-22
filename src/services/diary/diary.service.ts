@@ -108,7 +108,7 @@ export default class DiaryService {
                     .find()
                     .and([
                         { userId: userId },
-                        { 'id': { '$lt': lastDiaryId } }
+                        { '_id': { '$lt': lastDiaryId } }
                     ])
                     .limit(7)
                     .sort({ createdAt: -1 });
