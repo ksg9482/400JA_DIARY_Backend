@@ -9,6 +9,10 @@ const attachCurrentUser = async (req: AttachCurrentUserRequest, res: Response, n
     try {
         const getToken = (req: AttachCurrentUserRequest) => {
             const token = req.headers.cookie?.split('=')[1];
+            if(req.headers['jwt']){
+                console.log(req.headers['jwt'])
+                return typeof req.headers['jwt'] === 'string' ? req.headers['jwt'] : undefined
+            }
             return typeof token === 'string' ? token : undefined
         };
 

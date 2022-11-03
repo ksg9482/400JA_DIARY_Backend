@@ -181,7 +181,7 @@ export default (app: Router) => {
         const userServiceInstance = createUserInstance();
         const result = await userServiceInstance.login(email, password);
 
-        return res.status(200).cookie('jwt', result.token).json({ user: result.user });
+        return res.status(200).cookie('jwt', result.token).json({ user: result.user, token:result.token });
       } catch (error) {
         logger.error('error: %o', error);
         const errorMessage = error.message;
