@@ -5,6 +5,8 @@
 다양한 일기 웹/ 앱이 있지만 있는걸 그냥 사용하는 것 보다는 직접 만들어 보면서 필요한 기능을 구현하자는 생각에 기획하게 되었습니다.
 처음에는 단순한 기능만 넣어서 개발할 생각이며 이는 새로운 기술 스택이 여러개 추가되는데 괜히 처음부터 대규모로 만들면 오류만 커진다고 판단했기 때문입니다.
 
+[배포](https://bejewelled-scone-ecb41c.netlify.app/)
+
 ___
 
 ## 백엔드
@@ -46,6 +48,12 @@ ___
   * Util - 공통으로 사용되는 기능
 * 미들웨어
   * attachCurrentUser - 로그인한 유저의 요청에서 JWT를 유저정보로 전환하여 전달
+___
+
+## 미리보기
+![로그인](https://user-images.githubusercontent.com/83062886/197341642-a64f437a-197d-41d5-be8e-57337cc71d22.jpg)
+![일기 페이지](https://user-images.githubusercontent.com/83062886/197341651-0e7634b2-e449-4837-80d7-7c94eb1273b2.jpg)
+![마이페이지](https://user-images.githubusercontent.com/83062886/197341658-b70442f6-2fc9-483e-a4a5-bd937ee2610d.jpg)
 ___
 
 ### 도커 컴포즈

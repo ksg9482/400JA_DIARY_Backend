@@ -7,9 +7,6 @@ import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 export default ({app}:{app: express.Application}) => {
-    //헬스체크 엔드포인트 넣기
-
-
     //연결 확인용
     app.get('/status', (req, res) => {
         res.status(200).json({message:'connect'});
@@ -23,12 +20,11 @@ export default ({app}:{app: express.Application}) => {
     const swaggerSpec = swaggerJSDoc(swaggerOptions);
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec,{explorer:true}));
    
-    const whiteList = ['http://localhost:3000', 'https://bejewelled-scone-ecb41c.netlify.app'];
     const corsMethods = ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'];
     app.use(
         cors(
         {
-            origin:whiteList,
+            origin:'http://localhost:3000',
             credentials:true,
             methods:corsMethods
         }

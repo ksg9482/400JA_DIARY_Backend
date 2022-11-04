@@ -6,7 +6,6 @@ export default class DiaryService {
     diaryModel: Models.DiaryModel;
     logger: Logger;
 
-    //global과 namespace 사용. model로 선언해서 monguuse메서드 사용
     constructor(diaryModel: Models.DiaryModel, logger: Logger) {
         this.diaryModel = diaryModel;
         this.logger = logger;
@@ -83,7 +82,7 @@ export default class DiaryService {
                     .limit(7)
                     .sort({ createdAt: -1 });
 
-                if (!diaryRecord) { //500
+                if (!diaryRecord) { 
                     throw new Error('Get diary fail');
                 };
 
@@ -108,12 +107,12 @@ export default class DiaryService {
                     .find()
                     .and([
                         { userId: userId },
-                        { 'id': { '$lt': lastDiaryId } }
+                        { '_id': { '$lt': lastDiaryId } }
                     ])
                     .limit(7)
                     .sort({ createdAt: -1 });
-                    
-                if (!diaryRecord) { //500
+            
+                if (!diaryRecord) { 
                     throw new Error('Get diary fail')
                 };
 
@@ -141,10 +140,10 @@ export default class DiaryService {
                     ])
                     .sort({ createdAt: -1 });
 
-                if (!diaryRecord) { //500
+                if (!diaryRecord) { 
                     throw new Error('Get diary fail');
                 };
-
+                console.log(diaryRecord)
                 return diaryRecord;
         };
         const diarys = (await getDiaryRecord(userId, keyword)).map(this.setDiaryForm);
@@ -161,7 +160,7 @@ export default class DiaryService {
         };
         const getDiaryRecord = async (userId: string, targetDate: string) => {
             const diaryRecord = await this.diaryModel.find({ userId: userId })
-                    .lte('createdAt', new Date(targetDate))
+                    .lte('createdAt', new Date(targetDate+'T23:59:59.000Z'))
                     .sort({ createdAt: -1 });
                 if (!diaryRecord) {
                     throw new Error('Get diary fail');

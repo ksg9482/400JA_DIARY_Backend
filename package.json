@@ -82,14 +82,13 @@
   },
   "jest": {
     "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/$1"
+      "^@/(.*)$": "<rootDir>/src/$1"
     },
     "moduleFileExtensions": [
       "js",
       "json",
       "ts"
     ],
-    "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "preset": "ts-jest",
     "transform": {

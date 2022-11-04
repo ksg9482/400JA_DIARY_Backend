@@ -33,7 +33,7 @@ export default class MailService {
         }
         return true
     }
-    public async sendUserValidEmail(email:string, randomCode:string) { //findPassword에서 인증메일 보내기
+    public async sendUserValidEmail(email:string, randomCode:string) {
         if (!email) {
             throw new Error("Bad email parametor");
         };
@@ -48,8 +48,8 @@ export default class MailService {
 
     };
 
-    public async saveValidCode(email:string, code:string) { //findPassword에서 인증메일 보내기
-        const saveCode = async (email:string, code:string) => { //object or null
+    public async saveValidCode(email:string, code:string) { 
+        const saveCode = async (email:string, code:string) => { 
             const mailRecord: HydratedDocument<Mail> = new this.mailModel(
                 {
                     email: email,

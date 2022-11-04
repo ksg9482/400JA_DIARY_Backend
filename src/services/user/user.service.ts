@@ -1,5 +1,5 @@
-import { User, UserBase as UserInputDTO, UserWithToken } from '@/interfaces/User';
-import { Logger } from 'winston'; //@로 표기했었음. jest오류
+import { User, UserReturnForm, UserInputDTO, UserOutputDTO, UserWithToken } from '@/interfaces/User';
+import { Logger } from 'winston'; 
 import JwtUtil from '@/services/utils/jwtUtils';
 import HashUtil from "@/services/utils/hashUtils";
 import { HydratedDocument } from 'mongoose';
@@ -9,7 +9,7 @@ export default class UserService {
     logger: Logger;
     jwt: JwtUtil;
     hashUtil: HashUtil
-    //global과 namespace 사용. model로 선언해서 monguuse메서드 사용
+    
     constructor(userModel: Models.UserModel, logger: Logger, jwt: JwtUtil, hashUtil: HashUtil) {
         this.userModel = userModel;
         this.logger = logger;
@@ -24,17 +24,13 @@ export default class UserService {
         if (!userInputDTO.password) {
             throw new Error("Bad password parametor");
         }
-        //중복 체크
+       
+        
         const userCheck = await this.userModel.findOne({ email: userInputDTO.email });
         if (userCheck) {
             throw new Error('Email Already Exists');
         }
-
-        this.logger.silly('Hashing password');
-        //const hashedPassword = await this.hashUtil.hashPassword(userInputDTO.password);
-
         this.logger.silly('Creating user db record');
-        //const oauthTypeInput = oauthType ? oauthType : 'BASIC'
         const userRecord: HydratedDocument<User> = new this.userModel(
             {
                 ...userInputDTO,
@@ -47,16 +43,10 @@ export default class UserService {
         };
         
         this.logger.silly('Sending welcome email');
-        // 여기에 메일러로 월컴 이메일 보내는 로직
-
-        // 이벤트 디스페처
-        // this.eventDispatcher.dispatch(events.user.signUp, { user: userRecord });
-
-        //회원가입에서도 토큰을 발급하는 이유는 소셜로그인으로 가입했을 경우 바로 토큰을 보내주기 위함
         const token = this.jwt.generateToken(userRecord);
 
         const user = this.setUserForm(userRecord);
-        return { user, token };
+        return { user, token }; //Oauth로그인이 이 token 이용
     };
 
     public async login(email: string, password: string): Promise<UserWithToken> {
@@ -88,20 +78,20 @@ export default class UserService {
 
     };
 
-    public async findById(id: string): Promise<User> { //me
+    public async findById(id: string): Promise<UserOutputDTO> { //me
         const userRecord = await this.userModel.findById(id);
-
         if (!userRecord) {
             throw new Error('User not registered');
         };
-
-        return { id: userRecord.id, email: userRecord.email, role: userRecord.role, type: userRecord.type }
+        
+        Reflect.deleteProperty(userRecord, 'password');
+        return userRecord
     };
 
     public async passwordChange(id: string, passwordChange: string): Promise<{ message: string }> {
         if (!passwordChange) {
             throw new Error('No Password');
-        }; // length로 보는게 좋을지도? 아니면 검증함수 만들기
+        }; 
 
         let userRecord = await this.userModel.findById(id);
         if (!userRecord) {
@@ -139,17 +129,14 @@ export default class UserService {
         return userRecord;
     };
 
-    /**
-     * 
-     * @returns 임의의 8자리 숫자로 생성된 문자열
-     */
+    
     public async changeTempPassword(id: any): Promise<string> {
         const randomPassword = String(Math.round(Math.random() * 100000000));
 
-        let userRecord = await this.userModel.findById(id); //깊은 복사로 수정해야함
+        let userRecord = await this.userModel.findById(id); 
         userRecord.password = randomPassword;
 
-        //실패할경우 임시비밀번호 발급 안되고 500에러
+        
         const changePassword = await userRecord.save();
         if (changePassword.errors) {
             throw new Error('Change password fail');
@@ -172,7 +159,7 @@ export default class UserService {
         };
     };
 
-    protected setUserForm(userRecord: any): any {
+    protected setUserForm(userRecord: any): UserReturnForm {
         const userRecordCopy = { ...userRecord['_doc'] };
         if (userRecordCopy.password) {
             Reflect.deleteProperty(userRecordCopy, 'password');

@@ -6,7 +6,6 @@ import UserService from "./user.service";
 
 describe('UserService', () => {
     let service: UserService;
-    //let jwtService: JwtService;
 
     beforeEach(() => {
         service = new UserService(User, logger, new JwtUtil, new HashUtil)
@@ -209,7 +208,7 @@ describe('UserService', () => {
         it('올바른 userId면 id와 email과 role을 반환해야 한다.', async () => {
             User.findById = jest.fn().mockResolvedValue({ ...validUserData })
             const result = await service.findById(validUserData.id);
-
+            
             expect(User.findById).toHaveBeenCalledTimes(1);
             expect(User.findById).toHaveBeenCalledWith(validUserData.id);
             expect(result.id).toEqual(validUserData.id);
