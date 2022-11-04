@@ -1,4 +1,4 @@
-import { UserBase as UserInputDTO } from '@/interfaces/User';
+import { UserInputDTO } from '@/interfaces/User';
 import { celebrate, Joi } from 'celebrate';
 import { CookieOptions, NextFunction, Request, Response, Router } from 'express';
 import logger from '@/loaders/logger';
@@ -382,7 +382,7 @@ export default (app: Router) => {
         
         const { user, token } = await userServiceInstance.oauthLogin(kakaoOAuth.email, kakaoOAuth.password, signupType.KAKAO);
 
-        return res.status(200).cookie('jwt', token).json({ user });
+        return res.status(200).json({ user, token });
       } catch (err) {
         logger.error('error: %o', err);
         err.message = 'Kakao Oauth fail';
@@ -448,7 +448,7 @@ export default (app: Router) => {
         const userServiceInstance = createUserInstance();
         const { user, token } = await userServiceInstance.oauthLogin(googleOAuth.email, googleOAuth.password, signupType.GOOGLE);
         
-        return res.status(200).cookie('jwt', token).json({ user });
+        return res.status(200).json({ user, token });
       } catch (err) {
         logger.error('error: %o', err);
         err.message = 'Google Oauth fail';

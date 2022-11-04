@@ -66,7 +66,7 @@ describe('DiaryService', () => {
             expect(result).toEqual({ message: 'Diary update' });
         });
 
-        //이거 제목 뜯어볼 방법 필요
+       
         it("subject의 길이가 0이면 제목이 ''이여야 한다.", async () => {
 
             Diary.findOne = jest.fn().mockReturnValue({
