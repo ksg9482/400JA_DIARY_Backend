@@ -1,4 +1,4 @@
-import { User, UserBase as UserInputDTO, UserWithToken } from '@/interfaces/User';
+import { User, UserReturnForm, UserInputDTO, UserOutputDTO, UserWithToken } from '@/interfaces/User';
 import { Logger } from 'winston'; 
 import JwtUtil from '@/services/utils/jwtUtils';
 import HashUtil from "@/services/utils/hashUtils";
@@ -78,14 +78,14 @@ export default class UserService {
 
     };
 
-    public async findById(id: string): Promise<User> { //me
+    public async findById(id: string): Promise<UserOutputDTO> { //me
         const userRecord = await this.userModel.findById(id);
-
         if (!userRecord) {
             throw new Error('User not registered');
         };
-
-        return { id: userRecord.id, email: userRecord.email, role: userRecord.role, type: userRecord.type }
+        
+        Reflect.deleteProperty(userRecord, 'password');
+        return userRecord
     };
 
     public async passwordChange(id: string, passwordChange: string): Promise<{ message: string }> {
@@ -159,7 +159,7 @@ export default class UserService {
         };
     };
 
-    protected setUserForm(userRecord: any): any {
+    protected setUserForm(userRecord: any): UserReturnForm {
         const userRecordCopy = { ...userRecord['_doc'] };
         if (userRecordCopy.password) {
             Reflect.deleteProperty(userRecordCopy, 'password');
