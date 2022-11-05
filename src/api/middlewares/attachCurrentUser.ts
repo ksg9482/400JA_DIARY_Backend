@@ -5,15 +5,17 @@ import { NextFunction, Response } from "express";
 import jwt from "@/services/utils/jwtUtils"
 
 const attachCurrentUser = async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
+    enum AuthorizationType {
+        Bearer = 'Bearer'
+    }
     try {
         const getToken = (req: AttachCurrentUserRequest) => {
-            //const token = req.headers.cookie?.split('=')[1];
-            const token = req.headers['jwt'] ? req.headers['jwt'] : undefined;
-            // if(req.headers['jwt']){
-            //     console.log(req.headers['jwt'])
-            //     return typeof req.headers['jwt'] === 'string' ? req.headers['jwt'] : undefined
-            // }
-            return typeof token === 'string' ? token : undefined
+            const authorization = req.headers.authorization.split(' ') || "";
+            const type = authorization[0]; //enum으로 지정해도 좋을듯?
+            if(type === AuthorizationType.Bearer) {
+                const token = authorization[1];
+                return token;
+            }
         };
 
         if(!getToken(req)){
