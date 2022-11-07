@@ -1,5 +1,3 @@
-
-
 export interface User {
   id: string;
   email: string;
@@ -16,6 +14,7 @@ export interface UserReturnForm extends Pick<User, "id" | "email" | "type"> {}
 
 export interface UserWithToken {
   user:UserReturnForm;
-  token:string;
+  accessToken:string;
+  refreshToken:string;
 }
 

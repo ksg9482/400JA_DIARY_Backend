@@ -5,17 +5,20 @@ import { NextFunction, Response } from "express";
 import jwt from "@/services/utils/jwtUtils"
 
 const attachCurrentUser = async (req: AttachCurrentUserRequest, res: Response, next: NextFunction) => {
+    enum AuthorizationType {
+        Bearer = 'Bearer'
+    }
+    
+    
+    const getToken = (req: AttachCurrentUserRequest) => {
+        const authorization = req.headers.authorization.split(' ');
+        const type = authorization[0];
+        const accessToken = authorization[1];
+        if(type === AuthorizationType.Bearer) {
+            return accessToken;
+        }
+    };
     try {
-        const getToken = (req: AttachCurrentUserRequest) => {
-            //const token = req.headers.cookie?.split('=')[1];
-            const token = req.headers['jwt'] ? req.headers['jwt'] : undefined;
-            // if(req.headers['jwt']){
-            //     console.log(req.headers['jwt'])
-            //     return typeof req.headers['jwt'] === 'string' ? req.headers['jwt'] : undefined
-            // }
-            return typeof token === 'string' ? token : undefined
-        };
-
         if(!getToken(req)){
             throw new Error('No Token');
         };
@@ -38,6 +41,10 @@ const attachCurrentUser = async (req: AttachCurrentUserRequest, res: Response, n
         req.currentUser = currentUser;
         return next();
     } catch (error) {
+        if(error.name === 'TokenExpiredError') {
+            return res.status(403).json({error:"expire_token"})
+        }
+        
         logger.error('Error attaching user to req: %o', error);
         return next(error);
     }

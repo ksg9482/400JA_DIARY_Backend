@@ -143,7 +143,6 @@ export default class DiaryService {
                 if (!diaryRecord) { 
                     throw new Error('Get diary fail');
                 };
-                console.log(diaryRecord)
                 return diaryRecord;
         };
         const diarys = (await getDiaryRecord(userId, keyword)).map(this.setDiaryForm);
