@@ -1,5 +1,5 @@
 import { User, UserReturnForm, UserInputDTO, UserOutputDTO, UserWithToken } from '@/interfaces/User';
-import { Logger } from 'winston'; 
+import { Logger } from 'winston';
 import JwtUtil from '@/services/utils/jwtUtils';
 import HashUtil from "@/services/utils/hashUtils";
 import { HydratedDocument } from 'mongoose';
@@ -9,7 +9,7 @@ export default class UserService {
     logger: Logger;
     jwt: JwtUtil;
     hashUtil: HashUtil
-    
+
     constructor(userModel: Models.UserModel, logger: Logger, jwt: JwtUtil, hashUtil: HashUtil) {
         this.userModel = userModel;
         this.logger = logger;
@@ -24,8 +24,8 @@ export default class UserService {
         if (!userInputDTO.password) {
             throw new Error("Bad password parametor");
         }
-       
-        
+
+
         const userCheck = await this.userModel.findOne({ email: userInputDTO.email });
         if (userCheck) {
             throw new Error('Email Already Exists');
@@ -41,12 +41,13 @@ export default class UserService {
         if (userSave.errors) {
             throw new Error('Create User Account Fail');
         };
-        
+
         this.logger.silly('Sending welcome email');
-        const token = this.jwt.generateToken(userRecord);
+        const accessToken = this.jwt.generateToken(userRecord);
+        const refreshToken = this.jwt.refreshToken(userRecord);
 
         const user = this.setUserForm(userRecord);
-        return { user, token }; //Oauth로그인이 이 token 이용
+        return { user, accessToken, refreshToken }; //Oauth로그인이 이 token 이용
     };
 
     public async login(email: string, password: string): Promise<UserWithToken> {
@@ -71,10 +72,11 @@ export default class UserService {
         this.logger.silly('Password is valid');
         this.logger.silly('Generating JWT');
 
-        const token = this.jwt.generateToken(userRecord);
+        const accessToken = this.jwt.generateToken(userRecord);
+        const refreshToken = this.jwt.refreshToken(userRecord);
 
         const user = this.setUserForm(userRecord);
-        return { user, token };
+        return { user, accessToken, refreshToken };
 
     };
 
@@ -83,7 +85,7 @@ export default class UserService {
         if (!userRecord) {
             throw new Error('User not registered');
         };
-        
+
         Reflect.deleteProperty(userRecord, 'password');
         return userRecord
     };
@@ -91,7 +93,7 @@ export default class UserService {
     public async passwordChange(id: string, passwordChange: string): Promise<{ message: string }> {
         if (!passwordChange) {
             throw new Error('No Password');
-        }; 
+        };
 
         let userRecord = await this.userModel.findById(id);
         if (!userRecord) {
@@ -103,7 +105,7 @@ export default class UserService {
         return { message: 'Password Changed' };
     };
 
-    public async passwordValid(id: string, password: string):Promise<boolean> {
+    public async passwordValid(id: string, password: string): Promise<boolean> {
         if (password.length === 0) {
             throw new Error('Empty Password');
         };
@@ -129,14 +131,14 @@ export default class UserService {
         return userRecord;
     };
 
-    
+
     public async changeTempPassword(id: any): Promise<string> {
         const randomPassword = String(Math.round(Math.random() * 100000000));
 
-        let userRecord = await this.userModel.findById(id); 
+        let userRecord = await this.userModel.findById(id);
         userRecord.password = randomPassword;
 
-        
+
         const changePassword = await userRecord.save();
         if (changePassword.errors) {
             throw new Error('Change password fail');
@@ -158,6 +160,17 @@ export default class UserService {
             return await this.signup({ email: email, password: id }, oauthType)
         };
     };
+
+    public async refresh(refreshToken: string) {
+        const verifyToken = this.jwt.verifyToken(refreshToken);
+        if (!verifyToken) {
+            throw new Error('Token expire');
+        };
+        const userRecord = await this.userModel.findById(verifyToken['id']);
+        const accessToken = this.jwt.generateToken(userRecord);
+
+        return accessToken;
+    }
 
     protected setUserForm(userRecord: any): UserReturnForm {
         const userRecordCopy = { ...userRecord['_doc'] };

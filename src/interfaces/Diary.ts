@@ -1,24 +1,18 @@
-export interface DiaryContent {
+export interface Diary {
+    id: string;
+    userId: string;
     subject: string;
     content: string;
-};
-
-export interface DiaryDate {
     year: number;
     month: number;
     day: number;
-}
-type DiaryAndDate = DiaryContent & DiaryDate;
-
-export interface Diary extends DiaryAndDate {
-    id?: string;
-    userId: string;
 };
 
+export interface DiaryContent extends Pick<Diary, 'subject' | 'content'> {};
 
+export interface DiaryDate extends Pick<Diary, 'year' | 'month' | 'day'> {}
 
-export interface DiaryOutputForm extends DiaryContent {
-    id: string;
+export interface DiaryOutputForm extends Pick<Diary, 'id' | 'subject' | 'content'> {
     date: string;
 };
 

@@ -181,7 +181,41 @@ export default (app: Router) => {
         const userServiceInstance = createUserInstance();
         const result = await userServiceInstance.login(email, password);
 
-        return res.status(200).cookie('jwt', result.token).json({ user: result.user, token:result.token });
+        return res.status(200).json({ user: result.user, accessToken:result.accessToken, refreshToken:result.refreshToken });
+      } catch (error) {
+        logger.error('error: %o', error);
+        const errorMessage = error.message;
+        const badParametorErr = ["Bad email parametor", "Bad password parametor"]
+        if (badParametorErr.includes(errorMessage)) {
+          error.status = 400;
+          error.message = '잘못된 파라미터 값입니다.'
+          return next(error);
+        };
+        if (errorMessage === 'Invalid Password') {
+          error.status = 400;
+          error.message = '잘못된 비밀번호입니다.'
+          return next(error);
+        };
+        
+        if (errorMessage === 'User not registered') {
+          error.status = 404;
+          error.message = '등록된 유저가 없습니다.'
+          return next(error);
+        };
+        return next(error);
+      }
+    },
+  );
+
+  route.get(
+    '/refresh',
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const refreshToken = req.headers['x-refresh']
+        const userServiceInstance = createUserInstance();
+        const accessToken = await userServiceInstance.refresh(String(refreshToken));
+
+        return res.status(200).json({ accessToken });
       } catch (error) {
         logger.error('error: %o', error);
         const errorMessage = error.message;
@@ -380,9 +414,9 @@ export default (app: Router) => {
 
         const userServiceInstance = createUserInstance();
         
-        const { user, token } = await userServiceInstance.oauthLogin(kakaoOAuth.email, kakaoOAuth.password, signupType.KAKAO);
+        const { user, accessToken, refreshToken } = await userServiceInstance.oauthLogin(kakaoOAuth.email, kakaoOAuth.password, signupType.KAKAO);
 
-        return res.status(200).json({ user, token });
+        return res.status(200).json({ user, accessToken, refreshToken });
       } catch (err) {
         logger.error('error: %o', err);
         err.message = 'Kakao Oauth fail';
@@ -446,9 +480,9 @@ export default (app: Router) => {
         const googleOAuth = await authServiceInstance.googleOAuth(accessToken);
 
         const userServiceInstance = createUserInstance();
-        const { user, token } = await userServiceInstance.oauthLogin(googleOAuth.email, googleOAuth.password, signupType.GOOGLE);
+        const { user, accessToken: jwtAccessToken, refreshToken } = await userServiceInstance.oauthLogin(googleOAuth.email, googleOAuth.password, signupType.GOOGLE);
         
-        return res.status(200).json({ user, token });
+        return res.status(200).json({ user, accessToken:jwtAccessToken, refreshToken });
       } catch (err) {
         logger.error('error: %o', err);
         err.message = 'Google Oauth fail';

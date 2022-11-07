@@ -5,23 +5,37 @@ import config from "@/config";
 export default class JwtUtil {
     
     public generateToken(user:User):string {
-        const today = new Date();
-        const exp = new Date(today);
-        exp.setDate(today.getDate() + 60);
         const token = jwt.sign(
             {
                 id: user.id,
                 email: user.email,
                 role: user.role,
-                exp: exp.getTime() / 1000
             },
-            config.jwtSecret
+            config.jwtSecret,
+            {expiresIn:'1m'}
         );
         if(!token) {
             throw new Error('Token generate fail');
         }
         return token;
     };
+
+    public refreshToken (user:User) {
+        const today = new Date();
+        const exp = new Date(today);
+        exp.setDate(today.getDate() + 60);
+        const token = jwt.sign(
+            {
+                id: user.id,
+            },
+            config.jwtSecret,
+            {expiresIn:'1d'}
+        );
+        if(!token) {
+            throw new Error('Refresh token generate fail');
+        }
+        return token;
+    }
 
     public verifyToken(token:string) {
     
