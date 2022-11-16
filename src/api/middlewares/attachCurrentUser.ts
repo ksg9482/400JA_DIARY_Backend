@@ -9,7 +9,6 @@ const attachCurrentUser = async (req: AttachCurrentUserRequest, res: Response, n
         Bearer = 'Bearer'
     }
     
-    
     const getToken = (req: AttachCurrentUserRequest) => {
         const authorization = req.headers.authorization.split(' ');
         const type = authorization[0];
