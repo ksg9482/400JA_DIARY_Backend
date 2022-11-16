@@ -11,8 +11,8 @@ export default class JwtUtil {
                 email: user.email,
                 role: user.role,
             },
-            config.jwtSecret,
-            {expiresIn:'1m'}
+            config.jwtAccess,
+            {expiresIn:'10m'}
         );
         if(!token) {
             throw new Error('Token generate fail');
@@ -21,14 +21,11 @@ export default class JwtUtil {
     };
 
     public refreshToken (user:User) {
-        // const today = new Date();
-        // const exp = new Date(today);
-        // exp.setDate(today.getDate() + 60);
         const token = jwt.sign(
             {
                 id: user.id,
             },
-            config.jwtSecret,
+            config.jwtRefresh,
             {expiresIn:'1d'}
         );
         if(!token) {
@@ -39,7 +36,7 @@ export default class JwtUtil {
 
     public verifyToken(token:string) {
     
-        const verify = jwt.verify(token, config.jwtSecret);
+        const verify = jwt.verify(token, config.jwtAccess);
         if(!verify) {
             return 'Invalid Token';
         }

@@ -13,7 +13,9 @@ export default {
     databaseURL: process.env.MONGODB_URI,
     
     //jwt
-    jwtSecret: process.env.JWT_ACCESS,
+    jwtAccess: process.env.JWT_ACCESS,
+
+    jwtRefresh: process.env.JWT_REFRESH,
 
     //winston logger
     logs: {

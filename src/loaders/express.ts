@@ -24,7 +24,7 @@ export default ({app}:{app: express.Application}) => {
     app.use(
         cors(
         {
-            origin:'http://localhost:3000',
+            origin:config.frontendHost,
             credentials:true,
             methods:corsMethods
         }
