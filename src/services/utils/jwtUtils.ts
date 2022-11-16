@@ -21,9 +21,9 @@ export default class JwtUtil {
     };
 
     public refreshToken (user:User) {
-        const today = new Date();
-        const exp = new Date(today);
-        exp.setDate(today.getDate() + 60);
+        // const today = new Date();
+        // const exp = new Date(today);
+        // exp.setDate(today.getDate() + 60);
         const token = jwt.sign(
             {
                 id: user.id,
