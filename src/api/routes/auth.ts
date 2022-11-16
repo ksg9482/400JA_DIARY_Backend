@@ -181,7 +181,7 @@ export default (app: Router) => {
         const userServiceInstance = createUserInstance();
         const result = await userServiceInstance.login(email, password);
 
-        return res.status(200).cookie('refreshToken',result.refreshToken,cookieOption).json({ user: result.user, accessToken:result.accessToken, refreshToken:result.refreshToken });
+        return res.status(200).cookie('refreshToken',result.refreshToken,cookieOption).json({ user: result.user, accessToken:result.accessToken});
       } catch (error) {
         logger.error('error: %o', error);
         const errorMessage = error.message;
@@ -211,7 +211,7 @@ export default (app: Router) => {
     '/refresh',
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const refreshToken = req.headers['x-refresh']
+        const refreshToken = req.cookies.refreshToken
         const userServiceInstance = createUserInstance();
         const accessToken = await userServiceInstance.refresh(String(refreshToken));
 
@@ -416,7 +416,7 @@ export default (app: Router) => {
         
         const { user, accessToken, refreshToken } = await userServiceInstance.oauthLogin(kakaoOAuth.email, kakaoOAuth.password, signupType.KAKAO);
 
-        return res.status(200).json({ user, accessToken, refreshToken });
+        return res.status(200).cookie('refreshToken', refreshToken, cookieOption).json({ user, accessToken, refreshToken });
       } catch (err) {
         logger.error('error: %o', err);
         err.message = 'Kakao Oauth fail';
@@ -482,7 +482,7 @@ export default (app: Router) => {
         const userServiceInstance = createUserInstance();
         const { user, accessToken: jwtAccessToken, refreshToken } = await userServiceInstance.oauthLogin(googleOAuth.email, googleOAuth.password, signupType.GOOGLE);
         
-        return res.status(200).json({ user, accessToken:jwtAccessToken, refreshToken });
+        return res.status(200).cookie('refreshToken', refreshToken, cookieOption).json({ user, accessToken:jwtAccessToken, refreshToken });
       } catch (err) {
         logger.error('error: %o', err);
         err.message = 'Google Oauth fail';

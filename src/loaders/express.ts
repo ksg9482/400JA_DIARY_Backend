@@ -6,6 +6,7 @@ import swaggerOptions from '@/../swagger';
 import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
+import cookieParser from 'cookie-parser'
 export default ({app}:{app: express.Application}) => {
     //연결 확인용
     app.get('/status', (req, res) => {
@@ -16,6 +17,7 @@ export default ({app}:{app: express.Application}) => {
     });
 
     app.use(helmet())
+    app.use(cookieParser())
 
     const swaggerSpec = swaggerJSDoc(swaggerOptions);
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec,{explorer:true}));

@@ -162,7 +162,8 @@ export default class UserService {
     };
 
     public async refresh(refreshToken: string) {
-        const verifyToken = this.jwt.verifyToken(refreshToken);
+        const verifyToken = this.jwt.verifyRefreshToken(refreshToken);
+        
         if (!verifyToken) {
             throw new Error('Token expire');
         };

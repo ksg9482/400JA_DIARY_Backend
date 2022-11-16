@@ -21,7 +21,7 @@ const attachCurrentUser = async (req: AttachCurrentUserRequest, res: Response, n
         if(!getToken(req)){
             throw new Error('No Token');
         };
-
+        
         const verifyToken = jwt.prototype.verifyToken(getToken(req));
         
         const userRecord = await User.findById(verifyToken['id']);
@@ -40,9 +40,13 @@ const attachCurrentUser = async (req: AttachCurrentUserRequest, res: Response, n
         req.currentUser = currentUser;
         return next();
     } catch (error) {
+        if(req.url === '/refresh') {
+            return next();
+        };
+
         if(error.name === 'TokenExpiredError') {
             return res.status(403).json({error:"expire_token"})
-        }
+        };
         
         logger.error('Error attaching user to req: %o', error);
         return next(error);

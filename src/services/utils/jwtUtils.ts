@@ -43,5 +43,14 @@ export default class JwtUtil {
         return verify;
     };
 
+    public verifyRefreshToken(token:string) {
+    
+        const verify = jwt.verify(token, config.jwtRefresh);
+        if(!verify) {
+            return 'Invalid Token';
+        }
+        return verify;
+    };
+
 
 };
