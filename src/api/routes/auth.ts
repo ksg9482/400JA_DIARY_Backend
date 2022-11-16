@@ -12,7 +12,7 @@ const route = Router();
 
 const cookieOption: CookieOptions = {
   sameSite: 'none',
-  domain: 'netlify.app',
+  //domain: 'netlify.app',
   path: '/',
   secure: true,
   httpOnly: true,
@@ -181,7 +181,7 @@ export default (app: Router) => {
         const userServiceInstance = createUserInstance();
         const result = await userServiceInstance.login(email, password);
 
-        return res.status(200).json({ user: result.user, accessToken:result.accessToken, refreshToken:result.refreshToken });
+        return res.status(200).cookie('refreshToken',result.refreshToken,cookieOption).json({ user: result.user, accessToken:result.accessToken, refreshToken:result.refreshToken });
       } catch (error) {
         logger.error('error: %o', error);
         const errorMessage = error.message;
