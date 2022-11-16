@@ -178,7 +178,7 @@ export default (app: Router) => {
                 const diaryDelete = await diaryServiceInstance.deleteAllDiary(userId)
                 const result = await userServiceInstance.deleteUser(userId);
                 
-                return res.status(200).clearCookie('refreshToken').json('delete');
+                return res.status(200).clearCookie('refreshToken').json({message: 'delete'});
             } catch (error) {
                 return next(error);
             }
@@ -272,6 +272,6 @@ export default (app: Router) => {
     *                example: 'jwt=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT' 
     */
     route.get('/logout', async (req: AttachCurrentUserRequest, res: Response) => {
-        return res.clearCookie('jwt').clearCookie('refreshToken').json({ message: 'logout' })
+        return res.clearCookie('refreshToken').json({ message: 'logout' })
     })
 };
